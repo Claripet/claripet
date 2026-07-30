@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { Poppins, Caveat } from "next/font/google";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import "./globals.css";
 import { Providers } from "./Providers";
 import { SiteChrome } from "@/components/SiteChrome";
 import { FlyToCartProvider } from "@/context/FlyToCartContext";
 import { SITE_URL } from "@/lib/site";
 
-const Toast = dynamic(
+const Toast = nextDynamic(
   () => import("@/components/Toast").then((mod) => mod.Toast),
   { ssr: false },
 );
@@ -25,6 +25,16 @@ const caveat = Caveat({
   variable: "--font-caveat",
   display: "swap",
 });
+
+// AuthProvider (wrapped around every route via Providers below) memoizes a
+// Supabase browser client with `useMemo`, which runs even during Next's
+// build-time static-generation pass. That pass never has real secrets — by
+// design, secrets are a deploy/runtime concern — so any attempt to statically
+// prerender a page crashed the build the moment it rendered the root layout,
+// including pages with no Supabase dependency at all (e.g. /terms). Forcing
+// every route dynamic means nothing is prerendered at build time; the app is
+// SSR'd per-request instead, where the real secrets are always present.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
