@@ -1,0 +1,21 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"main": ".open-next/worker.js",
+	"name": "claripet",
+	"compatibility_date": "2026-07-30",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"images": {
+		// Enable Next.js Image Optimization via Cloudflare's built-in binding
+		// see https://opennext.js.org/cloudflare/howtos/image
+		"binding": "IMAGES"
+	}
+	// R2-backed incremental cache is intentionally not configured yet — it needs
+	// an R2 bucket created first (`wrangler r2 bucket create cache`) plus a
+	// self-reference service binding. Without it, ISR/data-cache entries just
+	// don't persist across requests, which is fine to start with.
+	// See https://opennext.js.org/cloudflare/caching to add it later.
+}

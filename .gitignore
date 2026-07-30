@@ -61,3 +61,9 @@ c.txt
 login-page.png
 signup-page.png
 *.sh
+
+# Cloudflare / OpenNext build output and local dev secrets
+/.open-next/
+/.wrangler/
+.dev.vars
+.dev.vars.*
