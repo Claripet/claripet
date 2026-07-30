@@ -31,10 +31,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <AuthShell
-        title="We've got you covered."
-        lead="Resetting your password is quick and secure — check your inbox to continue."
-      >
+      <AuthShell>
         <div className="center">
           <div className="auth-success-icon">
             <Icon name="check" size={36} strokeWidth={3} />
@@ -53,10 +50,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <AuthShell
-      title="Forgot your password?"
-      lead="No worries — it happens. Enter your email and we'll send you a link to set a new one."
-    >
+    <AuthShell>
       <div className="form-head">
         <h2 className="h2">Reset password</h2>
         <p className="muted">We&apos;ll email you a secure reset link</p>

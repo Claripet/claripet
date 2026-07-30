@@ -44,10 +44,7 @@ export default function ResetPasswordPage() {
 
   if (done) {
     return (
-      <AuthShell
-        title="All set!"
-        lead="Your password has been updated. You can now sign in with your new password."
-      >
+      <AuthShell>
         <div className="center">
           <div className="auth-success-icon">
             <Icon name="check" size={36} strokeWidth={3} />
@@ -70,10 +67,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <AuthShell
-      title="Set a new password."
-      lead="Choose a strong password you don't use anywhere else to keep your account safe."
-    >
+    <AuthShell>
       <div className="form-head">
         <h2 className="h2">New password</h2>
         <p className="muted">Enter and confirm your new password</p>

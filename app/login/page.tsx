@@ -70,15 +70,7 @@ function LoginForm() {
   const signupHref = `/signup${redirect !== "/" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`;
 
   return (
-    <AuthShell
-      title="Merawat hewan peliharaan seharusnya tidak terasa rumit."
-      lead="Sign in to track orders, save your favorite products, and let ClariPet help you care for them with ease."
-      bullets={[
-        "Pet Safe Formulations - Gentle and safe for pets",
-        "Premium Ingredients - Carefully selected for best results",
-        "Made in Indonesia - Proudly made locally with global standards",
-      ]}
-    >
+    <AuthShell>
       <div className="form-head">
         <h2 className="h2">Welcome back</h2>
         <p className="muted">Sign in to your ClariPet account</p>

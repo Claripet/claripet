@@ -66,10 +66,7 @@ function SignupForm() {
 
   if (success) {
     return (
-      <AuthShell
-        title="Welcome to the family."
-        lead="You're one step away from gentle, pet-safe care delivered to your door."
-      >
+      <AuthShell>
         <div className="center">
           <div className="auth-success-icon">
             <Icon name="check" size={36} strokeWidth={3} />
@@ -88,15 +85,7 @@ function SignupForm() {
   }
 
   return (
-    <AuthShell
-      title="Join the ClariPet family."
-      lead="Create an account for faster checkout, order tracking, and let ClariPet help you care for them with ease."
-      bullets={[
-        "Pet Safe Formulations - Gentle and safe for pets",
-        "Premium Ingredients - Carefully selected for best results",
-        "Made in Indonesia - Proudly made locally with global standards",
-      ]}
-    >
+    <AuthShell>
       <div className="form-head">
         <h2 className="h2">Create an account</h2>
         <p className="muted">Join the ClariPet family</p>
