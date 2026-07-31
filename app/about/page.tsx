@@ -5,7 +5,7 @@ import { Icon } from "@/components/icons";
 import { BannerDecor } from "@/components/BannerDecor";
 
 export const metadata: Metadata = {
-  title: "About Us | ClariPet",
+  title: "About Us",
   description:
     "Caring for pets is a journey filled with love, challenges, and countless little moments. ClariPet is here to make that journey easier.",
   alternates: { canonical: "/about" },

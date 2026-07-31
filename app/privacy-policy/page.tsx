@@ -2,7 +2,7 @@
 import { LegalView } from "@/components/legal/LegalView";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | ClariPet",
+  title: "Privacy Policy",
   description:
     "Kebijakan Privasi ClariPet. Bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi Anda.",
   alternates: { canonical: "/privacy-policy" },

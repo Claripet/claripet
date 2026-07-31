@@ -2,7 +2,7 @@
 import { LegalView } from "@/components/legal/LegalView";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | ClariPet",
+  title: "Terms & Conditions",
   description:
     "Syarat & Ketentuan penggunaan website dan layanan ClariPet.",
   alternates: { canonical: "/terms" },

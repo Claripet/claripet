@@ -2,7 +2,7 @@
 import { LegalView } from "@/components/legal/LegalView";
 
 export const metadata: Metadata = {
-  title: "Shipping Policy | ClariPet",
+  title: "Shipping Policy",
   description: "Kebijakan Pengiriman ClariPet.",
   alternates: { canonical: "/shipping" },
   robots: {

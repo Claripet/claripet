@@ -2,7 +2,7 @@
 import { LegalView } from "@/components/legal/LegalView";
 
 export const metadata: Metadata = {
-  title: "Return & Refund Policy | ClariPet",
+  title: "Return & Refund Policy",
   description: "Kebijakan Pengembalian dan Pengembalian Dana ClariPet.",
   alternates: { canonical: "/returns" },
   robots: {
