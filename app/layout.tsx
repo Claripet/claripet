@@ -39,31 +39,31 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "ClariPetAr | Premium Pet Care",
-    template: "%s | ClariPetAr",
+    default: "ClariPet | Premium Pet Care",
+    template: "%s | ClariPet",
   },
   description:
-    "Safe. Gentle. Effective. Premium, pet-safe care made with love in Indonesia.",
+    "ClariPet is an online store for premium pet care products for cats and dogs — grooming sprays, perfumes, skin and coat care, dental drops and odour removers. Create an account to track orders, save favourites and manage your pet profiles. Safe, gentle and effective, made with love in Indonesia.",
   openGraph: {
     title: {
-      default: "ClariPetAr | Premium Pet Care",
-      template: "%s | ClariPetAr",
+      default: "ClariPet | Premium Pet Care",
+      template: "%s | ClariPet",
     },
     description:
-      "Safe. Gentle. Effective. Premium, pet-safe care made with love in Indonesia.",
-    siteName: "ClariPetAr",
+      "ClariPet is an online store for premium pet care products for cats and dogs — grooming sprays, perfumes, skin and coat care, dental drops and odour removers. Create an account to track orders, save favourites and manage your pet profiles. Safe, gentle and effective, made with love in Indonesia.",
+    siteName: "ClariPet",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: {
-      default: "ClariPetAr | Premium Pet Care",
-      template: "%s | ClariPetAr",
+      default: "ClariPet | Premium Pet Care",
+      template: "%s | ClariPet",
     },
     description:
-      "Safe. Gentle. Effective. Premium, pet-safe care made with love in Indonesia.",
-    creator: "@ClariPetAr",
+      "ClariPet is an online store for premium pet care products for cats and dogs — grooming sprays, perfumes, skin and coat care, dental drops and odour removers. Create an account to track orders, save favourites and manage your pet profiles. Safe, gentle and effective, made with love in Indonesia.",
+    creator: "@ClariPet",
   },
   robots: {
     index: true,
