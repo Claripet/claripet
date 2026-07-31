@@ -31,6 +31,14 @@ export function Hero() {
             Helping You<br />
             Help Them.<span className="hero-title-accent">♡</span>
           </h2>
+          {/* Visible, English statement of what this site is. Google's OAuth
+              brand review requires the home page to explain the app's purpose,
+              and a reviewer who does not read the Indonesian copy below would
+              otherwise see only the slogan above. Keep this in sync with the
+              sr-only h1 and the metadata description. */}
+          <p className="hero-purpose hero-mobile-hide">
+            ClariPet is an online shop for premium grooming, hygiene and health products for cats and dogs.
+          </p>
           <p className="lead hero-sub hero-mobile-hide">
             Perawatan hewan peliharaan yang lembut dan efektif untuk memudahkan rutinitas grooming, menjaga kesehatan, dan mempererat ikatan setiap hari.
           </p>
@@ -136,6 +144,16 @@ export function Hero() {
         .hero-title-accent { color: #8eb6dc; }
         .h-display.hero-title { font-size: clamp(2.2rem, 8vw, 3rem); }
 
+        /* ---------- Purpose line (English) ---------- */
+        .hero-purpose {
+          color: var(--navy);
+          max-width: 480px;
+          font-weight: 600;
+          font-size: 0.98rem;
+          line-height: 1.5;
+          margin: 0 0 10px;
+        }
+
         /* ---------- Subtext ---------- */
         .hero-sub { color: var(--navy); max-width: 480px; opacity: 0.88; font-size: 0.92rem; line-height: 1.55; margin: 0; }
 
@@ -221,6 +239,7 @@ export function Hero() {
           .hero-media { width: 88%; }
           .hero-eyebrow { font-size: 0.74rem; padding: 7px 13px; margin-bottom: 20px; }
           .h-display.hero-title { font-size: clamp(2.8rem, 4.2vw, 4rem); }
+          .hero-purpose { font-size: 1.05rem; max-width: 520px; margin-bottom: 12px; }
           .hero-sub { font-size: 1.05rem; max-width: 520px; }
           .hero-actions { flex-direction: row; gap: 14px; margin-top: 28px; }
           .hero-action-link { width: auto; }
