@@ -150,10 +150,16 @@ export function Hero() {
 
         /* ---------- Mobile: full-bg image, minimal copy pinned to bottom ---------- */
         @media (max-width: 767px) {
+          /* Was a full 100vh-minus-nav panel, so the phone opened on nothing
+             but hero with no hint that content continued below the fold. A
+             fixed band shows the photo whole and still lets the next section
+             peek, so the page reads as scrollable. */
           .hero-inner {
             display: block;
             padding: 0;
-            min-height: calc(100vh - var(--nav-h, 76px));
+            height: 76vw;
+            min-height: 320px;
+            max-height: 440px;
             position: relative;
           }
           .hero-media {
@@ -183,26 +189,28 @@ export function Hero() {
             z-index: 1;
             pointer-events: none;
           }
+          /* The hero no longer fills the viewport, so it no longer needs to
+             reserve room for the fixed .bottom-nav — that bar now sits over
+             whatever has scrolled to the bottom of the screen, not over this
+             panel. Reserving 72px here would just be dead space. */
           .hero-copy {
             position: absolute;
             left: 0; right: 0; bottom: 0;
             z-index: 2;
             max-width: none;
-            /* Clear the fixed .bottom-nav (61px), which otherwise covers the
-               lower third of the Shop Products button. */
-            padding: 0 24px calc(72px + env(safe-area-inset-bottom));
-            padding-top: 40px;
+            padding: 24px 16px 18px;
           }
           .hero-mobile-hide { display: none !important; }
           .hero-title {
-            font-size: clamp(2.1rem, 9vw, 2.9rem) !important;
-            margin-bottom: 14px !important;
+            font-size: 26px !important;
+            line-height: 1.15 !important;
+            margin-bottom: 10px !important;
             text-shadow: 0 2px 24px rgba(255,255,255,0.6);
           }
           .hero-actions {
             flex-direction: row !important;
-            gap: 12px;
-            margin-top: 18px !important;
+            gap: 10px;
+            margin-top: 14px !important;
           }
           .hero-action-link { width: auto; flex: 1; }
         }
@@ -231,7 +239,8 @@ export function Hero() {
         /* ---------- Small phones ---------- */
         @media (max-width: 380px) {
           .hero-eyebrow { font-size: 0.62rem; padding: 5px 10px; }
-          .h-display.hero-title { font-size: 2rem; }
+          /* Matches the !important on the ≤767 rule it has to override. */
+          .h-display.hero-title { font-size: 23px !important; }
           .hero-sub { font-size: 0.86rem; }
         }
         `

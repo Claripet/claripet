@@ -123,56 +123,51 @@ export function JournalView({
       </section>
 
 
-      {/* ===== Category filter strip — overlaps hero bottom ===== */}
-      <section className="wrap" style={{ paddingTop: 0 }}>
-        <div
-          className="bg-offwhite rounded-2xl shadow-md relative z-10 p-6 md:p-8"
-          style={{ marginTop: -32 }}
-        >
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-6">
-            {categories.map((cat, i) => {
-              const s = styleForCategory(cat, i);
-              const active = filter === cat;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setFilter(cat)}
-                  aria-pressed={active}
-                  className="group flex flex-col items-center gap-2 text-center focus:outline-none"
+      {/* ===== Category filter strip ===== */}
+      <section className="wrap journal-cats">
+        <div className="journal-cat-strip flex flex-wrap justify-center gap-x-8 gap-y-6">
+          {categories.map((cat, i) => {
+            const s = styleForCategory(cat, i);
+            const active = filter === cat;
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setFilter(cat)}
+                aria-pressed={active}
+                className="group flex flex-col items-center gap-2 text-center focus:outline-none"
+              >
+                <span
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 ${
+                    active ? "ring-2 ring-navy/30" : ""
+                  } ${s.bg}`}
                 >
-                  <span
-                    className={`w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-105 ${
-                      active ? "ring-2 ring-navy/30" : ""
-                    } ${s.bg}`}
-                  >
-                    <Icon
-                      name={s.icon}
-                      size={20}
-                      className={s.iconColor}
-                      strokeWidth={2}
-                    />
-                  </span>
-                  <span
-                    className={
-                      "text-[13px] leading-tight " +
-                      (active
-                        ? "text-navy font-bold underline underline-offset-4 decoration-navy/60"
-                        : "text-[#5A6072] font-medium")
-                    }
-                  >
-                    {cat}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                  <Icon
+                    name={s.icon}
+                    size={20}
+                    className={s.iconColor}
+                    strokeWidth={2}
+                  />
+                </span>
+                <span
+                  className={
+                    "text-[13px] leading-tight " +
+                    (active
+                      ? "text-navy font-bold underline underline-offset-4 decoration-navy/60"
+                      : "text-[#5A6072] font-medium")
+                  }
+                >
+                  {cat}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
       {/* ===== Featured Article ===== */}
       {showFeatured && featured && (
-        <section className="wrap" style={{ paddingTop: 56 }}>
+        <section className="wrap journal-sec">
           <div className="flex items-center gap-2 mb-4 text-[#8A90A0]">
             <Icon name="star" size={16} className="text-cream" />
             <span className="text-[12px] font-semibold tracking-wide uppercase">
@@ -253,7 +248,7 @@ export function JournalView({
       )}
 
       {/* ===== Latest Articles ===== */}
-      <section className="wrap" style={{ paddingTop: 56 }}>
+      <section className="wrap journal-sec">
         <div className="flex items-end justify-between gap-4 mb-6">
           <h2 className="text-navy font-bold text-[15px] tracking-wide uppercase">
             Latest Articles
@@ -281,7 +276,7 @@ export function JournalView({
       </section>
 
       {/* ===== Popular Articles ===== */}
-      <section className="wrap" style={{ paddingTop: 56 }}>
+      <section className="wrap journal-sec">
         <div className="flex items-end justify-between gap-4 mb-6">
           <h2 className="text-navy font-bold text-[15px] tracking-wide uppercase">
             Popular Articles
@@ -309,7 +304,7 @@ export function JournalView({
       </section>
 
       {/* ===== Newsletter signup band ===== */}
-      <section className="wrap" style={{ paddingTop: 56, paddingBottom: 80 }}>
+      <section className="wrap journal-sec journal-sec-last">
         <NewsletterSignup />
       </section>
     </main>

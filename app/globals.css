@@ -803,9 +803,28 @@ select:focus-visible {
   flex-direction: column;
 }
 .prod-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-pop); }
+/* White, not tinted: the product photos are shot on white, so a tinted panel
+   would frame each one as a visible white rectangle whose edges land in a
+   different place per photo. On white the letterboxing disappears and every
+   bottle reads as sitting on the same surface. */
 .prod-media {
   position: relative;
   aspect-ratio: 1 / 1;
+  background: #fff;
+  overflow: hidden;
+}
+/* Percentage padding keeps the inset proportional to the card, so products
+   hold the same relative scale at every breakpoint. */
+.prod-media-img {
+  object-fit: contain;
+  padding: 8%;
+}
+.prod-media-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--mist);
 }
 .prod-tag {
@@ -911,15 +930,14 @@ select:focus-visible {
    =========================================================== */
 .quiz-cta {
   position: relative;
-  background: linear-gradient(120deg, var(--lavender-50), var(--sky-50));
+  background: var(--offwhite);
   border-radius: var(--r-xl);
   padding: 56px;
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1.15fr;
   gap: 40px;
   align-items: center;
   overflow: hidden;
-  border: 1px solid var(--line-soft);
 }
 .quiz-cta h2 { margin-bottom: 14px; }
 .quiz-cta .lead { margin-bottom: 26px; }
@@ -927,7 +945,6 @@ select:focus-visible {
   aspect-ratio: 4 / 3;
   border-radius: var(--r-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
 }
 
 /* ===========================================================
@@ -1008,11 +1025,15 @@ select:focus-visible {
 .page-head .lead { margin: 0 auto; }
 .breadcrumb {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
   font-size: 14px;
   color: var(--text-soft);
-  padding: 24px 0 0;
+  /* Carries the gutter itself. This element is `.breadcrumb .wrap`, and the
+     shorthand here lands after `.wrap` in the cascade — a `0` horizontal value
+     would cancel `.wrap`'s gutter and pin the first crumb to the screen edge. */
+  padding: 24px var(--wrap-pad) 0;
 }
 .breadcrumb a:hover { color: var(--navy); }
 .breadcrumb .sep { color: var(--text-faint); }
@@ -2574,8 +2595,7 @@ select:focus-visible {
   justify-content: space-between;
   gap: 28px;
   flex-wrap: wrap;
-  background: linear-gradient(120deg, var(--lavender-50), var(--sky-50));
-  border: 1px solid var(--line-soft);
+  background: var(--offwhite);
   border-radius: var(--r-xl);
   padding: 44px;
 }
@@ -2771,12 +2791,12 @@ select:focus-visible {
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr 1.15fr;
   gap: 32px;
   align-items: center;
+  background: var(--offwhite);
   border-radius: var(--r-xl);
   padding: 48px;
-  border: 1px solid var(--line-soft);
   margin-top: 8px;
 }
 
@@ -2794,11 +2814,7 @@ select:focus-visible {
 .collection-banner.has-art .deco-heart { top: 22px; left: 34%; }
 .collection-banner.has-art .deco-sparkle { bottom: 16px; left: 50%; }
 .collection-banner.has-art .deco-trail { bottom: 12px; left: 34%; }
-.collection-banner-media { position: relative; aspect-ratio: 16/10; border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-md); }
-/* Categories with no banner artwork fall back to their illustrated card, which
-   carries its own rounded background — so it floats on the banner tint rather
-   than sitting in a second shadowed frame. */
-.collection-banner-media.is-contain { box-shadow: none; }
+.collection-banner-media { position: relative; aspect-ratio: 16/10; border-radius: var(--r-lg); overflow: hidden; }
 
 /* Categories that do have banner artwork drop the two-column split entirely:
    the transparent PNG bleeds across the whole banner and the copy sits over
@@ -2906,8 +2922,7 @@ select:focus-visible {
   display: block;
   overflow: hidden;
   min-height: 280px;
-  background: linear-gradient(120deg, var(--sky-50), var(--lavender-50));
-  border: 1px solid var(--line-soft);
+  background: var(--offwhite);
   border-radius: var(--r-xl);
   padding: 48px;
 }
@@ -2918,11 +2933,11 @@ select:focus-visible {
    height — they sit on the panel edge the way the artwork was cropped. */
 .shop-banner-art {
   position: absolute;
-  right: 5%;
+  right: 3%;
   bottom: 0;
   top: auto;
   left: auto;
-  height: 88%;
+  height: 102%;
   aspect-ratio: 377 / 440;
   z-index: 1;
   pointer-events: none;
@@ -2967,11 +2982,10 @@ select:focus-visible {
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
   gap: 36px;
   align-items: center;
-  background: linear-gradient(120deg, var(--sky-50), var(--lavender-50));
-  border: 1px solid var(--line-soft);
+  background: var(--offwhite);
   border-radius: var(--r-xl);
   padding: 44px 48px;
 }
@@ -3039,12 +3053,11 @@ select:focus-visible {
 .shop-hero-banner {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
   gap: 28px;
   align-items: center;
   overflow: hidden;
-  background: linear-gradient(120deg, var(--sky-50), var(--lavender-50));
-  border: 1px solid var(--line-soft);
+  background: var(--offwhite);
   border-radius: var(--r-xl);
   padding: 44px 48px;
 }
@@ -3607,4 +3620,120 @@ select:focus-visible {
   body:has(.pdp-sticky-bar) { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
   body:has(.checkout-sticky-pay) { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
   body:has(.mobile-cart-bar) { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+}
+
+/* Journal section rhythm. These were inline styles on the sections, which no
+   media query could reach — so the phone kept the desktop 56/80px spacing. */
+.journal-cats { padding-top: 40px; }
+.journal-sec { padding-top: 56px; }
+.journal-sec-last { padding-bottom: 80px; }
+
+/* ===========================================================
+   PHONE LAYOUT (≤767px) — static scale
+   -----------------------------------------------------------
+   The global type scale is fluid: clamp(min, vw, max). On a phone
+   the vw term is always the smallest of the three, so every heading
+   renders at its clamp *minimum* — and those minimums were chosen
+   for tablet/desktop (h1 bottoms out at 32px, h-display at 38px).
+   That is why headings read oversized on a 390px screen: they are
+   not scaling down, they are sitting on a desktop-sized floor.
+
+   So phones get a fixed px scale rather than a fluid one, and the
+   surrounding rhythm (section padding, panel padding, controls) is
+   retuned to match. This block is last in the file on purpose: it
+   must win over the earlier 860px/560px blocks, which it overlaps.
+   =========================================================== */
+@media (max-width: 767px) {
+  :root {
+    --wrap-pad: 16px;
+    /* 32px corners read as bulbous once a panel is only ~358px wide */
+    --r-xl: 22px;
+    --r-lg: 18px;
+  }
+
+  /* ---------- Type: static, not fluid ---------- */
+  body { font-size: 15px; }
+  .h-display { font-size: 28px; line-height: 1.15; }
+  .h1 { font-size: 24px; line-height: 1.2; }
+  .h2 { font-size: 20px; line-height: 1.25; }
+  .h3 { font-size: 17px; line-height: 1.3; }
+  .lead { font-size: 14.5px; line-height: 1.6; max-width: none; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.06em; }
+
+  /* ---------- Vertical rhythm ---------- */
+  .section { padding: 40px 0; }
+  .section-sm { padding: 28px 0; }
+  .sec-head { margin-bottom: 20px; gap: 12px; align-items: center; }
+  .sec-head .link { font-size: 13px; }
+  .page-head { padding: 28px 0 20px; }
+  .reviews-hero { padding: 28px 0 8px; }
+  .footer { padding: 40px 0 0; margin-top: 24px; }
+  .empty-state { padding: 48px 16px; }
+
+  /* ---------- Controls ---------- */
+  .btn { font-size: 14px; padding: 12px 20px; }
+  .btn-lg { font-size: 14px; padding: 13px 22px; }
+  .btn-sm { font-size: 13px; padding: 9px 16px; }
+  .pill { font-size: 13px; padding: 8px 14px; }
+  .tag { font-size: 11px; padding: 5px 10px; }
+
+  /* ---------- Panels: one shared phone inset ----------
+     These all carried a 44-56px desktop inset, which on a phone eats
+     roughly a third of the screen width before any content starts. */
+  .page-banner,
+  .shop-hero-banner,
+  .shop-banner,
+  .collection-banner,
+  .quiz-cta,
+  .faq-cta,
+  .quiz-card,
+  .modal,
+  .made-in,
+  .about-promise,
+  .contact-form-wrap {
+    padding: 24px 18px;
+    gap: 18px;
+  }
+  .why { padding: 28px 18px; }
+  .trust { padding: 18px; gap: 14px; }
+  .trust-ic { width: 42px; height: 42px; }
+  .trust-ic svg { width: 20px; height: 20px; }
+  .trust-item { gap: 11px; }
+  .trust-item .t { font-size: 14px; }
+  .trust-item .s { font-size: 12px; }
+
+  /* Banner artwork: the decorative marks are scattered against desktop
+     free space that no longer exists once the panel is single-column. */
+  .banner-deco { display: none; }
+
+  /* ---------- Cards ---------- */
+  .cat-card-fallback { font-size: 16px; }
+  .summary-row.total { font-size: 17px; }
+
+  /* ---------- Journal ---------- */
+  .journal-cats { padding-top: 24px; }
+  .journal-sec { padding-top: 32px; }
+  .journal-sec-last { padding-bottom: 40px; }
+  /* Six categories in a centred flex row wrap 4+2, leaving an orphan pair.
+     A 3-column grid splits them evenly instead. */
+  .journal-cat-strip {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 8px !important;
+  }
+
+  /* Peek-carousel cards: 260px showed barely 1.4 cards on a 390px screen. */
+  .prod-grid > * { min-width: 200px; }
+
+  /* PDP sticky bar: price + stepper + CTA have to share ~358px. At the desktop
+     sizes the CTA was squeezed until "Add to Cart" broke onto two lines. */
+  .pdp-price { font-size: 22px; }
+  .pdp-sticky-price { font-size: 16px; }
+  .qstep button { width: 38px; height: 44px; font-size: 17px; }
+  .qstep .qval { width: 30px; }
+  .pdp-sticky-bar .btn-lg {
+    white-space: nowrap;
+    padding: 12px 14px;
+    font-size: 14px;
+  }
 }

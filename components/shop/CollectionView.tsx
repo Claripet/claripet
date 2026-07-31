@@ -106,7 +106,6 @@ export function CollectionView({
           className={
             "collection-banner " + category.tone + (banner?.fullBleed ? " has-art" : "")
           }
-          style={{ background: `var(--${category.tone}-50)` }}
         >
           <div className="collection-banner-copy">
             <div className="eyebrow" style={{ marginBottom: 12 }}>Collection</div>
