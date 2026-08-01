@@ -72,10 +72,10 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-bar">
-          <span>Â© {new Date().getFullYear()} ClariPet. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} ClariPet. All rights reserved.</span>
           <span className="footer-legal">
             <Link href="/privacy-policy">Kebijakan Privasi</Link>
-            <span className="sep">Â·</span>
+            <span className="sep">&middot;</span>
             <Link href="/terms">Syarat & Ketentuan</Link>
           </span>
         </div>

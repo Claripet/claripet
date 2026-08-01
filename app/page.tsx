@@ -1,6 +1,9 @@
 ﻿import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Hero } from "@/components/home/Hero";
+// Statically imported, unlike the sections below: Google's OAuth brand review
+// reads the server-rendered HTML, so the purpose copy must not be code-split.
+import { WhatIsClariPet } from "@/components/home/WhatIsClariPet";
 import { SITE_URL } from "@/lib/site";
 
 const ShopByCategory = dynamic(() =>
@@ -67,6 +70,7 @@ export default function HomePage() {
       />
       <main>
         <Hero />
+        <WhatIsClariPet />
         <ShopByCategory />
         <PetParentFavorites />
         <WhyChoose />
