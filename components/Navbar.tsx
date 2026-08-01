@@ -33,10 +33,12 @@ export function Navbar() {
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState(false);
   const [account, setAccount] = useState(false);
+  const [profile, setProfile] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
+  const profileRef = useRef<HTMLDivElement | null>(null);
   const shopRef = useRef<HTMLDivElement | null>(null);
   const shopCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -47,6 +49,7 @@ export function Navbar() {
   useEffect(() => {
     setMenu(false);
     setAccount(false);
+    setProfile(false);
     setShopOpen(false);
   }, [pathname]);
 
@@ -64,6 +67,9 @@ export function Navbar() {
       if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
         setAccount(false);
       }
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfile(false);
+      }
       if (shopRef.current && !shopRef.current.contains(e.target as Node)) {
         setShopOpen(false);
       }
@@ -72,6 +78,7 @@ export function Navbar() {
       if (e.key === "Escape") {
         setMenu(false);
         setAccount(false);
+        setProfile(false);
         setShopOpen(false);
         setSearch(false);
       }
@@ -98,6 +105,7 @@ export function Navbar() {
   const handleSignOut = async () => {
     await signOut();
     setAccount(false);
+    setProfile(false);
     router.push("/");
     router.refresh();
   };
@@ -106,7 +114,7 @@ export function Navbar() {
     pathname === href || (href !== "/" && pathname.startsWith(href));
 
   useEffect(() => {
-    if (menu || search) {
+    if (menu || search || profile) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -114,7 +122,7 @@ export function Navbar() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [menu, search]);
+  }, [menu, search, profile]);
 
   return (
     <header className={"nav" + (scrolled ? " scrolled" : "") + (menu ? " menu-open" : "")}>
@@ -245,6 +253,14 @@ export function Navbar() {
               {count > 0 && <span className="cart-badge">{count}</span>}
             </Link>
             <button
+              className="icon-btn mobile-only"
+              aria-label="Account"
+              aria-expanded={profile}
+              onClick={() => setProfile(true)}
+            >
+              <Icon name="user" size={21} />
+            </button>
+            <button
               className="icon-btn hamburger mobile-only"
               aria-label="Menu"
               aria-expanded={menu}
@@ -273,17 +289,6 @@ export function Navbar() {
               </button>
             </div>
             <div className="panel-content">
-              {user && (
-                <div className="mobile-account-head">
-                  <div className="mobile-account-avatar">
-                    <Icon name="user" size={22} />
-                  </div>
-                  <div>
-                    <div className="mobile-account-name">{user.profile?.full_name || "Account"}</div>
-                    <div className="mobile-account-email">{user.email}</div>
-                  </div>
-                </div>
-              )}
               <div className="mobile-nav-section-label">Browse</div>
               {NAV_ITEMS.map((n) => (
                 <Link key={n.href} href={n.href} className="mobile-nav-link" onClick={() => setMenu(false)}>
@@ -291,27 +296,62 @@ export function Navbar() {
                   <Icon name="arrowRight" size={17} />
                 </Link>
               ))}
-              <div className="mobile-nav-sep" />
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
+
+      {mounted && createPortal(
+        <div
+          id="mobile-profile"
+          className={"mobile-menu mobile-profile" + (profile ? " open" : "")}
+          aria-hidden={!profile}
+          ref={profileRef}
+        >
+          <div className="scrim" onClick={() => setProfile(false)} />
+          <div className="panel" role="dialog" aria-modal="true" aria-label="Account">
+            <div className="panel-header">
+              <div className="profile-title">Account</div>
+              <button
+                className="icon-btn"
+                aria-label="Close account menu"
+                onClick={() => setProfile(false)}
+              >
+                <Icon name="close" size={22} />
+              </button>
+            </div>
+            <div className="panel-content">
               {user ? (
                 <>
+                  <div className="mobile-account-head">
+                    <div className="mobile-account-avatar">
+                      <Icon name="user" size={22} />
+                    </div>
+                    <div>
+                      <div className="mobile-account-name">{user.profile?.full_name || "Account"}</div>
+                      <div className="mobile-account-email">{user.email}</div>
+                    </div>
+                  </div>
+                  <div className="mobile-nav-sep" />
                   <div className="mobile-nav-section-label">Account</div>
-                  <Link href="/account" className="mobile-nav-link" onClick={() => setMenu(false)}>
+                  <Link href="/account" className="mobile-nav-link" onClick={() => setProfile(false)}>
                     <Icon name="user" size={19} /> Profile
                   </Link>
-                  <Link href="/account/orders" className="mobile-nav-link" onClick={() => setMenu(false)}>
+                  <Link href="/account/orders" className="mobile-nav-link" onClick={() => setProfile(false)}>
                     <Icon name="package" size={19} /> My Orders
                   </Link>
-                  <Link href="/account/saved" className="mobile-nav-link" onClick={() => setMenu(false)}>
+                  <Link href="/account/saved" className="mobile-nav-link" onClick={() => setProfile(false)}>
                     <Icon name="heart" size={19} /> Saved Items
                   </Link>
-                  <Link href="/account/pets" className="mobile-nav-link" onClick={() => setMenu(false)}>
+                  <Link href="/account/pets" className="mobile-nav-link" onClick={() => setProfile(false)}>
                     <Icon name="paw" size={19} /> My Pets
                   </Link>
-                  <Link href="/account/addresses" className="mobile-nav-link" onClick={() => setMenu(false)}>
+                  <Link href="/account/addresses" className="mobile-nav-link" onClick={() => setProfile(false)}>
                     <Icon name="pinned" size={19} /> Addresses
                   </Link>
                   {user.profile?.role === "admin" && (
-                    <Link href="/admin" className="mobile-nav-link" onClick={() => setMenu(false)}>
+                    <Link href="/admin" className="mobile-nav-link" onClick={() => setProfile(false)}>
                       <Icon name="dashboard" size={19} /> Admin Dashboard
                     </Link>
                   )}
@@ -324,10 +364,10 @@ export function Navbar() {
                 </>
               ) : (
                 <div className="mobile-auth-actions">
-                  <Link href="/login" className="btn btn-outline" onClick={() => setMenu(false)} style={{ width: '100%', textAlign: 'center', padding: '14px' }}>
+                  <Link href="/login" className="btn btn-outline" onClick={() => setProfile(false)} style={{ width: '100%', textAlign: 'center', padding: '14px' }}>
                     Sign In
                   </Link>
-                  <Link href="/signup" className="btn btn-primary" onClick={() => setMenu(false)} style={{ width: '100%', textAlign: 'center', padding: '14px' }}>
+                  <Link href="/signup" className="btn btn-primary" onClick={() => setProfile(false)} style={{ width: '100%', textAlign: 'center', padding: '14px' }}>
                     Create Account
                   </Link>
                 </div>

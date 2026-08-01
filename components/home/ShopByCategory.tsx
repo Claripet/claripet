@@ -5,7 +5,7 @@ import { CategoryCard } from "@/components/CategoryCard";
 
 export function ShopByCategory() {
   return (
-    <section className="section">
+    <section className="section shop-cat-wide" style={{ margin: "0 auto" }}>
       <div className="wrap">
         <div className="sec-head reveal">
           <div>

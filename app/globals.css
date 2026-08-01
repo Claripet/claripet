@@ -611,6 +611,11 @@ select:focus-visible {
   min-height: 44px;
   min-width: 44px;
 }
+.mobile-menu .profile-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+}
 
 /* ===========================================================
    SEARCH OVERLAY
@@ -3507,7 +3512,7 @@ select:focus-visible {
   gap: 16px;
 }
 
-/* Shop page "Shop by Category": six across, but allowed past the 1200px wrap so
+/* Shop page and Home page "Shop by Category": six across, but allowed past the standard 1200px wrap so
    the cards stay a usable size — at the standard width six columns would leave
    them ~177px, well under the 260px they get in the 3-up grid. */
 .shop-cat-wide {
@@ -3519,6 +3524,10 @@ select:focus-visible {
 }
 .shop-cat-wide .cat-card {
   max-width: none; /* the 6-col track is the constraint, not this cap */
+}
+.shop-cat-wide .wrap {
+  max-width: none;
+  padding-inline: 0;
 }
 
 /* ===========================================================
