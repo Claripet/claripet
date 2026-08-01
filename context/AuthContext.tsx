@@ -37,6 +37,18 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/**
+ * Origin used to build auth redirect URLs.
+ *
+ * Prefers the live browser origin so localhost, preview deployments and
+ * production each return to themselves; falls back to the configured site URL
+ * when there is no window (SSR).
+ */
+function authOrigin(): string {
+  if (typeof window !== "undefined") return window.location.origin;
+  return process.env.NEXT_PUBLIC_SITE_URL ?? "";
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -112,7 +124,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName } },
+        options: {
+          data: { full_name: fullName },
+          // Confirmation links must land on the callback route so the session
+          // is exchanged; without this Supabase uses the project Site URL and
+          // the code arrives on a page that cannot consume it.
+          emailRedirectTo: `${authOrigin()}/api/auth/callback?next=%2F`,
+        },
       });
       if (error) return { error: error.message };
       return { error: null };
@@ -139,12 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(
     async (redirectPath = "/") => {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const next = encodeURIComponent(redirectPath);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${origin}/api/auth/callback?next=${next}`,
+          redirectTo: `${authOrigin()}/api/auth/callback?next=${next}`,
           queryParams: { access_type: "offline", prompt: "consent" },
         },
       });
@@ -156,8 +173,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const requestPasswordReset = useCallback(
     async (email: string) => {
-      const redirectTo =
-        typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+      // Route recovery links through the callback too — the reset link carries
+      // a PKCE code that has to be exchanged before /reset-password can call
+      // updateUser().
+      const redirectTo = `${authOrigin()}/api/auth/callback?next=%2Freset-password`;
       const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
       if (error) return { error: error.message };
       return { error: null };

@@ -24,12 +24,15 @@ function LoginForm() {
     "/"
   );
   const alertType = searchParams.get("alert");
+  // The auth callback redirects here with ?error=<reason> when a Google or
+  // email-link sign-in could not be completed.
+  const callbackError = searchParams.get("error");
   const { user, loading: authLoading, signIn } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(callbackError);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

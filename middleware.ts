@@ -6,11 +6,56 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const IS_CONFIGURED =
   SUPABASE_URL.length > 10 && !SUPABASE_URL.includes("placeholder");
 
-export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+const PROTECTED_PATHS = ["/account", "/admin"];
+const CALLBACK_PATH = "/api/auth/callback";
 
+/**
+ * True when this request is an OAuth / email-link landing carrying a PKCE code.
+ *
+ * Supabase falls back to the project's Site URL when the `redirectTo` we asked
+ * for is not in the dashboard allow-list, so the code can arrive on ANY path
+ * (typically `/?code=...`) instead of our callback route. We detect that here
+ * and forward it so the session is still exchanged.
+ *
+ * The PKCE verifier cookie is required as corroboration: `?code=` is also a
+ * plausible query name for coupons/discounts, and we must not hijack those.
+ */
+function isStrayAuthCode(request: NextRequest): boolean {
+  if (!request.nextUrl.searchParams.has("code")) return false;
+  if (request.nextUrl.pathname === CALLBACK_PATH) return false;
+  return request.cookies
+    .getAll()
+    .some((c) => c.name.endsWith("-auth-token-code-verifier"));
+}
+
+export async function middleware(request: NextRequest) {
   // If Supabase is not configured, pass through
-  if (!IS_CONFIGURED) return supabaseResponse;
+  if (!IS_CONFIGURED) return NextResponse.next({ request });
+
+  // 1. Rescue a stray auth code: send it to the callback, remembering where
+  //    the user was meant to land (the path they arrived on, minus `code`).
+  if (isStrayAuthCode(request)) {
+    const stripped = request.nextUrl.clone();
+    stripped.searchParams.delete("code");
+    const nextPath = `${stripped.pathname}${stripped.search}`;
+
+    const callback = request.nextUrl.clone();
+    callback.pathname = CALLBACK_PATH;
+    callback.search = "";
+    callback.searchParams.set("code", request.nextUrl.searchParams.get("code")!);
+    callback.searchParams.set("next", nextPath);
+    return NextResponse.redirect(callback);
+  }
+
+  const isProtected = PROTECTED_PATHS.some((p) =>
+    request.nextUrl.pathname.startsWith(p),
+  );
+
+  // 2. Public pages need no session check — skip the Supabase round-trip.
+  //    The browser client refreshes sessions on its own for client-side state.
+  if (!isProtected) return NextResponse.next({ request });
+
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     SUPABASE_URL,
@@ -38,21 +83,16 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes: redirect to /login if not authenticated
-  const protectedPaths = ["/account", "/admin"];
-  const isProtected = protectedPaths.some((p) =>
-    request.nextUrl.pathname.startsWith(p),
-  );
-
-  if (isProtected && !user) {
+  if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.search = "";
     url.searchParams.set("redirect", request.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
 
   // Admin routes: redirect to / if user is not admin
-  if (request.nextUrl.pathname.startsWith("/admin") && user) {
+  if (request.nextUrl.pathname.startsWith("/admin")) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -62,6 +102,7 @@ export async function middleware(request: NextRequest) {
     if (profile?.role !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = "/";
+      url.search = "";
       return NextResponse.redirect(url);
     }
   }
@@ -71,9 +112,11 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   /*
-   * Only the routes that need auth checks. Public pages skip the
-   * middleware entirely — the Supabase client refreshes sessions
-   * on its own for client-side auth state.
+   * Runs on every page request so a stray `?code=` can be rescued wherever
+   * Supabase drops it. Static assets, image optimisation and API routes are
+   * excluded — the callback route handles its own exchange.
    */
-  matcher: ["/account/:path*", "/admin/:path*"],
+  matcher: [
+    "/((?!api/|_next/static|_next/image|favicon.ico|images/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)",
+  ],
 };
