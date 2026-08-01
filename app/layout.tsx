@@ -38,6 +38,10 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // Renders <meta name="application-name" content="ClariPet">. Google's OAuth
+  // brand check compares the console App name against the site's declared name,
+  // so this must stay character-for-character identical to that field.
+  applicationName: "ClariPet",
   title: {
     default: "ClariPet | Premium Pet Care",
     template: "%s | ClariPet",

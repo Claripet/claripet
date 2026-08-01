@@ -20,7 +20,11 @@ const QuizCTA = dynamic(() =>
 );
 
 export const metadata: Metadata = {
-  title: "ClariPet | Premium Pet Care & Grooming Supplies Indonesia",
+  // Deliberately the bare app name, matching the Google Cloud console App name
+  // 1:1 for OAuth brand verification. Restore the keyword title
+  // ("ClariPet | Premium Pet Care & Grooming Supplies Indonesia") once the app
+  // is approved — this costs home page SEO for as long as it stands.
+  title: "ClariPet",
   description:
     "ClariPet menyediakan produk perawatan hewan peliharaan premium (anjing & kucing) yang aman dan efektif. Temukan parfum, vitamin, dan shampoo terbaik untuk sahabat bulu Anda.",
   alternates: { canonical: "/" },
@@ -30,6 +34,10 @@ export const metadata: Metadata = {
       "ClariPet menyediakan produk perawatan hewan peliharaan premium (anjing & kucing) yang aman dan efektif. Temukan parfum, vitamin, dan shampoo terbaik untuk sahabat bulu Anda.",
     url: "/",
     type: "website",
+    // Next replaces the parent openGraph object wholesale rather than merging
+    // field by field, so omitting this dropped og:site_name from the home page
+    // — the one page Google's brand review actually scans.
+    siteName: "ClariPet",
   },
 };
 
