@@ -2,13 +2,11 @@
 import { LegalView } from "@/components/legal/LegalView";
 
 export const metadata: Metadata = {
-  title: "Return & Refund Policy",
-  description: "Kebijakan Pengembalian dan Pengembalian Dana ClariPet.",
+  // See app/shipping/page.tsx — indexable for the same reason.
+  title: "Kebijakan Pengembalian & Refund",
+  description:
+    "Syarat pengembalian produk ClariPet, kondisi yang dapat direfund, dan cara mengajukan klaim jika pesanan bermasalah.",
   alternates: { canonical: "/returns" },
-  robots: {
-    index: false,
-    follow: true,
-  },
 };
 
 export default function ReturnsPage() {

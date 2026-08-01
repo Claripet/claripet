@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const POST = withErrorHandling(async (req: Request) => {
   // Rate Limit: 30 requests per minute
   const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
-  if (ip !== "unknown" && !rateLimit(`shipping_${ip}`, 30, 60 * 1000)) {
+  if (ip !== "unknown" && !(await rateLimit(`shipping_${ip}`, 30, 60 * 1000))) {
     return error("Terlalu banyak permintaan. Silakan coba lagi nanti.", 429);
   }
 

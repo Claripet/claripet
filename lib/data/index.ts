@@ -6,7 +6,10 @@
  * functions, and they seamlessly switch between DB and static data.
  */
 
-import { createClient } from "@/lib/supabase/server";
+// Public catalogue reads use the cookie-free anon client on purpose: the
+// cookie-bound one in `lib/supabase/server.ts` calls `cookies()`, which marks
+// every route that touches it dynamic and blocks static generation site-wide.
+import { createPublicClient as createClient } from "@/lib/supabase/public";
 import { PRODUCTS, getProduct as getStaticProduct, getProductsByCategory as getStaticProductsByCategory } from "@/data/products";
 import { CATEGORIES, getCategory as getStaticCategory } from "@/data/categories";
 import { ARTICLES, getArticle as getStaticArticle, FEATURED_ARTICLE } from "@/data/articles";
@@ -42,7 +45,7 @@ export async function getAllProducts(): Promise<Product[]> {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("products")
-      .select("*, category:categories(*), sizes:product_sizes(label), images:product_images(url, alt, sort_order)")
+      .select("*, category:categories(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)")
       .neq("status", "archived")
       .order("best_seller", { ascending: false });
 
@@ -64,7 +67,7 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
     const supabase = createClient();
     const { data, error } = await supabase
       .from("products")
-      .select("*, category:categories(*), sizes:product_sizes(label), images:product_images(url, alt, sort_order)")
+      .select("*, category:categories(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)")
       .eq("slug", slug)
       .neq("status", "archived")
       .single();
@@ -86,7 +89,7 @@ export async function getProductsByCategory(categorySlug: string): Promise<Produ
     const { data, error } = await supabase
       .from("products")
       .select(
-        "*, category:categories!inner(*), sizes:product_sizes(label), images:product_images(url, alt, sort_order)",
+        "*, category:categories!inner(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)",
       )
       .eq("category.slug", categorySlug)
       .neq("status", "archived")
@@ -107,7 +110,7 @@ export async function getBestSellers(): Promise<Product[]> {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("products")
-      .select("*, category:categories(*), sizes:product_sizes(label), images:product_images(url, alt, sort_order)")
+      .select("*, category:categories(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)")
       .neq("status", "archived")
       .eq("best_seller", true)
       .order("reviews_count", { ascending: false });
@@ -237,9 +240,21 @@ interface DBArticleRow {
   excerpt?: string | null;
   body?: string[] | null;
   sections?: Article["sections"] | null;
+  created_at?: string | null;
+}
+
+/** timestamptz → `YYYY-MM-DD`, the form schema.org and sitemaps expect. */
+function toDateOnly(ts: string | null | undefined): string | undefined {
+  if (!ts) return undefined;
+  const d = new Date(ts);
+  return Number.isNaN(d.getTime()) ? undefined : d.toISOString().split("T")[0];
 }
 
 function mapDBArticleToArticle(db: DBArticleRow): Article {
+  // The articles table has no image, author or updated_at column, so those
+  // three come from the seed entry of the same slug.
+  const seed = ARTICLES.find((a) => a.slug === db.slug);
+
   return {
     slug: db.slug,
     title: db.title,
@@ -252,6 +267,9 @@ function mapDBArticleToArticle(db: DBArticleRow): Article {
     sections: db.sections ?? [],
     // Article photos are static assets, not a DB column — carry them over from
     // the seed so DB-backed articles aren't left with a blank thumbnail.
-    image: ARTICLES.find((a) => a.slug === db.slug)?.image,
+    image: seed?.image,
+    publishedAt: toDateOnly(db.created_at) ?? seed?.publishedAt,
+    updatedAt: seed?.updatedAt,
+    author: seed?.author,
   };
 }

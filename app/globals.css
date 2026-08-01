@@ -1893,7 +1893,12 @@ select:focus-visible {
     scrollbar-width: none; /* Hide scrollbar for Firefox */
   }
   .pdp-carousel::-webkit-scrollbar { display: none; } /* Hide scrollbar for WebKit */
-  .pdp-carousel-slide { scroll-snap-align: center; }
+  /* `start`, not `center`: goToSlide() scrolls to `i * clientWidth`, which is a
+     start-aligned offset, so slide 0's snap position is then exactly 0. Under
+     `center` the first slide has no snap point at scrollLeft 0 while the track
+     is still collapsed on first paint, which let the browser snap the gallery
+     onto an arbitrary photo. */
+  .pdp-carousel-slide { scroll-snap-align: start; }
   .pdp-carousel-dots {
     display: flex;
     justify-content: center;

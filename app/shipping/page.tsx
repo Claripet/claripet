@@ -2,13 +2,13 @@
 import { LegalView } from "@/components/legal/LegalView";
 
 export const metadata: Metadata = {
-  title: "Shipping Policy",
-  description: "Kebijakan Pengiriman ClariPet.",
+  // Indexable on purpose: shipping and returns terms are a trust and ranking
+  // surface for a store, and they were previously noindexed while still being
+  // submitted in sitemap.xml — a direct contradiction.
+  title: "Kebijakan Pengiriman",
+  description:
+    "Waktu pemrosesan, estimasi pengiriman, dan biaya ongkir untuk pesanan ClariPet ke seluruh Indonesia.",
   alternates: { canonical: "/shipping" },
-  robots: {
-    index: false,
-    follow: true,
-  },
 };
 
 export default function ShippingPage() {

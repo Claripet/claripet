@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   try {
     // Rate Limit: 60 requests per minute
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
-    if (ip !== "unknown" && !rateLimit(`webhook_${ip}`, 60, 60 * 1000)) {
+    if (ip !== "unknown" && !(await rateLimit(`webhook_${ip}`, 60, 60 * 1000))) {
       return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
     }
 

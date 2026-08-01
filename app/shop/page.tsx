@@ -9,23 +9,29 @@ import { Icon } from "@/components/icons";
 import { ShopCategoryPills } from "@/components/shop/ShopCategoryPills";
 import { AllProductsBrowser } from "@/components/shop/AllProductsBrowser";
 
+// Prerendered at build, refreshed in the background every 5 minutes so
+// catalogue edits land without a redeploy.
+export const revalidate = 300;
+
+// The root layout's title template appends " | ClariPet", so the brand must not
+// be repeated here — "Shop ClariPet" rendered as "Shop ClariPet | ClariPet".
 export const metadata: Metadata = {
-  title: "Shop ClariPet",
+  title: "Shop Semua Produk Perawatan Hewan",
   description:
-    "Everything your pet needs for grooming, wellness, hygiene and everyday care.",
+    "Belanja semua produk ClariPet untuk anjing & kucing — parfum, shampoo, perawatan kulit, bulu, mulut, dan kebersihan harian.",
   alternates: { canonical: "/shop" },
   openGraph: {
-    title: "Shop ClariPet",
+    title: "Shop Semua Produk Perawatan Hewan — ClariPet",
     description:
-      "Everything your pet needs for grooming, wellness, hygiene and everyday care.",
+      "Belanja semua produk ClariPet untuk anjing & kucing — parfum, shampoo, perawatan kulit, bulu, mulut, dan kebersihan harian.",
     url: "/shop",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Shop ClariPet",
+    title: "Shop Semua Produk Perawatan Hewan",
     description:
-      "Everything your pet needs for grooming, wellness, hygiene and everyday care.",
+      "Belanja semua produk ClariPet untuk anjing & kucing — parfum, shampoo, perawatan kulit, bulu, mulut, dan kebersihan harian.",
   },
 };
 

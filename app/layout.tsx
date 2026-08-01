@@ -26,16 +26,16 @@ const caveat = Caveat({
   display: "swap",
 });
 
-// AuthProvider (wrapped around every route via Providers below) memoizes a
-// Supabase browser client with `useMemo`, which runs even during Next's
-// build-time static-generation pass. That pass never has real secrets — by
-// design, secrets are a deploy/runtime concern — so any attempt to statically
-// prerender a page crashed the build the moment it rendered the root layout,
-// including pages with no Supabase dependency at all (e.g. /terms). Forcing
-// every route dynamic means nothing is prerendered at build time; the app is
-// SSR'd per-request instead, where the real secrets are always present.
-export const dynamic = "force-dynamic";
-
+// NOTE: this segment deliberately declares no `dynamic` config. It used to set
+// `force-dynamic`, because AuthProvider builds a Supabase browser client while
+// the root layout renders and that threw when the build had no credentials.
+// Since a root-layout export applies to every route beneath it, that single line
+// opted the whole site out of static generation: nothing was prerendered,
+// `generateStaticParams` never ran, and every request — storefront pages
+// included — paid a full SSR inside the Worker. lib/supabase/client.ts now
+// falls back to a placeholder instead of throwing, so each route is free to
+// choose its own rendering mode. Do not reintroduce a `dynamic` export here;
+// set it on the individual routes that genuinely need per-request data.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   // Renders <meta name="application-name" content="ClariPet">. Google's OAuth
@@ -46,18 +46,21 @@ export const metadata: Metadata = {
     default: "ClariPet | Premium Pet Care",
     template: "%s | ClariPet",
   },
+  // Indonesian, matching <html lang="id"> and the market the store actually
+  // ships to (IDR pricing, Midtrans, RajaOngkir). Kept under ~160 chars so
+  // Google renders it whole instead of truncating mid-sentence.
   description:
-    "ClariPet is an online store for premium pet care products for cats and dogs — grooming sprays, perfumes, skin and coat care, dental drops and odour removers. Create an account to track orders, save favourites and manage your pet profiles. Safe, gentle and effective, made with love in Indonesia.",
+    "Toko online produk perawatan hewan peliharaan premium untuk anjing & kucing — parfum, shampoo, perawatan kulit & bulu, dan penghilang bau. Aman & dibuat di Indonesia.",
   openGraph: {
     title: {
       default: "ClariPet | Premium Pet Care",
       template: "%s | ClariPet",
     },
     description:
-      "ClariPet is an online store for premium pet care products for cats and dogs — grooming sprays, perfumes, skin and coat care, dental drops and odour removers. Create an account to track orders, save favourites and manage your pet profiles. Safe, gentle and effective, made with love in Indonesia.",
+      "Toko online produk perawatan hewan peliharaan premium untuk anjing & kucing — parfum, shampoo, perawatan kulit & bulu, dan penghilang bau. Aman & dibuat di Indonesia.",
     siteName: "ClariPet",
     type: "website",
-    locale: "en_US",
+    locale: "id_ID",
   },
   twitter: {
     card: "summary_large_image",
@@ -66,7 +69,7 @@ export const metadata: Metadata = {
       template: "%s | ClariPet",
     },
     description:
-      "ClariPet is an online store for premium pet care products for cats and dogs — grooming sprays, perfumes, skin and coat care, dental drops and odour removers. Create an account to track orders, save favourites and manage your pet profiles. Safe, gentle and effective, made with love in Indonesia.",
+      "Toko online produk perawatan hewan peliharaan premium untuk anjing & kucing — parfum, shampoo, perawatan kulit & bulu, dan penghilang bau. Aman & dibuat di Indonesia.",
     creator: "@ClariPet",
   },
   robots: {
@@ -88,7 +91,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${poppins.variable} ${caveat.variable}`}>
+    // "id", not "en": prices are IDR, checkout is Midtrans, shipping is
+    // RajaOngkir, and the legal pages and most product copy are Indonesian.
+    // Declaring "en" over Indonesian body copy told Google to rank the site for
+    // the wrong market. Individual English articles still rank on their own
+    // content — Google reads the page, not just this attribute.
+    <html lang="id" className={`${poppins.variable} ${caveat.variable}`}>
       <body>
         <Providers>
           <FlyToCartProvider>

@@ -46,23 +46,19 @@ export function Hero() {
           <div className="hero-actions">
             <Link
               href="/shop"
-              tabIndex={-1}
-              aria-hidden="true"
               style={{ "--primary-btn-bg": "#348dda", "--primary-btn-border": "#348dda" } as React.CSSProperties}
               className="hero-action-link"
             >
-              <PrimaryButton size="lg" icon="arrowRight" aria-label="Shop Products" className="w-full justify-center">
+              <PrimaryButton size="lg" icon="arrowRight" className="w-full justify-center">
                 Shop Products
               </PrimaryButton>
             </Link>
             <Link
               href="/quiz"
-              tabIndex={-1}
-              aria-hidden="true"
               style={{ "--secondary-btn-bg": "transparent", "--secondary-btn-border": "#348dda", "--secondary-btn-text": "#348dda" } as React.CSSProperties}
               className="hero-action-link hero-mobile-hide"
             >
-              <SecondaryButton size="lg" aria-label="Find My Product" className="w-full justify-center">
+              <SecondaryButton size="lg" className="w-full justify-center">
                 Find My Product
               </SecondaryButton>
             </Link>

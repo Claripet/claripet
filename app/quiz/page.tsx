@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Quiz } from "@/components/quiz/Quiz";
 
 export const metadata: Metadata = {
-  title: "Product Finder Quiz",
+  title: "Quiz Rekomendasi Produk",
   description:
-    "Answer a few quick questions and we'll match your pet with the right ClariPet care products — grooming, oral care, skin care, and more.",
+    "Jawab beberapa pertanyaan singkat dan temukan produk ClariPet yang paling cocok untuk anjing atau kucing Anda — grooming, kulit, bulu, dan perawatan mulut.",
   alternates: { canonical: "/quiz" },
   openGraph: {
     title: "Find the Right Product for Your Pet — ClariPet Quiz",

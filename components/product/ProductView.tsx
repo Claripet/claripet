@@ -33,6 +33,9 @@ export function ProductView({ product }: { product: Product }) {
   const addRef = useRef<HTMLDivElement>(null);
   const [activeThumb, setActiveThumb] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  // Set once the visitor picks a slide, so the pin-to-first effect below stops
+  // fighting them on any later reflow (rotation, URL bar hide, thumbnail click).
+  const hasPickedSlide = useRef(false);
   const [size, setSize] = useState(product.sizes[0]);
   const [qty, setQty] = useState(1);
   const [mounted, setMounted] = useState(false);
@@ -41,11 +44,40 @@ export function ProductView({ product }: { product: Product }) {
     setMounted(true);
   }, []);
 
+  // The gallery paints once before the slides are laid out — at that moment the
+  // track measures scrollWidth === clientWidth because every slide is still
+  // collapsed to zero width. `scroll-snap-type: x mandatory` needs a snap target
+  // during that window and is free to choose any slide; when the slides then get
+  // their real width the browser scrolls to whatever it picked, stranding the
+  // gallery on a random photo (observed: slide 4 of 7 on a cold load). Pin it
+  // back to the first slide across that reflow.
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+
+    hasPickedSlide.current = false;
+    setActiveThumb(0);
+
+    const pin = () => {
+      if (hasPickedSlide.current) return;
+      el.scrollLeft = 0;
+    };
+
+    pin();
+    const observer = new ResizeObserver(pin);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [product.slug]);
+
   // Sync mobile carousel scroll with activeThumb state
   const handleScroll = () => {
     if (!carouselRef.current) return;
     const scrollLeft = carouselRef.current.scrollLeft;
     const width = carouselRef.current.clientWidth;
+    // Width is 0 while the slides are still collapsed — dividing by it yields
+    // NaN/Infinity and would blank out the active dot.
+    if (!width) return;
+    if (scrollLeft > 0) hasPickedSlide.current = true;
     const newIndex = Math.round(scrollLeft / width);
     if (newIndex !== activeThumb) setActiveThumb(newIndex);
   };
@@ -53,6 +85,7 @@ export function ProductView({ product }: { product: Product }) {
   // Click a thumbnail/dot: update state AND scroll the main carousel to that slide.
   // Works for both desktop thumbnails and mobile dots.
   const goToSlide = (i: number) => {
+    hasPickedSlide.current = true;
     setActiveThumb(i);
     if (carouselRef.current) {
       carouselRef.current.scrollTo({

@@ -145,6 +145,13 @@ export function Quiz() {
   return (
     <main>
       <div className="wrap quiz-shell">
+        {/* The results branch above gets its <h1> from PageHead, but this is the
+            state crawlers land on, and it had no <h1> at all. Visually hidden
+            rather than rendered, matching components/home/Hero.tsx, so the
+            page's existing layout is unchanged. */}
+        <h1 className="sr-only">
+          Quiz Rekomendasi Produk ClariPet untuk Anjing &amp; Kucing
+        </h1>
         <div className="eyebrow center" style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
           <Icon name="sparkle" size={16} /> Find their match
         </div>

@@ -1,5 +1,20 @@
 import type { Article } from "@/lib/types";
 
+/**
+ * TODO(seo): add `publishedAt` (and optionally `updatedAt` / `author`) to each
+ * entry below, as `YYYY-MM-DD`.
+ *
+ * They are deliberately absent rather than guessed. The BlogPosting JSON-LD in
+ * app/journal/[slug]/page.tsx omits `datePublished` when the field is missing,
+ * and app/sitemap.ts falls back to the current date — both correct but weak. A
+ * fabricated date is worse than no date, so these need the real values from
+ * whoever published the articles. DB-backed articles already derive
+ * `publishedAt` from their `created_at` column.
+ *
+ * Note also that `cara-menghilangkan-tear-stain-noda-air-mata-anjing-kucing`
+ * and `how-to-remove-tear-stains` cover the same topic in two languages and
+ * will compete for the same queries — see the SEO notes on cannibalisation.
+ */
 export const ARTICLES: Article[] = [
   {
     slug: 'cara-menghilangkan-tear-stain-noda-air-mata-anjing-kucing',

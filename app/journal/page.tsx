@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { JournalView } from "@/components/journal/JournalView";
 import { getAllArticles, getFeaturedArticle } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+// Prerendered at build, then refreshed in the background every 5 minutes so
+// admin edits appear without a redeploy. Was `force-dynamic`, which made every
+// visit a full SSR plus a Supabase round-trip inside the Worker.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Pet Care Journal",

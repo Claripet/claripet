@@ -10,6 +10,10 @@ import { CollectionView } from "@/components/shop/CollectionView";
 import { ShopCategoryPills } from "@/components/shop/ShopCategoryPills";
 import { SITE_URL } from "@/lib/site";
 
+// Prerendered at build, refreshed in the background every 5 minutes so
+// catalogue edits land without a redeploy.
+export const revalidate = 300;
+
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ category: c.slug }));
 }

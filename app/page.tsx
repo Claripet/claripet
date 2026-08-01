@@ -1,10 +1,11 @@
 ﻿import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Hero } from "@/components/home/Hero";
-// Statically imported, unlike the sections below: Google's OAuth brand review
-// reads the server-rendered HTML, so the purpose copy must not be code-split.
-import { WhatIsClariPet } from "@/components/home/WhatIsClariPet";
 import { SITE_URL } from "@/lib/site";
+
+// Prerendered at build, refreshed in the background every 5 minutes — the
+// Pet Parent Favorites shelf reads best sellers from the catalogue.
+export const revalidate = 300;
 
 const ShopByCategory = dynamic(() =>
   import("@/components/home/ShopByCategory").then((mod) => mod.ShopByCategory),
@@ -26,12 +27,12 @@ export const metadata: Metadata = {
   // is approved — this costs home page SEO for as long as it stands.
   title: "ClariPet",
   description:
-    "ClariPet menyediakan produk perawatan hewan peliharaan premium (anjing & kucing) yang aman dan efektif. Temukan parfum, vitamin, dan shampoo terbaik untuk sahabat bulu Anda.",
+    "Produk perawatan hewan peliharaan premium untuk anjing & kucing: parfum, shampoo, vitamin, dan perawatan kulit & bulu. Aman, efektif, dibuat di Indonesia.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "ClariPet | Premium Pet Care & Grooming Supplies Indonesia",
     description:
-      "ClariPet menyediakan produk perawatan hewan peliharaan premium (anjing & kucing) yang aman dan efektif. Temukan parfum, vitamin, dan shampoo terbaik untuk sahabat bulu Anda.",
+      "Produk perawatan hewan peliharaan premium untuk anjing & kucing: parfum, shampoo, vitamin, dan perawatan kulit & bulu. Aman, efektif, dibuat di Indonesia.",
     url: "/",
     type: "website",
     // Next replaces the parent openGraph object wholesale rather than merging
@@ -46,6 +47,9 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: "ClariPet",
   url: SITE_URL,
+  // A logo lets Google associate the brand mark with the entity; without it the
+  // Organization node has nothing to render in a knowledge panel.
+  logo: `${SITE_URL}/images/brand/logo-dark.png`,
   description:
     "Premium, pet-safe care made with love in Indonesia. Gentle formulas for happy, healthy pets.",
 };
@@ -78,7 +82,6 @@ export default function HomePage() {
       />
       <main>
         <Hero />
-        <WhatIsClariPet />
         <ShopByCategory />
         <PetParentFavorites />
         <WhyChoose />

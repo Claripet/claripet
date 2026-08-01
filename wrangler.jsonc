@@ -3,7 +3,10 @@
 	"main": ".open-next/worker.js",
 	"name": "claripet",
 	"compatibility_date": "2026-07-30",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
@@ -20,7 +23,14 @@
 		// Enable Next.js Image Optimization via Cloudflare's built-in binding
 		// see https://opennext.js.org/cloudflare/howtos/image
 		"binding": "IMAGES"
-	}
+	},
+	"kv_namespaces": [
+		{
+			"binding": "RATE_LIMIT_KV",
+			"id": "395cdaff022748a8bfa1ec01ee81bc03",
+			"remote": true
+		}
+	]
 	// R2-backed incremental cache is intentionally not configured yet — it needs
 	// an R2 bucket created first (`wrangler r2 bucket create cache`) plus a
 	// self-reference service binding. Without it, ISR/data-cache entries just

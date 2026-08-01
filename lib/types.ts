@@ -34,6 +34,13 @@ export interface Product {
    *  sections on the collection page; when absent, those sections are hidden. */
   petType?: ("Cat" | "Dog")[];
   concern?: string[];
+  /**
+   * True when at least one size has stock, false when every size is at zero.
+   * Undefined for the static seed catalogue, which carries no stock data —
+   * consumers must treat undefined as "unknown", not as "out of stock".
+   * Feeds schema.org `Offer.availability` on the product page.
+   */
+  inStock?: boolean;
 }
 
 export interface ArticleSection {
@@ -53,6 +60,16 @@ export interface Article {
   sections: ArticleSection[];
   /** Thumbnail/hero photo. Empty → illustrated tone placeholder. */
   image?: string;
+  /**
+   * Publication date as `YYYY-MM-DD`. Feeds schema.org `datePublished` and the
+   * sitemap's `lastModified`. Without it, editorial content carries no freshness
+   * signal at all and every sitemap entry claims to have changed today.
+   */
+  publishedAt?: string;
+  /** Last substantive edit, `YYYY-MM-DD`. Falls back to `publishedAt`. */
+  updatedAt?: string;
+  /** Byline for schema.org `author`. Defaults to the ClariPet editorial team. */
+  author?: string;
 }
 
 export interface CartItem {

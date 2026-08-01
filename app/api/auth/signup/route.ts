@@ -7,7 +7,7 @@ import { rateLimit } from "@/lib/helpers/rateLimit";
 export const POST = withErrorHandling(async (req: Request) => {
   // Rate Limit: 3 requests per minute
   const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
-  if (ip !== "unknown" && !rateLimit(`signup_${ip}`, 3, 60 * 1000)) {
+  if (ip !== "unknown" && !(await rateLimit(`signup_${ip}`, 3, 60 * 1000))) {
     return error("Too many signup attempts. Please try again later.", 429);
   }
 

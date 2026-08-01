@@ -1,13 +1,23 @@
 import type { MetadataRoute } from "next";
 import { getAllProducts, getAllCategories, getAllArticles } from "@/lib/data";
+import { ARTICLES } from "@/data/articles";
 import { SITE_URL } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, categories, articles] = await Promise.all([
+  const [products, categories, dbArticles] = await Promise.all([
     getAllProducts(),
     getAllCategories(),
     getAllArticles(),
   ]);
+
+  // `getAllArticles` reads the DB, but `getArticleBySlug` falls back to the
+  // static seed — so a seed-only article serves a live 200 page while being
+  // absent from the sitemap. Union both sources, DB row winning on slug clash.
+  const articles = [...dbArticles];
+  const seen = new Set(dbArticles.map((a) => a.slug));
+  for (const seed of ARTICLES) {
+    if (!seen.has(seed.slug)) articles.push(seed);
+  }
 
   const staticPages: MetadataRoute.Sitemap = [
     {
@@ -86,9 +96,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Real dates where we have them. Stamping `new Date()` on every entry tells
+  // crawlers the whole site changed today, every day — a signal Google learns
+  // to ignore, which then devalues the genuinely fresh entries too.
   const articlePages: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${SITE_URL}/journal/${a.slug}`,
-    lastModified: new Date(),
+    lastModified: new Date(a.updatedAt ?? a.publishedAt ?? Date.now()),
     changeFrequency: "monthly",
     priority: 0.6,
   }));
