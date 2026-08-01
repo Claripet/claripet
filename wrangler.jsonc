@@ -8,6 +8,14 @@
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
 	},
+	// Non-secret runtime config. These are read via process.env inside the
+	// Worker, where .env.local does not exist — anything the server reads at
+	// request time must be a var or a secret, or it is simply undefined.
+	// RAJAONGKIR_ORIGIN_ID is a public RajaOngkir district ID (Jakarta), not a
+	// credential, so it lives here rather than in `wrangler secret`.
+	"vars": {
+		"RAJAONGKIR_ORIGIN_ID": "17547"
+	},
 	"images": {
 		// Enable Next.js Image Optimization via Cloudflare's built-in binding
 		// see https://opennext.js.org/cloudflare/howtos/image
