@@ -51,9 +51,6 @@ export function FaqView() {
                   aria-expanded={open === i}
                   onClick={() => setOpen(open === i ? null : i)}
                 >
-                  <span className="faq-ic">
-                    <Icon name={f.icon} size={20} />
-                  </span>
                   <span className="faq-q">{f.q}</span>
                   <Icon name="chevDown" size={18} className="chev" />
                 </button>

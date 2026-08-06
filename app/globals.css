@@ -2584,21 +2584,13 @@ select:focus-visible {
   border: none;
   text-align: left;
 }
-.faq-ic {
-  width: 42px; height: 42px;
-  flex-shrink: 0;
-  border-radius: var(--r-md);
-  background: var(--sky-50);
-  color: var(--navy);
-  display: grid; place-items: center;
-}
 .faq-q { flex: 1; font-weight: 600; color: var(--navy); font-size: 16px; line-height: 1.35; }
 .faq-head .chev { color: var(--text-soft); transition: transform .3s var(--ease); flex-shrink: 0; }
 .faq-card.open .chev { transform: rotate(180deg); }
 .faq-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s var(--ease); }
 .faq-card.open .faq-body { grid-template-rows: 1fr; }
 .faq-body > div { overflow: hidden; }
-.faq-body p { color: var(--text-soft); line-height: 1.7; padding: 0 22px 22px 78px; }
+.faq-body p { color: var(--text-soft); line-height: 1.7; padding: 0 22px 22px; }
 .faq-cta {
   display: flex;
   align-items: center;
@@ -2781,7 +2773,6 @@ select:focus-visible {
 
 @media (max-width: 860px) {
   .faq-grid { grid-template-columns: 1fr; }
-  .faq-body p { padding-left: 22px; }
   .inquiry-grid, .review-stats, .results-grid { grid-template-columns: repeat(2, 1fr); }
   .contact-info { grid-template-columns: 1fr; }
   .contact-form-wrap { grid-template-columns: 1fr; padding: 32px; }
