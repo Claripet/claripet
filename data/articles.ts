@@ -20,7 +20,7 @@ export const ARTICLES: Article[] = [
     slug: 'cara-menghilangkan-tear-stain-noda-air-mata-anjing-kucing',
     image: '/images/journal/tear-stain.png',
     title: 'Cara Menghilangkan Noda Air Mata (Tear Stain) pada Anjing & Kucing',
-    category: 'Grooming', readTime: '7 min', tone: 'lavender', featured: true,
+    category: 'Grooming', readTime: '7 menit', tone: 'lavender', featured: true,
     excerpt: 'Noda kemerahan di bawah mata anjing atau kucing (tear stain) sering mengganggu penampilan. Pelajari penyebab utamanya dan cara aman membersihkannya agar wajah anabul kembali bersih.',
     body: [
       'Bagi para pawrent, terutama pemilik anjing ras berbulu putih seperti Poodle, Pomeranian, atau Shih Tzu, noda kemerahan di bawah mata (tear stain) adalah masalah yang sangat umum. Noda ini disebabkan oleh *porfirin*, senyawa alami yang mengandung zat besi yang dikeluarkan melalui air mata, air liur, dan urine.',
@@ -37,7 +37,7 @@ export const ARTICLES: Article[] = [
     slug: 'why-does-my-dog-have-bad-breath',
     image: '/images/journal/oral.png',
     title: 'Why Does My Dog Have Bad Breath?',
-    category: 'Health', readTime: '6 min', tone: 'sky', featured: true,
+    category: 'Health', readTime: '6 menit', tone: 'sky', featured: true,
     excerpt: 'Bad breath is more than an unpleasant smell \u2014 it\u2019s often the first sign of a dental issue. Here\u2019s what causes it and how to keep your dog\u2019s mouth fresh and healthy.',
     body: [
       'If your dog\u2019s breath makes you turn away during cuddle time, you\u2019re not alone \u2014 and it\u2019s worth paying attention to. While a little \u201cdog breath\u201d is normal, persistent bad odour usually points to something happening beneath the surface.',
@@ -54,7 +54,7 @@ export const ARTICLES: Article[] = [
     slug: 'how-to-remove-tear-stains',
     image: '/images/journal/tear-stain.png',
     title: 'How to Remove Tear Stains from Dogs and Cats',
-    category: 'Care Tips', readTime: '5 min', tone: 'lavender', featured: false,
+    category: 'Care Tips', readTime: '5 menit', tone: 'lavender', featured: false,
     excerpt: 'Those reddish-brown marks below the eyes are common in light-coated breeds. Learn what causes them and the gentle way to keep faces clean and bright.',
     body: [
       'Tear stains \u2014 the reddish-brown streaks beneath your pet\u2019s eyes \u2014 are caused by porphyrins, pigments found in tears. They\u2019re especially visible on light-coloured coats and, while usually harmless, can be a cosmetic frustration for many pet parents.',
@@ -69,7 +69,7 @@ export const ARTICLES: Article[] = [
     slug: 'how-often-bathe-dog-cat',
     image: '/images/journal/grooming.png',
     title: 'How Often Should You Bathe Your Dog or Cat?',
-    category: 'Grooming', readTime: '4 min', tone: 'sage', featured: false,
+    category: 'Grooming', readTime: '4 menit', tone: 'sage', featured: false,
     excerpt: 'Over-bathing can strip natural oils, while under-bathing leaves coats dull. Here\u2019s how to find the right rhythm for your pet.',
     body: [
       'Bathing frequency depends on your pet\u2019s coat type, lifestyle and skin health. Most dogs do well with a bath every four to six weeks, while many cats groom themselves and rarely need one at all.',
@@ -84,7 +84,7 @@ export const ARTICLES: Article[] = [
     slug: 'understanding-skin-and-coat-health',
     image: '/images/journal/skin.png',
     title: 'Understanding Your Pet\u2019s Skin and Coat Health',
-    category: 'Health', readTime: '6 min', tone: 'pink', featured: false,
+    category: 'Health', readTime: '6 menit', tone: 'pink', featured: false,
     excerpt: 'A shiny coat starts with healthy skin. Discover the everyday factors that influence your pet\u2019s skin and how to support it from the outside in.',
     body: [
       'Your pet\u2019s coat is a window into their overall health. A glossy, soft coat usually signals good nutrition and well-balanced skin, while dryness, flaking or excessive shedding can hint at something that needs attention.',
@@ -99,7 +99,7 @@ export const ARTICLES: Article[] = [
     slug: 'natural-ingredients-that-matter',
     image: '/images/journal/beauty.png',
     title: 'Natural Ingredients That Actually Matter',
-    category: 'Ingredients', readTime: '5 min', tone: 'cream', featured: false,
+    category: 'Ingredients', readTime: '5 menit', tone: 'cream', featured: false,
     excerpt: '\u201cNatural\u201d is everywhere on pet labels \u2014 but which ingredients earn their place? A look at the gentle, effective ones we love.',
     body: [
       'Not all \u201cnatural\u201d claims are equal. The ingredients that genuinely benefit your pet are the ones with a track record of being both gentle and effective.',
@@ -114,7 +114,7 @@ export const ARTICLES: Article[] = [
     slug: 'making-grooming-stress-free',
     image: '/images/journal/perfume.png',
     title: 'Making Grooming a Stress-Free Ritual',
-    category: 'Lifestyle', readTime: '4 min', tone: 'sky', featured: false,
+    category: 'Lifestyle', readTime: '4 menit', tone: 'sky', featured: false,
     excerpt: 'Grooming doesn\u2019t have to be a battle. Small changes can turn it into a calm, bonding part of your day.',
     body: [
       'For many pets, grooming feels stressful simply because it\u2019s unfamiliar. The secret is to make it predictable, gentle and positive.',

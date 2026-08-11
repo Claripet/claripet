@@ -22,28 +22,28 @@ const TOP_FEATURES = [
     bg: "bg-indigo-50",
     color: "text-indigo-500",
     title: "Pet Safe Formulations",
-    desc: "Gentle and safe for pets of all ages and breeds.",
+    desc: "Lembut dan aman untuk hewan peliharaan dari segala usia dan jenis.",
   },
   {
     icon: FlaskConical,
     bg: "bg-emerald-50",
     color: "text-emerald-600",
     title: "Premium Ingredients",
-    desc: "Carefully selected, high-quality ingredients for the best results.",
+    desc: "Bahan berkualitas tinggi yang dipilih dengan cermat untuk hasil terbaik.",
   },
   {
     icon: Heart,
     bg: "bg-rose-50",
     color: "text-rose-500",
     title: "Made in Indonesia",
-    desc: "Proudly made locally with global quality standards.",
+    desc: "Dibuat dengan bangga di dalam negeri, dengan standar kualitas global.",
   },
   {
     icon: HeartHandshake,
     bg: "bg-blue-50",
     color: "text-blue-500",
     title: "Trusted by Thousands",
-    desc: "Real pet parents, real stories, real love and trust.",
+    desc: "Cerita nyata dari pet parents yang penuh cinta dan kepercayaan.",
   },
 ];
 
@@ -51,17 +51,17 @@ const BOTTOM_FEATURES = [
   {
     icon: HandHeart,
     title: "Crafted With Care",
-    desc: "Not mass-produced, every ClariPet product is thoughtfully developed around real pet care needs.",
+    desc: "Tidak diproduksi massal — setiap produk ClariPet dikembangkan dengan cermat sesuai kebutuhan nyata perawatan hewan peliharaan.",
   },
   {
     icon: Sparkles,
     title: "Beyond Just Fragrance",
-    desc: "From oral care to skin support, ClariPet is designed as a complete pet care ecosystem.",
+    desc: "Dari perawatan mulut hingga kulit, ClariPet dirancang sebagai ekosistem perawatan hewan peliharaan yang lengkap.",
   },
   {
     icon: CalendarHeart,
     title: "Everyday Friendly",
-    desc: "Gentle enough to become part of your routine, not just used when problems appear.",
+    desc: "Cukup lembut untuk menjadi bagian dari rutinitas harian, bukan hanya digunakan saat masalah muncul.",
   },
 ];
 
@@ -317,7 +317,7 @@ export function WhyChoose() {
               margin: "0 auto",
             }}
           >
-            Thoughtfully crafted pet care designed for everyday life.
+            Perawatan hewan peliharaan yang dirancang penuh perhatian untuk kehidupan sehari-hari.
           </p>
         </div>
 

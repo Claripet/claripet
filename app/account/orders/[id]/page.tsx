@@ -57,10 +57,19 @@ export default function OrderDetailPage() {
     cancelled: "var(--pink)",
   };
 
+  const statusLabels: Record<string, string> = {
+    pending: "Menunggu",
+    paid: "Dibayar",
+    processing: "Diproses",
+    shipped: "Dikirim",
+    delivered: "Terkirim",
+    cancelled: "Dibatalkan",
+  };
+
   if (loading) {
     return (
       <main className="section">
-        <div className="wrap center">Loading...</div>
+        <div className="wrap center">Memuat...</div>
       </main>
     );
   }
@@ -69,9 +78,9 @@ export default function OrderDetailPage() {
     return (
       <main className="section">
         <div className="wrap center">
-          <h2 className="h3">Order not found</h2>
+          <h2 className="h3">Pesanan tidak ditemukan</h2>
           <Link href="/account/orders" className="btn btn-primary" style={{ marginTop: 20 }}>
-            Back to Orders
+            Kembali ke Pesanan
           </Link>
         </div>
       </main>
@@ -80,23 +89,23 @@ export default function OrderDetailPage() {
 
   return (
     <main>
-      <PageHead title={`Order #${order.id.slice(0, 8)}`} />
+      <PageHead title={`Pesanan #${order.id.slice(0, 8)}`} />
       <div className="wrap" style={{ maxWidth: 800, paddingBottom: 80 }}>
         <Link
           href="/account/orders"
           style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 20, color: "var(--navy)", fontWeight: 500 }}
         >
-          <Icon name="arrow-left" size={18} /> Back to Orders
+          <Icon name="arrow-left" size={18} /> Kembali ke Pesanan
         </Link>
 
         <div className="card" style={{ padding: 28 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div>
               <h2 className="h3" style={{ marginBottom: 4 }}>
-                Order #{order.id.slice(0, 8)}
+                Pesanan #{order.id.slice(0, 8)}
               </h2>
               <span style={{ fontSize: 14, color: "var(--text-soft)" }}>
-                {new Date(order.created_at).toLocaleDateString("en-GB", {
+                {new Date(order.created_at).toLocaleDateString("id-ID", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
@@ -116,12 +125,12 @@ export default function OrderDetailPage() {
                 textTransform: "capitalize",
               }}
             >
-              {order.status}
+              {statusLabels[order.status] ?? order.status}
             </span>
           </div>
 
           <div style={{ borderTop: "1px solid var(--line)", paddingTop: 20 }}>
-            <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Items</h4>
+            <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Barang</h4>
             {order.items.map((item) => (
               <div
                 key={item.id}
@@ -151,9 +160,9 @@ export default function OrderDetailPage() {
               <div style={{ fontWeight: 600 }}>{formatPrice(order.subtotal)}</div>
             </div>
             <div>
-              <div style={{ fontSize: 14, color: "var(--text-soft)" }}>Shipping</div>
+              <div style={{ fontSize: 14, color: "var(--text-soft)" }}>Ongkos Kirim</div>
               <div style={{ fontWeight: 600 }}>
-                {order.shipping_fee === 0 ? "Free" : formatPrice(order.shipping_fee)}
+                {order.shipping_fee === 0 ? "Gratis" : formatPrice(order.shipping_fee)}
               </div>
             </div>
             <div>
@@ -165,7 +174,7 @@ export default function OrderDetailPage() {
           </div>
 
           <div style={{ marginTop: 28, borderTop: "1px solid var(--line)", paddingTop: 20 }}>
-            <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Shipping Address</h4>
+            <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Alamat Pengiriman</h4>
             <div style={{ color: "var(--text-soft)", lineHeight: 1.6 }}>
               <div style={{ fontWeight: 500, color: "var(--navy)" }}>{order.shipping_address.full_name}</div>
               <div>{order.shipping_address.phone}</div>
@@ -179,7 +188,7 @@ export default function OrderDetailPage() {
 
           {order.notes && (
             <div style={{ marginTop: 20, borderTop: "1px solid var(--line)", paddingTop: 20 }}>
-              <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Notes</h4>
+              <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Catatan</h4>
               <p style={{ color: "var(--text-soft)" }}>{order.notes}</p>
             </div>
           )}

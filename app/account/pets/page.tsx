@@ -61,26 +61,26 @@ function PetsList() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Remove this pet profile?")) return;
+    if (!confirm("Hapus profil hewan ini?")) return;
     await fetch(`/api/pet-profiles/${id}`, { method: "DELETE" });
     setPets((s) => s.filter((p) => p.id !== id));
   };
 
-  if (loading) return <p className="muted">Loading your pets…</p>;
+  if (loading) return <p className="muted">Memuat hewan peliharaan Anda…</p>;
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <p className="muted" style={{ margin: 0 }}>Tell us about your pets so we can recommend the right care.</p>
-        <button className="btn btn-primary btn-sm" onClick={openNew}><Icon name="plus" size={16} /> Add Pet</button>
+        <p className="muted" style={{ margin: 0 }}>Ceritakan tentang hewan peliharaan Anda agar kami bisa merekomendasikan perawatan yang tepat.</p>
+        <button className="btn btn-primary btn-sm" onClick={openNew}><Icon name="plus" size={16} /> Tambah Hewan</button>
       </div>
 
       {pets.length === 0 && !showForm ? (
         <div className="empty-state">
           <div className="ec"><Icon name="dog" size={32} /></div>
-          <h3 className="h3" style={{ marginBottom: 8 }}>No pets added yet</h3>
-          <p className="muted" style={{ marginBottom: 18 }}>Add your first fur baby to get personalised recommendations.</p>
-          <button className="btn btn-primary" onClick={openNew}>Add a pet</button>
+          <h3 className="h3" style={{ marginBottom: 8 }}>Belum ada hewan yang ditambahkan</h3>
+          <p className="muted" style={{ marginBottom: 18 }}>Tambahkan hewan peliharaan pertama Anda untuk mendapatkan rekomendasi personal.</p>
+          <button className="btn btn-primary" onClick={openNew}>Tambah hewan</button>
         </div>
       ) : (
         <div className="pets-grid">
@@ -104,34 +104,34 @@ function PetsList() {
       {showForm && (
         <div className="modal-scrim" onClick={() => setShowForm(false)}>
           <form className="modal pet-modal" onClick={(e) => e.stopPropagation()} onSubmit={submit}>
-            <h3 className="h3" style={{ marginBottom: 18 }}>{editing ? "Edit Pet" : "Add Pet"}</h3>
+            <h3 className="h3" style={{ marginBottom: 18 }}>{editing ? "Ubah Hewan" : "Tambah Hewan"}</h3>
             <div className="cf-field">
-              <span>Name <b>*</b></span>
-              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Mochi" />
+              <span>Nama <b>*</b></span>
+              <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="cth. Mochi" />
             </div>
             <div className="cf-row">
               <label className="cf-field">
-                <span>Species</span>
+                <span>Jenis Hewan</span>
                 <select value={form.species} onChange={(e) => setForm({ ...form, species: e.target.value })}>
                   <option>Dog</option><option>Cat</option><option>Other</option>
                 </select>
               </label>
               <label className="cf-field">
-                <span>Breed</span>
-                <input value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder="e.g. Poodle" />
+                <span>Ras</span>
+                <input value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder="cth. Poodle" />
               </label>
             </div>
             <label className="cf-field">
-              <span>Birthdate</span>
+              <span>Tanggal Lahir</span>
               <input type="date" value={form.birthdate} onChange={(e) => setForm({ ...form, birthdate: e.target.value })} />
             </label>
             <label className="cf-field">
-              <span>Notes</span>
-              <textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Allergies, preferences, anything we should know" />
+              <span>Catatan</span>
+              <textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Alergi, preferensi, atau hal lain yang perlu kami ketahui" />
             </label>
             <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-              <button type="button" className="btn btn-secondary btn-block" onClick={() => setShowForm(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary btn-block">{editing ? "Save" : "Add Pet"}</button>
+              <button type="button" className="btn btn-secondary btn-block" onClick={() => setShowForm(false)}>Batal</button>
+              <button type="submit" className="btn btn-primary btn-block">{editing ? "Simpan" : "Tambah Hewan"}</button>
             </div>
           </form>
         </div>

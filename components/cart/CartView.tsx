@@ -30,19 +30,19 @@ export function CartView() {
   if (cart.detailed.length === 0) {
     return (
       <main>
-        <PageHead title="Your Cart" />
+        <PageHead title="Your Cart" decor={false} />
         <div className="wrap empty-state" style={{ paddingBottom: '40px' }}>
           <div className="ec">
             <Icon name="cart" size={36} />
           </div>
           <h3 className="h3" style={{ marginBottom: 10 }}>
-            Your cart is empty
+            Keranjang Anda kosong
           </h3>
           <p className="lead" style={{ marginBottom: 24, color: '#5A6072' }}>
-            Looks like you haven&apos;t added anything yet. Let&apos;s fix that!
+            Sepertinya Anda belum menambahkan apa pun. Yuk, mulai belanja!
           </p>
           <PrimaryButton icon="arrowRight" onClick={() => router.push("/shop")}>
-            Shop Best Sellers
+            Belanja Produk Terlaris
           </PrimaryButton>
         </div>
       </main>
@@ -54,7 +54,7 @@ export function CartView() {
 
   return (
     <main>
-      <PageHead title="Your Cart" />
+      <PageHead title="Your Cart" decor={false} />
       <div className="wrap cart-layout">
         <div className="cart-items">
           {cart.detailed.map((item) => (
@@ -73,8 +73,8 @@ export function CartView() {
                 )}
               </Link>
               <div>
-                <div className="ci-name">{item.product?.name || "Unknown Product"}</div>
-                <div className="ci-size">Size: {item.size}</div>
+                <div className="ci-name">{item.product?.name || "Produk Tidak Dikenal"}</div>
+                <div className="ci-size">Ukuran: {item.size}</div>
                 <div className="ci-actions" style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   <QuantityStepper value={item.qty} onChange={(q) => cart.updateQty(item.slug, item.size, q)} />
                     <button
@@ -84,7 +84,7 @@ export function CartView() {
                       style={{ minWidth: "44px", minHeight: "44px", border: "none", background: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "6px" }}
                     >
                     <Icon name="trash" size={18} />{" "}
-                    <span style={{ fontSize: 13, verticalAlign: "middle" }}>Remove</span>
+                    <span style={{ fontSize: 13, verticalAlign: "middle" }}>Hapus</span>
                   </button>
                 </div>
               </div>
@@ -94,19 +94,19 @@ export function CartView() {
         </div>
 
         <aside className="summary">
-          <h3 className="h3">Order Summary</h3>
+          <h3 className="h3">Ringkasan Pesanan</h3>
           <div className="freeship-strip">
             {remaining > 0 ? (
               <>
                 <span>
-                  Add <b>{formatPrice(remaining)}</b> more for <b>FREE shipping</b>
+                  Tambah <b>{formatPrice(remaining)}</b> lagi untuk <b>gratis ongkir</b>
                 </span>
                 <div className="freeship-bar" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
                   <div style={{ width: `${progress}%` }} />
                 </div>
               </>
             ) : (
-              <span>🎉 You&apos;ve unlocked <b>FREE shipping</b>!</span>
+              <span>🎉 Anda mendapatkan <b>gratis ongkir</b>!</span>
             )}
           </div>
           <div className="summary-row">
@@ -114,18 +114,18 @@ export function CartView() {
             <span>{formatPrice(cart.subtotal)}</span>
           </div>
           <div className="summary-row">
-            <span>Shipping</span>
-            <span>{remaining > 0 ? "Calculated at checkout" : "Free"}</span>
+            <span>Ongkos Kirim</span>
+            <span>{remaining > 0 ? "Dihitung saat checkout" : "Gratis"}</span>
           </div>
           <div className="summary-row total">
             <span>Total</span>
             <span>{formatPrice(cart.subtotal)}</span>
           </div>
           <Link href="/checkout" className="btn btn-primary cart-checkout-btn" style={{ width: '100%', display: 'block', textAlign: 'center', padding: '16px', fontSize: '16px' }} onClick={handleCheckoutClick}>
-            Proceed to Checkout
+            Lanjut ke Checkout
           </Link>
           <Link href="/shop" className="btn btn-secondary" style={{ display: 'block', textAlign: 'center', marginTop: 12, padding: '16px', fontSize: '16px' }}>
-            Continue Shopping
+            Lanjut Belanja
           </Link>
         </aside>
       </div>

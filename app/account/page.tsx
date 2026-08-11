@@ -43,9 +43,9 @@ function ProfileSection() {
 
     if (json.success) {
       await refreshUser();
-      setBanner({ type: "success", text: "Profile updated successfully." });
+      setBanner({ type: "success", text: "Profil berhasil diperbarui." });
     } else {
-      setBanner({ type: "error", text: json.error ?? "Failed to update profile." });
+      setBanner({ type: "error", text: json.error ?? "Gagal memperbarui profil." });
     }
     setSaving(false);
   };
@@ -55,8 +55,8 @@ function ProfileSection() {
       <div className="panel-head">
         <Icon name="user" size={20} />
         <div>
-          <h2 className="panel-title">Profile Settings</h2>
-          <p className="panel-sub">Update your personal information</p>
+          <h2 className="panel-title">Pengaturan Profil</h2>
+          <p className="panel-sub">Perbarui informasi pribadi Anda</p>
         </div>
       </div>
 
@@ -66,33 +66,33 @@ function ProfileSection() {
         <div className="form-group">
           <label>Email</label>
           <input type="email" value={user?.email ?? ""} disabled />
-          <span className="hint">Email cannot be changed</span>
+          <span className="hint">Email tidak dapat diubah</span>
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label>Full Name</label>
+            <label>Nama Lengkap</label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Your name"
+              placeholder="Nama Anda"
               required
             />
           </div>
           <div className="form-group">
-            <label>Phone</label>
+            <label>Nomor Telepon</label>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g. 081234567890"
+              placeholder="cth. 081234567890"
             />
           </div>
         </div>
 
         <button className="btn btn-primary" disabled={saving} type="submit">
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? "Menyimpan..." : "Simpan Perubahan"}
         </button>
       </form>
 
@@ -200,11 +200,11 @@ function PasswordSection() {
     setBanner(null);
 
     if (newPassword.length < 6) {
-      setBanner({ type: "error", text: "New password must be at least 6 characters." });
+      setBanner({ type: "error", text: "Kata sandi baru minimal harus 6 karakter." });
       return;
     }
     if (newPassword !== confirmPassword) {
-      setBanner({ type: "error", text: "New passwords do not match." });
+      setBanner({ type: "error", text: "Kata sandi baru tidak cocok." });
       return;
     }
 
@@ -218,7 +218,7 @@ function PasswordSection() {
     });
 
     if (verifyError) {
-      setBanner({ type: "error", text: "Current password is incorrect." });
+      setBanner({ type: "error", text: "Kata sandi saat ini salah." });
       setSaving(false);
       return;
     }
@@ -230,7 +230,7 @@ function PasswordSection() {
     if (updateError) {
       setBanner({ type: "error", text: updateError.message });
     } else {
-      setBanner({ type: "success", text: "Password changed successfully." });
+      setBanner({ type: "success", text: "Kata sandi berhasil diubah." });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -243,8 +243,8 @@ function PasswordSection() {
       <div className="panel-head">
         <Icon name="shield" size={20} />
         <div>
-          <h2 className="panel-title">Change Password</h2>
-          <p className="panel-sub">Keep your account secure with a strong password</p>
+          <h2 className="panel-title">Ubah Kata Sandi</h2>
+          <p className="panel-sub">Jaga keamanan akun Anda dengan kata sandi yang kuat</p>
         </div>
       </div>
 
@@ -252,7 +252,7 @@ function PasswordSection() {
 
       <form onSubmit={handleChangePassword}>
         <div className="form-group">
-          <label>Current Password</label>
+          <label>Kata Sandi Saat Ini</label>
           <input
             type="password"
             value={currentPassword}
@@ -263,7 +263,7 @@ function PasswordSection() {
         </div>
         <div className="form-row">
           <div className="form-group">
-            <label>New Password</label>
+            <label>Kata Sandi Baru</label>
             <input
               type="password"
               value={newPassword}
@@ -274,7 +274,7 @@ function PasswordSection() {
             />
           </div>
           <div className="form-group">
-            <label>Confirm New Password</label>
+            <label>Konfirmasi Kata Sandi Baru</label>
             <input
               type="password"
               value={confirmPassword}
@@ -287,7 +287,7 @@ function PasswordSection() {
         </div>
 
         <button className="btn btn-primary" disabled={saving} type="submit">
-          {saving ? "Updating..." : "Update Password"}
+          {saving ? "Memperbarui..." : "Perbarui Kata Sandi"}
         </button>
       </form>
 

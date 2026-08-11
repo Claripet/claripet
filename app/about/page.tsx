@@ -7,7 +7,7 @@ import { BannerDecor } from "@/components/BannerDecor";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Caring for pets is a journey filled with love, challenges, and countless little moments. ClariPet is here to make that journey easier.",
+    "Merawat hewan peliharaan adalah perjalanan yang penuh cinta, tantangan, dan momen-momen kecil. ClariPet hadir untuk membuat perjalanan itu lebih mudah.",
   alternates: { canonical: "/about" },
 };
 
@@ -32,15 +32,15 @@ export default function AboutPage() {
               Helping You Help Them.<span className="about-heart">♡</span>
             </h1>
             <p>
-              Caring for pets is a journey filled with love, challenges, and countless little
-              moments.
+              Merawat hewan peliharaan adalah perjalanan yang penuh cinta,
+              tantangan, dan momen-momen kecil yang tak terhitung.
             </p>
             <p>
-              We&apos;re here to make that journey easier with gentle, effective products you can
-              trust every day.
+              Kami hadir untuk membuat perjalanan itu lebih mudah dengan
+              produk yang lembut, efektif, dan bisa Anda percaya setiap hari.
             </p>
             <Link href="/shop" className="btn btn-primary btn-lg about-hero-cta">
-              Explore ClariPet <Icon name="arrowRight" size={18} />
+              Jelajahi ClariPet <Icon name="arrowRight" size={18} />
             </Link>
           </div>
           <div className="page-banner-media" style={{ aspectRatio: "1500 / 1000" }}>
@@ -75,29 +75,33 @@ export default function AboutPage() {
             Caring For Them Isn&apos;t.<span className="about-heart">♡</span>
           </h2>
           <p>
-            Anyone who has ever shared their life with a pet knows the feeling. The late-night
-            cleanups. The worry when something doesn&apos;t seem right. The baths they hate. The
-            medications they refuse. The endless search for products that are safe, gentle, and
-            actually work.
+            Siapa pun yang pernah berbagi hidup dengan hewan peliharaan pasti
+            mengenal perasaan ini. Bersih-bersih tengah malam. Rasa cemas saat
+            ada yang terasa tidak beres. Waktu mandi yang mereka benci. Obat
+            yang mereka tolak. Pencarian tanpa henti akan produk yang aman,
+            lembut, dan benar-benar bekerja.
           </p>
           <p>
-            Being a pet parent is one of life&apos;s greatest joys. But it can also be challenging,
-            overwhelming, and exhausting at times. And that&apos;s okay.
+            Menjadi pet parent adalah salah satu kebahagiaan terbesar dalam
+            hidup. Namun terkadang juga bisa terasa berat, membebani, dan
+            melelahkan. Dan itu tidak apa-apa.
           </p>
           <p className="about-accent">
-            At ClariPet, we believe pet care shouldn&apos;t add to the burden. It should help
-            lighten it.
+            Di ClariPet, kami percaya perawatan hewan peliharaan seharusnya
+            tidak menambah beban. Justru harus membantu meringankannya.
           </p>
-          <p>Every product we create is designed around a simple question:</p>
-          <p className="about-accent">How can we make caring for pets easier?</p>
+          <p>Setiap produk yang kami ciptakan dirancang berdasarkan satu pertanyaan sederhana:</p>
+          <p className="about-accent">Bagaimana kami bisa membuat perawatan hewan peliharaan lebih mudah?</p>
           <p>
-            So you can spend less time worrying, and more time enjoying life with the pets you
-            love.
+            Agar Anda bisa menghabiskan lebih sedikit waktu untuk khawatir,
+            dan lebih banyak waktu menikmati hidup bersama hewan peliharaan
+            yang Anda cintai.
           </p>
           <p className="about-script">Helping You Help Them. ♡</p>
           <p>
-            Because behind every happy pet is someone doing their very best. And we&apos;re here to
-            support them, every step of the way.
+            Karena di balik setiap hewan peliharaan yang bahagia, ada
+            seseorang yang berusaha sebaik mungkin. Dan kami di sini untuk
+            mendukung mereka, di setiap langkah.
           </p>
         </div>
       </section>

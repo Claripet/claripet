@@ -20,10 +20,10 @@ export function SortSelect({ value, category }: { value: SortKey; category: stri
         router.push(qs ? `/shop?${qs}` : "/shop", { scroll: false });
       }}
     >
-      <option value="featured">Featured</option>
-      <option value="price-low">Price: Low to High</option>
-      <option value="price-high">Price: High to Low</option>
-      <option value="rating">Top Rated</option>
+      <option value="featured">Unggulan</option>
+      <option value="price-low">Harga: Rendah ke Tinggi</option>
+      <option value="price-high">Harga: Tinggi ke Rendah</option>
+      <option value="rating">Rating Tertinggi</option>
     </select>
   );
 }

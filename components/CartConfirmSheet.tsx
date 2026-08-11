@@ -40,7 +40,7 @@ export function CartConfirmSheet() {
       >
         <div className="ccs-header">
           <Icon name="check" size={20} strokeWidth={3} />
-          <span>Added to cart</span>
+          <span>Ditambahkan ke keranjang</span>
         </div>
         <div className="ccs-product">
           {lastAdded?.product.images?.[0]?.url && (
@@ -63,10 +63,10 @@ export function CartConfirmSheet() {
         </div>
         <div className="ccs-actions">
           <Link href="/cart" className="btn btn-outline" onClick={dismissLastAdded}>
-            View Cart
+            Lihat Keranjang
           </Link>
           <button className="btn btn-primary" onClick={dismissLastAdded}>
-            Continue Shopping
+            Lanjut Belanja
           </button>
         </div>
       </div>

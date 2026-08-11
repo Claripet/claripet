@@ -225,7 +225,7 @@ export function Navbar() {
                             <Icon name="clock" size={17} /> Recently Viewed
                           </Link>
                           <button onClick={handleSignOut} className="account-link signout">
-                            <Icon name="log-out" size={17} /> Sign Out
+                            <Icon name="log-out" size={17} /> Keluar
                           </button>
                         </div>
                       </div>
@@ -238,10 +238,10 @@ export function Navbar() {
                   ) : (
                     <>
                       <Link href="/login" className="account-link">
-                        Sign In
+                        Masuk
                       </Link>
                       <Link href="/signup" className="account-link">
-                        Create Account
+                        Buat Akun
                       </Link>
                     </>
                   )}
@@ -359,16 +359,16 @@ export function Navbar() {
                     onClick={handleSignOut}
                     className="mobile-nav-link signout-btn"
                   >
-                    <Icon name="log-out" size={19} /> Sign Out
+                    <Icon name="log-out" size={19} /> Keluar
                   </button>
                 </>
               ) : (
                 <div className="mobile-auth-actions">
                   <Link href="/login" className="btn btn-outline" onClick={() => setProfile(false)} style={{ width: '100%', textAlign: 'center', padding: '14px' }}>
-                    Sign In
+                    Masuk
                   </Link>
                   <Link href="/signup" className="btn btn-primary" onClick={() => setProfile(false)} style={{ width: '100%', textAlign: 'center', padding: '14px' }}>
-                    Create Account
+                    Buat Akun
                   </Link>
                 </div>
               )}

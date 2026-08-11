@@ -70,7 +70,7 @@ export function ArticleCard({
 
       <div className="mt-auto flex items-center gap-1.5 text-[12px] text-[#8A90A0]">
         <Icon name="clock" size={13} />
-        <span>{article.readTime} read</span>
+        <span>{article.readTime} baca</span>
       </div>
     </article>
   );

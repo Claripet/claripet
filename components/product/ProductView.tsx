@@ -119,38 +119,38 @@ export function ProductView({ product }: { product: Product }) {
 
   const accItems: AccordionItem[] = [
     {
-      title: "Description",
+      title: "Deskripsi",
       content: (
         <p>
-          {product.short} Crafted in small batches in Indonesia using thoughtfully selected, pet-safe
-          ingredients.
+          {product.short} Diproduksi dalam batch kecil di Indonesia menggunakan
+          bahan-bahan pilihan yang aman untuk hewan peliharaan.
         </p>
       ),
     },
-    { title: "Ingredients", content: <p>{product.ingredients}</p> },
-    { title: "How to Use", content: <p>{product.howto}</p> },
+    { title: "Komposisi", content: <p>{product.ingredients}</p> },
+    { title: "Cara Pakai", content: <p>{product.howto}</p> },
     {
       title: "FAQ",
       content: (
         <ul>
-          <li>Is it safe for daily use? Yes — it’s formulated to be gentle enough for everyday care.</li>
-          <li>Can I use it on both dogs and cats? Yes, it’s suitable for both.</li>
-          <li>When will I see results? Most pet parents notice a difference within 1–2 weeks.</li>
+          <li>Amankah digunakan setiap hari? Ya — formulanya dirancang cukup lembut untuk perawatan sehari-hari.</li>
+          <li>Bisakah digunakan untuk anjing dan kucing? Ya, cocok untuk keduanya.</li>
+          <li>Kapan hasilnya terlihat? Sebagian besar pet parents melihat perbedaan dalam 1–2 minggu.</li>
         </ul>
       ),
     },
     {
-      title: `Reviews (${product.reviews})`,
+      title: `Ulasan (${product.reviews})`,
       content: (
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
             <StarRating rating={product.rating} showCount={false} />
-            <span style={{ fontWeight: 600, color: "var(--navy)" }}>{product.rating} out of 5</span>
-            <span className="muted">· {product.reviews} reviews</span>
+            <span style={{ fontWeight: 600, color: "var(--navy)" }}>{product.rating} dari 5</span>
+            <span className="muted">· {product.reviews} ulasan</span>
           </div>
           <p>
-            “Honestly the easiest product to use and my pup actually doesn’t mind it. Noticed a real
-            difference quickly.” — Verified Buyer
+            “Jujur, ini produk yang paling gampang dipakai dan anak anjing saya nggak
+            keberatan sama sekali. Hasilnya juga cepat terasa.” — Pembeli Terverifikasi
           </p>
         </div>
       ),
@@ -207,7 +207,7 @@ export function ProductView({ product }: { product: Product }) {
           </div>
           <div className="pdp-main-wrap">
             <div className="pdp-main" style={{ background: "#FFFFFF" }}>
-              {product.bestSeller && <span className="prod-tag tag desktop-only" style={{ top: 20, left: 20 }}>Best Seller</span>}
+              {product.bestSeller && <span className="prod-tag tag desktop-only" style={{ top: 20, left: 20 }}>Terlaris</span>}
               
               <div className="pdp-carousel" ref={carouselRef} onScroll={handleScroll}>
                 {hasPhotos ? (
@@ -271,7 +271,7 @@ export function ProductView({ product }: { product: Product }) {
           </div>
 
           <div style={{ marginTop: 22 }}>
-            <div style={{ fontWeight: 600, color: "var(--navy)", marginBottom: 6 }}>Size</div>
+            <div style={{ fontWeight: 600, color: "var(--navy)", marginBottom: 6 }}>Ukuran</div>
             <div className="size-row" style={{ margin: 0 }}>
               {product.sizes.map((s) => (
                 <button key={s} className={"size-opt" + (size === s ? " active" : "")} onClick={() => setSize(s)}>
@@ -292,7 +292,7 @@ export function ProductView({ product }: { product: Product }) {
                   cart.add(product.slug, size, qty, product);
                 }}
               >
-                Add to Cart
+                Tambah ke Keranjang
               </PrimaryButton>
               <button
                 className={"wishlist" + (isWished ? " active" : "") + " desktop-only"}
@@ -352,7 +352,7 @@ export function ProductView({ product }: { product: Product }) {
               cart.add(product.slug, size, qty, product);
             }}
           >
-            Add to Cart
+            Tambah ke Keranjang
           </PrimaryButton>
         </div>,
         document.body

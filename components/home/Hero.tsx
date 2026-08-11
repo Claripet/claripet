@@ -50,7 +50,7 @@ export function Hero() {
               className="hero-action-link"
             >
               <PrimaryButton size="lg" icon="arrowRight" className="w-full justify-center">
-                Shop Products
+                Belanja Produk
               </PrimaryButton>
             </Link>
             <Link
@@ -59,7 +59,7 @@ export function Hero() {
               className="hero-action-link hero-mobile-hide"
             >
               <SecondaryButton size="lg" className="w-full justify-center">
-                Find My Product
+                Temukan Produk Saya
               </SecondaryButton>
             </Link>
           </div>

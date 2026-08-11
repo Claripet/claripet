@@ -24,14 +24,25 @@ interface Order {
 }
 
 const STATUS_FILTERS = [
-  { value: "", label: "All" },
-  { value: "pending", label: "Pending" },
-  { value: "paid", label: "Paid" },
-  { value: "processing", label: "Processing" },
-  { value: "shipped", label: "Shipped" },
-  { value: "delivered", label: "Delivered" },
-  { value: "cancelled", label: "Cancelled" },
+  { value: "", label: "Semua" },
+  { value: "pending", label: "Menunggu" },
+  { value: "paid", label: "Dibayar" },
+  { value: "processing", label: "Diproses" },
+  { value: "shipped", label: "Dikirim" },
+  { value: "delivered", label: "Terkirim" },
+  { value: "cancelled", label: "Dibatalkan" },
 ];
+
+// Keyed by the raw DB status value — used to display order.status, which is
+// not run through STATUS_FILTERS (that only covers the filter pills).
+const STATUS_LABELS: Record<string, string> = {
+  pending: "Menunggu",
+  paid: "Dibayar",
+  processing: "Diproses",
+  shipped: "Dikirim",
+  delivered: "Terkirim",
+  cancelled: "Dibatalkan",
+};
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "var(--cream)",
@@ -71,7 +82,7 @@ function OrdersList() {
   return (
     <div>
       <div className="orders-head">
-        <h2 className="h3">Order History</h2>
+        <h2 className="h3">Riwayat Pesanan</h2>
       </div>
 
       <div className="filter-pills" style={{ marginBottom: 20 }}>
@@ -87,13 +98,13 @@ function OrdersList() {
       </div>
 
       {loading ? (
-        <p className="muted">Loading orders...</p>
+        <p className="muted">Memuat pesanan...</p>
       ) : orders.length === 0 ? (
         <div className="empty-box">
           <Icon name="package" size={32} />
-          <p>{status ? `No ${status} orders` : "No orders yet"}</p>
+          <p>{status ? `Belum ada pesanan dengan status "${STATUS_LABELS[status] ?? status}"` : "Belum ada pesanan"}</p>
           <Link href="/shop" className="btn btn-primary btn-sm">
-            Start Shopping
+            Mulai Belanja
           </Link>
         </div>
       ) : (
@@ -108,7 +119,7 @@ function OrdersList() {
                 <div>
                   <span className="order-id">#{order.id.slice(0, 8).toUpperCase()}</span>
                   <span className="order-date">
-                    {new Date(order.created_at).toLocaleDateString("en-GB", {
+                    {new Date(order.created_at).toLocaleDateString("id-ID", {
                       day: "numeric",
                       month: "short",
                       year: "numeric",
@@ -119,7 +130,7 @@ function OrdersList() {
                   className="order-status"
                   style={{ background: STATUS_COLORS[order.status] ?? "var(--mist)" }}
                 >
-                  {order.status}
+                  {STATUS_LABELS[order.status] ?? order.status}
                 </span>
               </div>
               <div className="order-items">
@@ -133,7 +144,7 @@ function OrdersList() {
                   </div>
                 ))}
                 {order.items.length > 3 && (
-                  <div className="order-item muted">+{order.items.length - 3} more items</div>
+                  <div className="order-item muted">+{order.items.length - 3} produk lainnya</div>
                 )}
               </div>
               <div className="order-footer">
@@ -142,7 +153,7 @@ function OrdersList() {
                   <span className="order-total">{formatPrice(order.total)}</span>
                 </div>
                 <span className="order-view">
-                  View Details <Icon name="arrowRight" size={15} />
+                  Lihat Detail <Icon name="arrowRight" size={15} />
                 </span>
               </div>
             </Link>

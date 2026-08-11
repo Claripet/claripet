@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/icons";
 import { BannerDecor } from "@/components/BannerDecor";
@@ -10,21 +10,30 @@ const WHATSAPP_DISPLAY = "0881.0809.63188";
 const EMAIL = "claripetindonesia@gmail.com";
 
 const INQUIRIES = [
-  { icon: "bag", t: "Product Questions", d: "Need help choosing the right ClariPet product?" },
-  { icon: "package", t: "Order Support", d: "Questions about your order, shipping, or delivery?" },
-  { icon: "users", t: "Business & Partnerships", d: "Retailers, distributors, media, or collaborations." },
-  { icon: "heart", t: "General Inquiries", d: "Anything else? We're happy to help." },
+  { icon: "bag", t: "Pertanyaan Produk", d: "Butuh bantuan memilih produk ClariPet yang tepat?" },
+  { icon: "package", t: "Bantuan Pesanan", d: "Ada pertanyaan seputar pesanan, pengiriman, atau pengantaran?" },
+  { icon: "users", t: "Bisnis & Kemitraan", d: "Untuk retailer, distributor, media, atau kolaborasi." },
+  { icon: "heart", t: "Pertanyaan Umum", d: "Ada hal lain? Kami siap membantu." },
 ];
 
 const SUBJECTS = [
-  "Product Questions",
-  "Order Support",
-  "Business & Partnerships",
-  "General Inquiries",
+  "Pertanyaan Produk",
+  "Bantuan Pesanan",
+  "Bisnis & Kemitraan",
+  "Pertanyaan Umum",
 ];
 
 export function ContactView() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [subject, setSubject] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function selectInquiry(topic: string) {
+    setSubject(topic);
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   return (
     <main>
@@ -33,7 +42,7 @@ export function ContactView() {
           <BannerDecor />
           <div className="page-banner-copy">
             <h1 className="h1" style={{ marginBottom: 0 }}>Let&apos;s Talk.</h1>
-            <p className="lead">Whether you have questions about our products, your order, or simply need help finding the right solution for your pet — we&apos;re here to help.</p>
+            <p className="lead">Baik Anda punya pertanyaan seputar produk kami, pesanan Anda, atau butuh bantuan menemukan solusi yang tepat untuk hewan peliharaan Anda — kami siap membantu.</p>
           </div>
           <div className="page-banner-media" style={{ aspectRatio: "1500 / 867" }}>
             <Image
@@ -54,17 +63,22 @@ export function ContactView() {
             <h2 className="h2" style={{ marginBottom: 10 }}>
               How Can We Help You?
             </h2>
-            <p className="muted">Choose the topic that best fits your inquiry so we can assist you faster.</p>
+            <p className="muted">Pilih topik yang paling sesuai dengan pertanyaan Anda agar kami bisa membantu lebih cepat.</p>
           </div>
           <div className="inquiry-grid">
             {INQUIRIES.map((q, i) => (
-              <div className="inquiry-card" key={i}>
+              <button
+                type="button"
+                className="inquiry-card"
+                key={i}
+                onClick={() => selectInquiry(q.t)}
+              >
                 <span className="inquiry-ic">
                   <Icon name={q.icon} size={24} />
                 </span>
                 <div className="t">{q.t}</div>
                 <div className="d">{q.d}</div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -74,7 +88,7 @@ export function ContactView() {
         <div className="wrap">
             <div className="contact-info">
             <div className="contact-block">
-              <h3 className="h3">Customer Support</h3>
+              <h3 className="h3">Layanan Pelanggan</h3>
               <a className="contact-line" href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer">
                 <span className="contact-line-ic"><Icon name="smile" size={18} /></span>
                 <span>
@@ -92,20 +106,20 @@ export function ContactView() {
               <div className="contact-line">
                 <span className="contact-line-ic"><Icon name="clock" size={18} /></span>
                 <span>
-                  <strong>Operating Hours</strong>
+                  <strong>Jam Operasional</strong>
                   <em>Senin–Jumat 09.00–17.00 WIB</em>
                 </span>
               </div>
             </div>
 
             <div className="contact-block">
-              <h3 className="h3">Connect With Us</h3>
+              <h3 className="h3">Terhubung Dengan Kami</h3>
               <a className="contact-line" href="#"><span className="contact-line-ic"><Icon name="instagram" size={18} /></span><span><strong>Instagram</strong><em>@claripetcare</em></span></a>
               <a className="contact-line" href="#"><span className="contact-line-ic"><Icon name="tiktok" size={18} /></span><span><strong>TikTok</strong><em>@claripetcare</em></span></a>
             </div>
 
             <div className="contact-block">
-              <h3 className="h3">Our Location</h3>
+              <h3 className="h3">Lokasi Kami</h3>
               <div className="contact-line">
                 <span className="contact-line-ic"><Icon name="pin" size={18} /></span>
                 <span>
@@ -124,7 +138,7 @@ export function ContactView() {
             <div>
               <h2 className="h2" style={{ marginBottom: 10 }}>Message Us</h2>
               <p className="muted">
-                Fill out the form and our team will get back to you as soon as possible.
+                Isi formulir ini dan tim kami akan segera menghubungi Anda kembali.
               </p>
               <div className="contact-form-media">
                 <Image
@@ -139,40 +153,70 @@ export function ContactView() {
             </div>
             <form
               className="contact-form"
-              onSubmit={(e) => {
+              ref={formRef}
+              onSubmit={async (e) => {
                 e.preventDefault();
-                setSent(true);
+                setSubmitError(null);
+                const form = e.currentTarget;
+                const data = new FormData(form);
+                setSending(true);
+                try {
+                  const res = await fetch("/api/contact", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: data.get("name"),
+                      email: data.get("email"),
+                      subject: data.get("subject"),
+                      message: data.get("message"),
+                    }),
+                  });
+                  const json = await res.json();
+                  if (!res.ok || !json.success) {
+                    throw new Error(json.error || "Gagal mengirim pesan.");
+                  }
+                  setSent(true);
+                  form.reset();
+                  setSubject("");
+                } catch (err) {
+                  setSubmitError(err instanceof Error ? err.message : "Gagal mengirim pesan.");
+                } finally {
+                  setSending(false);
+                }
               }}
             >
               <div className="cf-row">
                 <label className="cf-field">
-                  <span>Name <b>*</b></span>
-                  <input required placeholder="Your full name" />
+                  <span>Nama <b>*</b></span>
+                  <input required name="name" placeholder="Nama lengkap Anda" />
                 </label>
                 <label className="cf-field">
                   <span>Email <b>*</b></span>
-                  <input required type="email" placeholder="your@email.com" />
+                  <input required type="email" name="email" placeholder="your@email.com" />
                 </label>
               </div>
               <label className="cf-field">
-                <span>Subject <b>*</b></span>
-                <select required defaultValue="">
-                  <option value="" disabled>Select a subject</option>
+                <span>Subjek <b>*</b></span>
+                <select required name="subject" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                  <option value="" disabled>Pilih subjek</option>
                   {SUBJECTS.map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
               </label>
               <label className="cf-field">
-                <span>Message <b>*</b></span>
-                <textarea required rows={5} placeholder="How can we help?" />
+                <span>Pesan <b>*</b></span>
+                <textarea required name="message" rows={5} placeholder="Bagaimana kami bisa membantu?" />
               </label>
-              <button type="submit" className="btn btn-primary btn-lg">
-                <Icon name="arrowRight" size={18} /> Send Message
+              <button type="submit" className="btn btn-primary btn-lg" disabled={sending}>
+                <Icon name="arrowRight" size={18} /> {sending ? "Mengirim..." : "Kirim Pesan"}
               </button>
+              {submitError && (
+                <p className="cf-error">{submitError}</p>
+              )}
               {sent && (
                 <p className="cf-success">
-                  Thanks for reaching out! This is a demo form — connect it to your inbox or WhatsApp to receive messages.
+                  Terima kasih sudah menghubungi kami! Tim kami akan segera merespons.
                 </p>
               )}
             </form>

@@ -19,7 +19,7 @@ export function FaqView() {
           <BannerDecor />
           <div className="page-banner-copy">
             <h1 className="h1" style={{ marginBottom: 0 }}>Curious About ClariPet?</h1>
-            <p className="lead">Everything you need to know — what we do, and how we&apos;re helping you help them.</p>
+            <p className="lead">Semua yang perlu Anda ketahui — apa yang kami lakukan, dan bagaimana kami membantu Anda merawat mereka.</p>
           </div>
           <div className="page-banner-media" style={{ aspectRatio: "1500 / 962" }}>
             <Image
@@ -73,7 +73,7 @@ export function FaqView() {
                 Still Have Questions?
               </h2>
               <p className="muted">
-                We&apos;re always happy to help. Reach our team and we&apos;ll get back to you quickly.
+                Kami selalu siap membantu. Hubungi tim kami dan kami akan segera merespons.
               </p>
             </div>
             <div className="faq-cta-actions">
@@ -83,10 +83,10 @@ export function FaqView() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Chat on WhatsApp
+                Chat via WhatsApp
               </a>
               <Link className="btn btn-secondary btn-lg" href="/contact">
-                Contact Us
+                Hubungi Kami
               </Link>
             </div>
           </div>

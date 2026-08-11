@@ -19,7 +19,7 @@ const CATEGORY_STYLE: Record<
   string,
   { icon: string; bg: string; iconColor: string }
 > = {
-  "All Articles": { icon: "paw", bg: "bg-[#AECBEB]/30", iconColor: "text-navy" },
+  "Semua Artikel": { icon: "paw", bg: "bg-[#AECBEB]/30", iconColor: "text-navy" },
   Health: { icon: "heart", bg: "bg-[#F5CDD3]/30", iconColor: "text-navy" },
   "Care Tips": { icon: "lightbulb", bg: "bg-[#E0CBE8]/30", iconColor: "text-navy" },
   Grooming: { icon: "spray", bg: "bg-[#C5D6C8]/30", iconColor: "text-navy" },
@@ -59,25 +59,25 @@ export function JournalView({
   articles: Article[];
   featured?: Article;
 }) {
-  const [filter, setFilter] = useState("All Articles");
+  const [filter, setFilter] = useState("Semua Artikel");
 
   const categories = useMemo(() => {
     const seen = Array.from(
       new Set(articles.map((a) => a.category).filter(Boolean)),
     );
-    return ["All Articles", ...seen];
+    return ["Semua Artikel", ...seen];
   }, [articles]);
 
   const filtered = useMemo(
     () =>
-      filter === "All Articles"
+      filter === "Semua Artikel"
         ? articles
         : articles.filter((a) => a.category === filter),
     [articles, filter],
   );
 
   const showFeatured =
-    !!featured && (filter === "All Articles" || featured.category === filter);
+    !!featured && (filter === "Semua Artikel" || featured.category === filter);
 
   const latest = useMemo(
     () =>
@@ -107,7 +107,7 @@ export function JournalView({
               Pet Care Journal
               <Icon name="heart" size={22} className="inline-block ml-2 text-pink align-middle" strokeWidth={2} />
             </h1>
-            <p className="lead">Tips, guides, and insights for happier, healthier pets.</p>
+            <p className="lead">Tips, panduan, dan wawasan untuk hewan peliharaan yang lebih bahagia dan sehat.</p>
           </div>
           <div className="page-banner-media" style={{ aspectRatio: "1800 / 600" }}>
             <Image
@@ -171,7 +171,7 @@ export function JournalView({
           <div className="flex items-center gap-2 mb-4 text-[#8A90A0]">
             <Icon name="star" size={16} className="text-cream" />
             <span className="text-[12px] font-semibold tracking-wide uppercase">
-              Featured Article
+              Artikel Unggulan
             </span>
           </div>
 
@@ -225,11 +225,12 @@ export function JournalView({
                   </span>
                   <div>
                     <p className="font-bold text-navy text-[13px] mb-0.5">
-                      Rover&apos;s Tip
+                      Tips dari Rover
                     </p>
                     <p className="text-[13px] text-[#5A6072] leading-snug">
-                      Consistency beats intensity — a short daily routine
-                      outperforms a once-a-week deep clean.
+                      Konsistensi lebih penting daripada intensitas —
+                      rutinitas singkat setiap hari lebih efektif daripada
+                      pembersihan menyeluruh sekali seminggu.
                     </p>
                   </div>
                 </div>
@@ -238,7 +239,7 @@ export function JournalView({
                   href={`/journal/${featured.slug}`}
                   className="inline-flex w-fit items-center gap-2 rounded-full bg-sky hover:bg-sky/80 text-white font-semibold px-7 py-3 transition-colors text-[0.95rem]"
                 >
-                  Read Article
+                  Baca Artikel
                   <Icon name="arrowRight" size={18} />
                 </Link>
               </div>
@@ -257,14 +258,14 @@ export function JournalView({
             href="/journal"
             className="journal-more-link inline-flex items-center gap-1.5 text-navy font-semibold text-[14px] hover:underline"
           >
-            View All Articles
+            Lihat Semua Artikel
             <Icon name="arrowRight" size={16} />
           </Link>
         </div>
 
         {latest.length === 0 ? (
           <div className="text-center py-16 text-[#8A90A0]">
-            No articles in this category yet.
+            Belum ada artikel di kategori ini.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -285,14 +286,14 @@ export function JournalView({
             href="/journal"
             className="journal-more-link inline-flex items-center gap-1.5 text-navy font-semibold text-[14px] hover:underline"
           >
-            View All Articles
+            Lihat Semua Artikel
             <Icon name="arrowRight" size={16} />
           </Link>
         </div>
 
         {popular.length === 0 ? (
           <div className="text-center py-16 text-[#8A90A0]">
-            No articles in this category yet.
+            Belum ada artikel di kategori ini.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

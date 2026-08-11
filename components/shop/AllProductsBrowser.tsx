@@ -7,9 +7,9 @@ import { ProductCard } from "@/components/ProductCard";
 import { formatPrice } from "@/lib/format";
 
 const TRUST = [
-  { icon: "shield", t: "Pet Safe", d: "Always safe and gentle" },
-  { icon: "droplet", t: "Alcohol Free", d: "No harsh chemicals" },
-  { icon: "pin", t: "Made in Indonesia", d: "With love and care" },
+  { icon: "shield", t: "Pet Safe", d: "Selalu aman dan lembut" },
+  { icon: "droplet", t: "Alcohol Free", d: "Tanpa bahan kimia keras" },
+  { icon: "pin", t: "Made in Indonesia", d: "Dibuat dengan penuh cinta dan perhatian" },
 ];
 
 /** Counts every option so each checkbox can show how many products it holds. */
@@ -118,7 +118,7 @@ export function AllProductsBrowser({
         className="filter-toggle btn btn-secondary"
         onClick={() => setMobileOpen((v) => !v)}
       >
-        <Icon name="settings" size={18} /> Filters{activeCount ? ` (${activeCount})` : ""}
+        <Icon name="settings" size={18} /> Filter{activeCount ? ` (${activeCount})` : ""}
       </button>
 
       {mobileOpen && (
@@ -133,7 +133,7 @@ export function AllProductsBrowser({
           </h3>
           {activeCount > 0 && (
             <button type="button" className="filter-clear" onClick={clearAll}>
-              Clear all
+              Hapus Semua
             </button>
           )}
           <button
@@ -147,12 +147,12 @@ export function AllProductsBrowser({
         </div>
 
         <div className="filter-panel-body">
-          {group("Pet Type", petFacet, petTypes, setPetTypes)}
-          {group("Concern", concernFacet, concerns, setConcerns)}
-          {group("Collection", collectionFacet, collections, setCollections)}
+          {group("Jenis Hewan", petFacet, petTypes, setPetTypes)}
+          {group("Kebutuhan", concernFacet, concerns, setConcerns)}
+          {group("Koleksi", collectionFacet, collections, setCollections)}
 
           <div className="filter-group">
-            <div className="filter-group-title">Price Range</div>
+            <div className="filter-group-title">Rentang Harga</div>
             <input
               className="filter-range"
               type="range"
@@ -197,7 +197,7 @@ export function AllProductsBrowser({
             <h2 className="h2">All Products</h2>
           </div>
           <span className="muted" style={{ fontSize: 14 }}>
-            {filtered.length} of {products.length} products
+            {filtered.length} dari {products.length} produk
           </span>
         </div>
 
@@ -209,9 +209,9 @@ export function AllProductsBrowser({
           </div>
         ) : (
           <div className="center" style={{ padding: "56px 0" }}>
-            <p className="lead" style={{ marginBottom: 16 }}>No products match your filters.</p>
+            <p className="lead" style={{ marginBottom: 16 }}>Tidak ada produk yang sesuai dengan filter Anda.</p>
             <button type="button" className="btn btn-secondary" onClick={clearAll}>
-              Clear all filters
+              Hapus Semua Filter
             </button>
           </div>
         )}

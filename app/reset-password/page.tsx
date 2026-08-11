@@ -23,11 +23,11 @@ export default function ResetPasswordPage() {
     setError(null);
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError("Kata sandi minimal harus 8 karakter");
       return;
     }
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setError("Kata sandi tidak cocok");
       return;
     }
 
@@ -49,8 +49,8 @@ export default function ResetPasswordPage() {
           <div className="auth-success-icon">
             <Icon name="check" size={36} strokeWidth={3} />
           </div>
-          <h2 className="h2" style={{ marginBottom: 12 }}>Password updated</h2>
-          <p className="muted">Your password has been changed successfully.</p>
+          <h2 className="h2" style={{ marginBottom: 12 }}>Kata sandi diperbarui</h2>
+          <p className="muted">Kata sandi Anda telah berhasil diubah.</p>
           <button
             className="btn btn-primary btn-block btn-lg"
             style={{ marginTop: 28 }}
@@ -59,7 +59,7 @@ export default function ResetPasswordPage() {
               router.refresh();
             }}
           >
-            Continue to Login
+            Lanjut ke Halaman Masuk
           </button>
         </div>
       </AuthShell>
@@ -69,8 +69,8 @@ export default function ResetPasswordPage() {
   return (
     <AuthShell>
       <div className="form-head">
-        <h2 className="h2">New password</h2>
-        <p className="muted">Enter and confirm your new password</p>
+        <h2 className="h2">Kata Sandi Baru</h2>
+        <p className="muted">Masukkan dan konfirmasi kata sandi baru Anda</p>
       </div>
 
       {error && (
@@ -82,14 +82,14 @@ export default function ResetPasswordPage() {
 
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
-          <label htmlFor="password">New Password</label>
+          <label htmlFor="password">Kata Sandi Baru</label>
           <div className="pw-wrap">
             <input
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
+              placeholder="Minimal 8 karakter"
               required
               minLength={8}
               autoFocus
@@ -106,13 +106,13 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="confirm">Confirm Password</label>
+          <label htmlFor="confirm">Konfirmasi Kata Sandi</label>
           <input
             id="confirm"
             type={showPassword ? "text" : "password"}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
-            placeholder="Re-enter your password"
+            placeholder="Masukkan ulang kata sandi Anda"
             required
             minLength={8}
           />
@@ -123,12 +123,12 @@ export default function ResetPasswordPage() {
           className="btn btn-primary btn-block btn-lg"
           disabled={loading}
         >
-          {loading ? "Updating..." : "Update Password"}
+          {loading ? "Memperbarui..." : "Perbarui Kata Sandi"}
         </button>
       </form>
 
       <p className="auth-footer">
-        <Link href="/login">Back to login</Link>
+        <Link href="/login">Kembali ke halaman masuk</Link>
       </p>
     </AuthShell>
   );

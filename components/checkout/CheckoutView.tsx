@@ -134,7 +134,7 @@ export function CheckoutView() {
           }
         });
       } else {
-        alert("Midtrans script not found.");
+        alert("Skrip pembayaran tidak ditemukan. Silakan muat ulang halaman.");
       }
     } catch (err: any) {
       alert(err.message || "Terdapat kesalahan. Silakan coba lagi.");
@@ -219,9 +219,9 @@ export function CheckoutView() {
           <h1>Checkout</h1>
           <div className="checkout-card center-card">
             <Icon name="cart" size={34} />
-            <h2>Your cart is empty</h2>
+            <h2>Keranjang Anda kosong</h2>
             <p>Tambahkan produk dulu sebelum checkout.</p>
-            <PrimaryButton onClick={() => router.push("/shop")}>Shop Now</PrimaryButton>
+            <PrimaryButton onClick={() => router.push("/shop")}>Belanja Sekarang</PrimaryButton>
           </div>
         </div>
         <CheckoutStyles />
@@ -343,7 +343,7 @@ export function CheckoutView() {
                       >
                         <span className="saved-addr-top">
                           <span className="saved-addr-label"><Icon name="pinned" size={13} /> {addr.label}</span>
-                          {addr.is_default && <span className="saved-addr-default">Default</span>}
+                          {addr.is_default && <span className="saved-addr-default">Utama</span>}
                         </span>
                         <strong>{addr.full_name}</strong>
                         <span className="saved-addr-line">{addr.phone}</span>
@@ -487,7 +487,7 @@ export function CheckoutView() {
                         </div>
                         <div>
                           <strong>{item.product.name}</strong>
-                          <span>Size {item.size} • Qty {item.qty}</span>
+                          <span>Ukuran {item.size} • Jumlah {item.qty}</span>
                         </div>
                         <b>{formatPrice(item.product.price * item.qty)}</b>
                       </div>

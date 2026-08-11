@@ -44,7 +44,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   return (
     <div className="prod-card" role="group" aria-label={`Product: ${product.name}`}>
       <div className="prod-media">
-        {product.bestSeller && <span className="prod-tag tag">Best Seller</span>}
+        {product.bestSeller && <span className="prod-tag tag">Terlaris</span>}
         <button
           className={"wishlist" + (isWished ? " active" : "")}
           aria-label={isWished ? "Remove from wishlist" : "Add to wishlist"}
@@ -87,7 +87,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         </div>
         <div ref={btnRef} className="prod-add">
           <PrimaryButton block size="sm" type="button" onClick={handleAddToCart} aria-label={`Add ${product.name} to cart`}>
-            Add to Cart
+            Tambah ke Keranjang
           </PrimaryButton>
         </div>
       </div>

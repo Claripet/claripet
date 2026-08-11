@@ -27,49 +27,51 @@ interface QuizStep {
 const QUIZ_STEPS: QuizStep[] = [
   {
     key: "pet",
-    q: "Who are we shopping for today?",
+    q: "Sedang belanja untuk siapa hari ini?",
     options: [
-      { value: "dog", label: "A Dog", icon: "dog", tone: "sky" },
-      { value: "cat", label: "A Cat", icon: "cat", tone: "pink" },
+      { value: "dog", label: "Anjing", icon: "dog", tone: "sky" },
+      { value: "cat", label: "Kucing", icon: "cat", tone: "pink" },
     ],
   },
   {
     key: "concern",
-    q: "What’s your main concern right now?",
+    q: "Apa perhatian utama Anda saat ini?",
     options: [
-      { value: "hygiene-grooming", label: "Bad breath", icon: "droplet", tone: "sky" },
-      { value: "hygiene-grooming", label: "Tear stains", icon: "sparkle", tone: "lavender" },
-      { value: "hygiene-grooming", label: "Odour & freshness", icon: "spray", tone: "sage" },
-      { value: "general", label: "General care", icon: "heart", tone: "pink" },
+      { value: "bad-breath", label: "Bau mulut", icon: "droplet", tone: "sky" },
+      { value: "tear-stains", label: "Noda air mata", icon: "sparkle", tone: "lavender" },
+      { value: "odor-freshness", label: "Bau badan & kesegaran", icon: "spray", tone: "sage" },
+      { value: "general", label: "Perawatan umum", icon: "heart", tone: "pink" },
     ],
   },
   {
     key: "skin",
-    q: "How would you describe their skin & coat?",
+    q: "Bagaimana kondisi kulit & bulunya?",
     options: [
-      { value: "sensitive", label: "Sensitive / itchy", icon: "leaf", tone: "sage" },
-      { value: "normal", label: "Normal & healthy", icon: "smile", tone: "cream" },
-      { value: "dull", label: "Dull or dry", icon: "droplet", tone: "sky" },
-      { value: "unsure", label: "Not sure", icon: "check", tone: "lavender" },
+      { value: "sensitive", label: "Sensitif / gatal", icon: "leaf", tone: "sage" },
+      { value: "normal", label: "Normal & sehat", icon: "smile", tone: "cream" },
+      { value: "dull", label: "Kusam atau kering", icon: "droplet", tone: "sky" },
+      { value: "unsure", label: "Tidak yakin", icon: "check", tone: "lavender" },
     ],
   },
   {
     key: "scent",
-    q: "Any scent preference?",
+    q: "Ada preferensi aroma?",
     options: [
-      { value: "baby-powder", label: "Soft baby powder", icon: "sparkle", tone: "pink" },
-      { value: "lavender", label: "Calming lavender", icon: "leaf", tone: "lavender" },
-      { value: "fresh", label: "Clean & fresh", icon: "droplet", tone: "sky" },
-      { value: "none", label: "Fragrance free", icon: "check", tone: "sage" },
+      { value: "baby-powder", label: "Baby powder lembut", icon: "sparkle", tone: "pink" },
+      { value: "lavender", label: "Lavender yang menenangkan", icon: "leaf", tone: "lavender" },
+      { value: "fresh", label: "Bersih & segar", icon: "droplet", tone: "sky" },
+      { value: "none", label: "Tanpa aroma", icon: "check", tone: "sage" },
     ],
   },
 ];
+
+const HYGIENE_CONCERNS = new Set(["bad-breath", "tear-stains", "odor-freshness"]);
 
 function recommend(answers: Record<string, string>): Product[] {
   const recs = new Set<string>();
   const byCat = (c: string) => PRODUCTS.filter((p) => p.category === c).forEach((p) => recs.add(p.slug));
 
-  if (answers.concern === "hygiene-grooming") byCat("hygiene-grooming");
+  if (HYGIENE_CONCERNS.has(answers.concern)) byCat("hygiene-grooming");
   else {
     recs.add("claripet-skin-guard-silver-heal");
     recs.add("claripet-shu-shu-cat");
@@ -108,15 +110,15 @@ export function Quiz() {
 
   if (done) {
     const recs = recommend(answers);
-    const petLabel = answers.pet === "cat" ? "cat" : "dog";
+    const petLabel = answers.pet === "cat" ? "kucing" : "anjing";
     return (
       <main>
         <PageHead
-          title="Your personalised picks"
-          subtitle={`Based on your answers, here’s what we’d reach for first for your ${petLabel}.`}
+          title="Rekomendasi Personal untuk Anda"
+          subtitle={`Berdasarkan jawaban Anda, ini yang akan kami sarankan pertama kali untuk ${petLabel} Anda.`}
         />
         <div className="wrap quiz-shell" style={{ maxWidth: 980 }}>
-          <Mascot tone="sky" speech="Great choices ahead!" sub="ClariPet recommends" />
+          <Mascot tone="sky" speech="Pilihan bagus menanti!" sub="Rekomendasi ClariPet" />
           <div
             className="prod-grid"
             style={{ gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))`, marginTop: 28 }}
@@ -132,9 +134,9 @@ export function Quiz() {
                 router.push("/cart");
               }}
             >
-              Add all to cart
+              Tambah Semua ke Keranjang
             </PrimaryButton>
-            <SecondaryButton onClick={reset}>Retake quiz</SecondaryButton>
+            <SecondaryButton onClick={reset}>Ulangi Kuis</SecondaryButton>
           </div>
         </div>
       </main>
@@ -153,13 +155,13 @@ export function Quiz() {
           Quiz Rekomendasi Produk ClariPet untuk Anjing &amp; Kucing
         </h1>
         <div className="eyebrow center" style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-          <Icon name="sparkle" size={16} /> Find their match
+          <Icon name="sparkle" size={16} /> Temukan yang cocok
         </div>
         <div className="quiz-progress">
           <div className="bar" style={{ width: `${progress}%` }} />
         </div>
         <div className="quiz-step-label">
-          Step {step + 1} of {QUIZ_STEPS.length}
+          Langkah {step + 1} dari {QUIZ_STEPS.length}
         </div>
         <div className="quiz-card">
           <h2 className="h3">{current.q}</h2>
@@ -184,11 +186,11 @@ export function Quiz() {
               disabled={step === 0}
               style={{ opacity: step === 0 ? 0.4 : 1 }}
             >
-              Back
+              Kembali
             </button>
             {answers[current.key] && (
               <PrimaryButton onClick={() => setStep((s) => s + 1)} icon="arrowRight">
-                Next
+                Lanjut
               </PrimaryButton>
             )}
           </div>

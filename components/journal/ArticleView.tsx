@@ -26,7 +26,7 @@ export function ArticleView({
         <div className="meta muted" style={{ display: "flex", gap: 10, fontSize: 14, marginBottom: 8 }}>
           <span style={{ fontWeight: 600, color: "var(--navy)" }}>{article.category}</span>
           <span>·</span>
-          <span>{article.readTime} read</span>
+          <span>{article.readTime} baca</span>
         </div>
         <h1 className="h1">{article.title}</h1>
         <div className="hero-img" style={{ position: "relative", aspectRatio: "16 / 9", overflow: "hidden" }}>
@@ -62,13 +62,13 @@ export function ArticleView({
           }}
         >
           <h3 className="h3" style={{ marginBottom: 10 }}>
-            Ready to give it a try?
+            Siap untuk mencobanya?
           </h3>
           <p className="muted" style={{ marginBottom: 20 }}>
-            Explore gentle, pet-safe products made for moments like these.
+            Jelajahi produk yang lembut dan aman untuk momen seperti ini.
           </p>
           <PrimaryButton icon="arrowRight" onClick={() => router.push("/shop")}>
-            Shop ClariPet
+            Belanja ClariPet
           </PrimaryButton>
         </div>
       </article>

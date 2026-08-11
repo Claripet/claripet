@@ -76,7 +76,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
             spellCheck={false}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search Products..."
+            placeholder="Cari Produk..."
             aria-label="Search products"
           />
           <button className="icon-btn" aria-label="Close search" onClick={onClose} style={{ marginLeft: 'auto' }}>
@@ -96,10 +96,10 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                 textTransform: "uppercase",
               }}
             >
-              Popular products
+              Produk Populer
             </div>
           )}
-          {results.length === 0 && <div className="search-empty">No products match “{q}”.</div>}
+          {results.length === 0 && <div className="search-empty">Tidak ada produk yang cocok dengan “{q}”.</div>}
           {results.map((p) => (
             <div key={p.slug} className="search-result" onClick={() => goTo(p.slug)} role="link" tabIndex={0}>
               <div className="thumb">

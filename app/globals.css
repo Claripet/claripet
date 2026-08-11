@@ -2608,15 +2608,19 @@ select:focus-visible {
    =========================================================== */
 .inquiry-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
 .inquiry-card {
+  width: 100%;
   background: #fff;
   border: 1px solid var(--line-soft);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-sm);
   padding: 28px 24px;
   text-align: center;
+  font-family: inherit;
+  cursor: pointer;
   transition: transform .25s var(--ease), box-shadow .25s var(--ease);
 }
 .inquiry-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-pop); }
+.inquiry-card:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 .inquiry-ic {
   width: 60px; height: 60px;
   border-radius: var(--r-pill);
@@ -2665,7 +2669,7 @@ select:focus-visible {
   box-shadow: var(--shadow-sm);
   padding: 44px;
 }
-.contact-form { display: flex; flex-direction: column; gap: 18px; }
+.contact-form { display: flex; flex-direction: column; gap: 18px; scroll-margin-top: calc(var(--nav-h) + 20px); }
 .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .cf-field { display: flex; flex-direction: column; gap: 8px; }
 .cf-field > span { font-size: 14px; font-weight: 600; color: var(--navy); }
@@ -2688,6 +2692,7 @@ select:focus-visible {
 .cf-field textarea:focus { border-color: var(--sky); }
 .cf-field textarea { resize: vertical; }
 .cf-success { color: #3c7a52; font-size: 14px; font-weight: 500; }
+.cf-error { color: #b04050; font-size: 14px; font-weight: 500; }
 
 /* ===========================================================
    REVIEWS PAGE
@@ -2965,6 +2970,65 @@ select:focus-visible {
 .banner-deco.deco-sparkle { color: #a884d0; }
 .banner-deco.deco-heart { color: #ee8fa4; }
 .banner-deco.deco-trail { opacity: 0.7; }
+
+/* ---------- Ambient section doodles ----------
+   Small ornamental marks from the brand's SVG pack, scattered a few per
+   section so the site reads warmer without looking cluttered. Add
+   .section-doodles to the section and render <SectionDoodles marks={...} />
+   (or a standalone <DecorIcon>) as its first child — the marks sit in the
+   section's own padding band, never over content, via the .decor-a../d
+   corner slots below. Same colour convention as .banner-deco. */
+.section-doodles { position: relative; }
+.section-doodles > .wrap,
+.section-doodles > .sec-head,
+.section-doodles > .eyebrow,
+.section-doodles > h1,
+.section-doodles > h2,
+.section-doodles > p,
+.section-doodles > .lead {
+  position: relative;
+  z-index: 1;
+}
+.decor-mark {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  line-height: 0;
+  color: #7db1ff;
+  opacity: 0.8;
+}
+.decor-mark svg { width: 100%; height: 100%; }
+.decor-mark.tone-sparkle { color: #a884d0; }
+.decor-mark.tone-heart { color: #ee8fa4; }
+.decor-mark.tone-trail { opacity: 0.65; }
+.decor-mark.tone-leaf { color: #8fb996; opacity: 0.7; }
+
+/* Positioned in px within the section's own padding, not %, so a mark can
+   never drift into the content as the section grows. Top-right is left
+   empty on purpose — that's where a .sec-head "View All" link usually
+   sits. */
+.decor-a { width: 46px; height: 46px; top: 16px; left: 2%; }
+.decor-b { width: 32px; height: 32px; bottom: 26px; left: 4%; }
+.decor-c { width: 58px; height: 58px; bottom: 14px; right: 11%; }
+.decor-d { width: 50px; height: 50px; bottom: 18px; right: 3%; }
+
+/* Lighter two-mark treatment for short, centred hero bands (.page-head,
+   shared by many page types with very different heading lengths; the
+   reviews hero, which has almost no bottom padding) — fewer, smaller marks
+   are less likely to crowd the copy. */
+.page-head.section-doodles .decor-b,
+.page-head.section-doodles .decor-c,
+.reviews-hero.section-doodles .decor-b,
+.reviews-hero.section-doodles .decor-c {
+  display: none;
+}
+.page-head.section-doodles .decor-a,
+.reviews-hero.section-doodles .decor-a { width: 34px; height: 34px; top: 22px; left: 3%; }
+.page-head.section-doodles .decor-d,
+.reviews-hero.section-doodles .decor-d { width: 30px; height: 30px; bottom: 20px; right: 5%; }
+/* The reviews hero's own bottom padding is only 8px — even the smaller mark
+   needs to sit inside the top band instead, mirrored to the right side. */
+.reviews-hero.section-doodles .decor-d { top: 22px; bottom: auto; }
 
 /* CTA banner: kept to the band between the copy (max 54%) and the artwork
    (~73%+) so they never sit under the heading or the button. */
@@ -3710,6 +3774,9 @@ select:focus-visible {
   /* Banner artwork: the decorative marks are scattered against desktop
      free space that no longer exists once the panel is single-column. */
   .banner-deco { display: none; }
+  /* Same reasoning for the ambient section doodles — no spare corner space
+     once everything stacks to one column. */
+  .decor-mark { display: none; }
 
   /* ---------- Cards ---------- */
   .cat-card-fallback { font-size: 16px; }

@@ -42,7 +42,7 @@ export function AccountShell({
         <div className="wrap center">
           <div className="account-loading">
             <span className="spinner" />
-            Loading your account...
+            Memuat akun Anda...
           </div>
         </div>
         <style jsx>{`
@@ -72,7 +72,7 @@ export function AccountShell({
     );
   }
 
-  const displayName = user.profile?.full_name || user.email?.split("@")[0] || "there";
+  const displayName = user.profile?.full_name || user.email?.split("@")[0] || "Pengguna";
   const initial = displayName.charAt(0).toUpperCase();
 
   const handleSignOut = async () => {
@@ -107,7 +107,7 @@ export function AccountShell({
                 </Link>
               ))}
               <button onClick={handleSignOut} className="account-nav-item signout">
-                <Icon name="log-out" size={18} /> Sign Out
+                <Icon name="log-out" size={18} /> Keluar
               </button>
             </nav>
           </aside>

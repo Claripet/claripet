@@ -19,9 +19,9 @@ interface Rewards {
 }
 
 const EARN = [
-  { ic: "bag", t: "Make a purchase", d: "Earn 1 point for every Rp 1.000 spent." },
-  { ic: "star", t: "Write a review", d: "Earn 50 points for each product review." },
-  { ic: "users", t: "Refer a friend", d: "Earn 200 points when a friend's first order ships." },
+  { ic: "bag", t: "Berbelanja", d: "Dapatkan 1 poin untuk setiap Rp 1.000 yang dibelanjakan." },
+  { ic: "star", t: "Tulis ulasan", d: "Dapatkan 50 poin untuk setiap ulasan produk." },
+  { ic: "users", t: "Ajak teman", d: "Dapatkan 200 poin saat pesanan pertama teman Anda dikirim." },
 ];
 
 export default function RewardsPage() {
@@ -48,7 +48,7 @@ function RewardsBody() {
     if (!authLoading && user) load();
   }, [authLoading, user, load]);
 
-  if (loading) return <p className="muted">Loading your rewards…</p>;
+  if (loading) return <p className="muted">Memuat poin reward Anda…</p>;
 
   const r = data ?? { balance: 0, lifetime: 0, tier: "Friend", events: [] };
 
@@ -59,17 +59,17 @@ function RewardsBody() {
           <Icon name="award" size={26} />
           <div>
             <div className="rewards-balance">{r.balance.toLocaleString()}</div>
-            <div className="rewards-label">Points available</div>
+            <div className="rewards-label">Poin tersedia</div>
           </div>
         </div>
         <div className="rewards-meta">
-          <div><span>{r.lifetime.toLocaleString()}</span> lifetime points</div>
-          <div className="rewards-tier">{r.tier} tier</div>
+          <div><span>{r.lifetime.toLocaleString()}</span> poin seumur hidup</div>
+          <div className="rewards-tier">Tingkat {r.tier}</div>
         </div>
       </div>
 
       <div>
-        <h3 className="h3" style={{ marginBottom: 16 }}>How to earn points</h3>
+        <h3 className="h3" style={{ marginBottom: 16 }}>Cara mendapatkan poin</h3>
         <div className="why-grid rewards-earn">
           {EARN.map((e, i) => (
             <div className="why-item" key={i}>
@@ -82,19 +82,19 @@ function RewardsBody() {
       </div>
 
       <div>
-        <h3 className="h3" style={{ marginBottom: 16 }}>Points history</h3>
+        <h3 className="h3" style={{ marginBottom: 16 }}>Riwayat poin</h3>
         {r.events.length === 0 ? (
-          <p className="muted">No points activity yet. Your first order will start your balance!</p>
+          <p className="muted">Belum ada aktivitas poin. Pesanan pertama Anda akan memulai saldo poin!</p>
         ) : (
           <div className="card table-scroll">
             <table className="data-table">
               <thead>
-                <tr><th>Date</th><th>Activity</th><th style={{ textAlign: "right" }}>Points</th></tr>
+                <tr><th>Tanggal</th><th>Aktivitas</th><th style={{ textAlign: "right" }}>Poin</th></tr>
               </thead>
               <tbody>
                 {r.events.map((ev) => (
                   <tr key={ev.id}>
-                    <td>{new Date(ev.created_at).toLocaleDateString()}</td>
+                    <td>{new Date(ev.created_at).toLocaleDateString("id-ID")}</td>
                     <td>{ev.reason}</td>
                     <td style={{ textAlign: "right", fontWeight: 600, color: ev.points >= 0 ? "#3c7a52" : "#b04050" }}>
                       {ev.points >= 0 ? "+" : ""}{ev.points}

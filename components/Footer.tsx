@@ -66,13 +66,13 @@ export function Footer() {
               <li><Link href="/account/orders">Track Order</Link></li>
             </ul>
             <form className="newsletter" onSubmit={(e) => e.preventDefault()}>
-              <input placeholder="Your email" aria-label="Email for newsletter" type="email" />
-              <button type="submit">Subscribe</button>
+              <input placeholder="Email Anda" aria-label="Email for newsletter" type="email" />
+              <button type="submit">Berlangganan</button>
             </form>
           </div>
         </div>
         <div className="footer-bar">
-          <span>&copy; {new Date().getFullYear()} ClariPet. All rights reserved.</span>
+          <span>&copy; {new Date().getFullYear()} ClariPet. Semua hak cipta dilindungi.</span>
           <span className="footer-legal">
             <Link href="/privacy-policy">Kebijakan Privasi</Link>
             <span className="sep">&middot;</span>

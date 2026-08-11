@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { Icon } from "@/components/icons";
 import { getProduct } from "@/data/products";
+import { SectionDoodles } from "@/components/DecorIcons";
 import dynamic from "next/dynamic";
 
 const FavoriteCardBody = dynamic(() => import("./FavoriteCardBody").then(m => m.FavoriteCardBody));
@@ -21,15 +22,16 @@ const FAVORITES = [
 
 export function PetParentFavorites() {
   return (
-    <section className="section bg-sand" style={{ background: "var(--sand)" }}>
+    <section className="section bg-sand section-doodles" style={{ background: "var(--sand)" }}>
+      <SectionDoodles marks={["heart-round", "trail-sweep", "paw-mini", "sparkle-soft"]} />
       <div className="wrap">
         <div className="sec-head reveal">
           <div>
             <h2 className="h2">Pet Parent Favorites</h2>
-            <p className="lead" style={{ marginTop: 8 }}>The products our customers keep coming back for</p>
+            <p className="lead" style={{ marginTop: 8 }}>Produk yang selalu dicari kembali oleh pelanggan kami</p>
           </div>
           <Link className="link" href="/shop">
-            View All Products <Icon name="arrowRight" size={17} />
+            Lihat Semua Produk <Icon name="arrowRight" size={17} />
           </Link>
         </div>
 

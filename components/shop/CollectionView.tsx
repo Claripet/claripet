@@ -13,14 +13,14 @@ import { getCategoryBanner } from "@/lib/categoryArt";
 type SortKey = "featured" | "price-low" | "price-high" | "rating";
 
 const PRICE_BUCKETS = [
-  { id: "u100", label: "Under Rp 100.000", test: (p: number) => p < 100_000 },
+  { id: "u100", label: "Di bawah Rp 100.000", test: (p: number) => p < 100_000 },
   { id: "100-200", label: "Rp 100.000 – 200.000", test: (p: number) => p >= 100_000 && p <= 200_000 },
-  { id: "o200", label: "Over Rp 200.000", test: (p: number) => p > 200_000 },
+  { id: "o200", label: "Di atas Rp 200.000", test: (p: number) => p > 200_000 },
 ];
 
 const RATINGS = [
-  { id: "4.5", label: "4.5 & up", min: 4.5 },
-  { id: "4.0", label: "4.0 & up", min: 4.0 },
+  { id: "4.5", label: "4.5 ke atas", min: 4.5 },
+  { id: "4.0", label: "4.0 ke atas", min: 4.0 },
 ];
 
 function uniqueFacet(products: Product[], pick: (p: Product) => string[] | undefined): string[] {
@@ -145,7 +145,7 @@ export function CollectionView({
       <section className="wrap section-sm">
         <div className="collection-layout">
           <button type="button" className="filter-toggle btn btn-secondary" onClick={() => setMobileOpen((v) => !v)}>
-            <Icon name="settings" size={18} /> Filters{activeCount ? ` (${activeCount})` : ""}
+            <Icon name="settings" size={18} /> Filter{activeCount ? ` (${activeCount})` : ""}
           </button>
 
           {mobileOpen && <div className={"filter-scrim open"} onClick={() => setMobileOpen(false)} aria-hidden={false} />}
@@ -155,7 +155,7 @@ export function CollectionView({
             <div className="filter-panel-head">
               <h3 className="h3" style={{ fontSize: 18 }}>Filter</h3>
               {activeCount > 0 && (
-                <button type="button" className="filter-clear" onClick={clearAll}>Clear all</button>
+                <button type="button" className="filter-clear" onClick={clearAll}>Hapus Semua</button>
               )}
               <button type="button" className="filter-close mobile-only" aria-label="Close filters" onClick={() => setMobileOpen(false)}>
                 <Icon name="close" size={20} />
@@ -166,7 +166,7 @@ export function CollectionView({
 
             {petTypeFacet.length > 0 && (
               <div className="filter-group">
-                <div className="filter-group-title">Pet Type</div>
+                <div className="filter-group-title">Jenis Hewan</div>
                 {petTypeFacet.map((t) => (
                   <label key={t} className="filter-check">
                     <input type="checkbox" checked={petTypes.includes(t)} onChange={() => toggle(petTypes, setPetTypes, t)} />
@@ -178,7 +178,7 @@ export function CollectionView({
 
             {concernFacet.length > 0 && (
               <div className="filter-group">
-                <div className="filter-group-title">Concern</div>
+                <div className="filter-group-title">Kebutuhan</div>
                 {concernFacet.map((c) => (
                   <label key={c} className="filter-check">
                     <input type="checkbox" checked={concerns.includes(c)} onChange={() => toggle(concerns, setConcerns, c)} />
@@ -189,7 +189,7 @@ export function CollectionView({
             )}
 
             <div className="filter-group">
-              <div className="filter-group-title">Price Range</div>
+              <div className="filter-group-title">Rentang Harga</div>
               {PRICE_BUCKETS.map((b) => (
                 <label key={b.id} className="filter-check">
                   <input type="checkbox" checked={prices.includes(b.id)} onChange={() => toggle(prices, setPrices, b.id)} />
@@ -212,20 +212,20 @@ export function CollectionView({
                 </label>
               ))}
               {minRating !== null && (
-                <button type="button" className="filter-clear" onClick={() => setMinRating(null)}>Any rating</button>
+                <button type="button" className="filter-clear" onClick={() => setMinRating(null)}>Semua Rating</button>
               )}
             </div>
 
             <div className="filter-group">
-              <div className="filter-group-title">Highlights</div>
+              <div className="filter-group-title">Unggulan</div>
               <label className="filter-check">
                 <input type="checkbox" checked={bestOnly} onChange={() => setBestOnly((v) => !v)} />
-                <span>Best Sellers only</span>
+                <span>Hanya Terlaris</span>
               </label>
             </div>
 
             <div className="filter-group">
-              <div className="filter-group-title">Other Collections</div>
+              <div className="filter-group-title">Koleksi Lainnya</div>
               {categories.filter((c) => c.slug !== category.slug).map((c) => (
                 <Link key={c.slug} href={`/shop/${c.slug}`} className="filter-link">{c.name}</Link>
               ))}
@@ -234,7 +234,7 @@ export function CollectionView({
 
             <div className="filter-apply mobile-only">
               <button type="button" className="btn btn-primary btn-block" onClick={() => setMobileOpen(false)}>
-                Show {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                Tampilkan {filtered.length} Produk
               </button>
             </div>
           </aside>
@@ -243,7 +243,7 @@ export function CollectionView({
           <div className="collection-main">
             <div className="shop-toolbar">
               <div className="muted" style={{ fontSize: 14 }}>
-                {filtered.length} product{filtered.length !== 1 ? "s" : ""}
+                {filtered.length} produk
               </div>
               <select
                 className="sort-select"
@@ -251,10 +251,10 @@ export function CollectionView({
                 aria-label="Sort products"
                 onChange={(e) => setSort(e.target.value as SortKey)}
               >
-                <option value="featured">Best Selling</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Top Rated</option>
+                <option value="featured">Terlaris</option>
+                <option value="price-low">Harga: Rendah ke Tinggi</option>
+                <option value="price-high">Harga: Tinggi ke Rendah</option>
+                <option value="rating">Rating Tertinggi</option>
               </select>
             </div>
 
@@ -267,9 +267,9 @@ export function CollectionView({
             ) : (
               <div className="empty-state">
                 <div className="ec"><Icon name="search" size={32} /></div>
-                <h3 className="h3" style={{ marginBottom: 8 }}>No products match your filters</h3>
-                <p className="muted" style={{ marginBottom: 18 }}>Try clearing some filters to see more.</p>
-                <button type="button" className="btn btn-secondary" onClick={clearAll}>Clear all filters</button>
+                <h3 className="h3" style={{ marginBottom: 8 }}>Tidak ada produk yang sesuai dengan filter Anda</h3>
+                <p className="muted" style={{ marginBottom: 18 }}>Coba hapus beberapa filter untuk melihat lebih banyak produk.</p>
+                <button type="button" className="btn btn-secondary" onClick={clearAll}>Hapus Semua Filter</button>
               </div>
             )}
           </div>

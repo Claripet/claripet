@@ -36,13 +36,13 @@ export default function ForgotPasswordPage() {
           <div className="auth-success-icon">
             <Icon name="check" size={36} strokeWidth={3} />
           </div>
-          <h2 className="h2" style={{ marginBottom: 12 }}>Check your email</h2>
+          <h2 className="h2" style={{ marginBottom: 12 }}>Periksa email Anda</h2>
           <p className="muted">
-            If an account exists for <strong>{email}</strong>, we&apos;ve sent a link to
-            reset your password. The link expires in 1 hour.
+            Jika akun untuk <strong>{email}</strong> terdaftar, kami telah mengirim
+            tautan untuk mengatur ulang kata sandi Anda. Tautan ini berlaku selama 1 jam.
           </p>
           <Link href="/login" className="btn btn-primary btn-block btn-lg" style={{ marginTop: 28 }}>
-            Back to Login
+            Kembali ke Halaman Masuk
           </Link>
         </div>
       </AuthShell>
@@ -52,8 +52,8 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell>
       <div className="form-head">
-        <h2 className="h2">Reset password</h2>
-        <p className="muted">We&apos;ll email you a secure reset link</p>
+        <h2 className="h2">Atur Ulang Kata Sandi</h2>
+        <p className="muted">Kami akan mengirimkan tautan pengaturan ulang yang aman ke email Anda</p>
       </div>
 
       {error && (
@@ -82,12 +82,12 @@ export default function ForgotPasswordPage() {
           className="btn btn-primary btn-block btn-lg"
           disabled={loading}
         >
-          {loading ? "Sending link..." : "Send Reset Link"}
+          {loading ? "Mengirim tautan..." : "Kirim Tautan Reset"}
         </button>
       </form>
 
       <p className="auth-footer">
-        Remember your password? <Link href="/login">Sign in</Link>
+        Ingat kata sandi Anda? <Link href="/login">Masuk</Link>
       </p>
     </AuthShell>
   );

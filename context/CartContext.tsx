@@ -217,7 +217,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           }
           return [...prev, { slug, size: resolvedSize, qty }];
         });
-        if (resolved) showToast(`${resolved.name} added to cart`);
+        if (resolved) showToast(`${resolved.name} ditambahkan ke keranjang`);
         if (resolved) {
           if (lastAddedTimer.current) clearTimeout(lastAddedTimer.current);
           setLastAdded({ product: resolved, qty, size: resolvedSize });

@@ -38,7 +38,7 @@ export const FavoriteCardBody = memo(function FavoriteCardBody({ product }: { pr
       </div>
       <div ref={btnRef} className="prod-add desktop-only">
         <PrimaryButton block size="sm" type="button" onClick={handleAddToCart} aria-label={`Add ${product.name} to cart`}>
-          Add to Cart
+          Tambah ke Keranjang
         </PrimaryButton>
       </div>
     </div>

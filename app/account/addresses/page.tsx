@@ -47,7 +47,7 @@ function AddressesList() {
   }, [authLoading, user, fetchAddresses]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this address?")) return;
+    if (!confirm("Hapus alamat ini?")) return;
     await fetch(`/api/addresses/${id}`, { method: "DELETE" });
     fetchAddresses();
   };
@@ -64,7 +64,7 @@ function AddressesList() {
   return (
     <div>
       <div className="addresses-head">
-        <h2 className="h3">Saved Addresses</h2>
+        <h2 className="h3">Alamat Tersimpan</h2>
         <button
           className="btn btn-primary btn-sm"
           onClick={() => {
@@ -72,16 +72,16 @@ function AddressesList() {
             setShowForm(true);
           }}
         >
-          <Icon name="plus" size={16} /> Add Address
+          <Icon name="plus" size={16} /> Tambah Alamat
         </button>
       </div>
 
       {loading ? (
-        <p className="muted">Loading...</p>
+        <p className="muted">Memuat...</p>
       ) : addresses.length === 0 ? (
         <div className="empty-box">
           <Icon name="pinned" size={32} />
-          <p>No saved addresses yet</p>
+          <p>Belum ada alamat tersimpan</p>
           <button
             className="btn btn-primary btn-sm"
             onClick={() => {
@@ -89,7 +89,7 @@ function AddressesList() {
               setShowForm(true);
             }}
           >
-            Add Your First Address
+            Tambahkan Alamat Pertama Anda
           </button>
         </div>
       ) : (
@@ -103,7 +103,7 @@ function AddressesList() {
                 <span className="address-label">
                   <Icon name="pinned" size={14} /> {addr.label}
                 </span>
-                {addr.is_default && <span className="default-badge">Default</span>}
+                {addr.is_default && <span className="default-badge">Utama</span>}
               </div>
               <div className="address-body">
                 <div className="address-name">{addr.full_name}</div>
@@ -120,15 +120,15 @@ function AddressesList() {
                     setShowForm(true);
                   }}
                 >
-                  <Icon name="edit" size={14} /> Edit
+                  <Icon name="edit" size={14} /> Ubah
                 </button>
                 {!addr.is_default && (
                   <button onClick={() => handleSetDefault(addr.id)}>
-                    <Icon name="check" size={14} /> Set Default
+                    <Icon name="check" size={14} /> Jadikan Utama
                   </button>
                 )}
                 <button className="danger" onClick={() => handleDelete(addr.id)}>
-                  <Icon name="trash" size={14} /> Delete
+                  <Icon name="trash" size={14} /> Hapus
                 </button>
               </div>
             </div>
@@ -286,7 +286,7 @@ function AddressForm({
     if (json.success) {
       onSaved();
     } else {
-      setError(json.error ?? "Failed to save address.");
+      setError(json.error ?? "Gagal menyimpan alamat.");
       setSaving(false);
     }
   };
@@ -299,7 +299,7 @@ function AddressForm({
         style={{ maxWidth: 480, textAlign: "left" }}
       >
         <h3 className="h3" style={{ marginBottom: 20 }}>
-          {address ? "Edit Address" : "Add Address"}
+          {address ? "Ubah Alamat" : "Tambah Alamat"}
         </h3>
 
         {error && (
@@ -319,17 +319,17 @@ function AddressForm({
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div className="form-group">
-            <label>Label</label>
+            <label>Label Alamat</label>
             <input
               type="text"
               value={form.label}
               onChange={(e) => setForm({ ...form, label: e.target.value })}
-              placeholder="e.g., Home, Office"
+              placeholder="Contoh: Rumah, Kantor"
               required
             />
           </div>
           <div className="form-group">
-            <label>Full Name</label>
+            <label>Nama Lengkap</label>
             <input
               type="text"
               value={form.full_name}
@@ -338,7 +338,7 @@ function AddressForm({
             />
           </div>
           <div className="form-group">
-            <label>Phone</label>
+            <label>Nomor Telepon</label>
             <input
               type="tel"
               value={form.phone}
@@ -347,7 +347,7 @@ function AddressForm({
             />
           </div>
           <div className="form-group">
-            <label>Street Address</label>
+            <label>Alamat Lengkap</label>
             <input
               type="text"
               value={form.street}
@@ -357,27 +357,27 @@ function AddressForm({
           </div>
           <div className="addr-2col">
             <div className="form-group">
-              <label>Province</label>
+              <label>Provinsi</label>
               <select
                 value={form.province}
                 onChange={(e) => setForm({ ...form, province: e.target.value, city: "" })}
                 required
               >
-                <option value="">Select province</option>
+                <option value="">Pilih provinsi</option>
                 {ID_PROVINCES.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
             </div>
             <div className="form-group">
-              <label>City / Regency</label>
+              <label>Kota / Kabupaten</label>
               <select
                 value={form.city}
                 onChange={(e) => setForm({ ...form, city: e.target.value })}
                 disabled={!form.province}
                 required
               >
-                <option value="">{form.province ? "Select city / regency" : "Select province first"}</option>
+                <option value="">{form.province ? "Pilih kota / kabupaten" : "Pilih provinsi dulu"}</option>
                 {citiesForProvince(form.province).map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
@@ -385,7 +385,7 @@ function AddressForm({
             </div>
           </div>
           <div className="form-group">
-            <label>Postal Code</label>
+            <label>Kode Pos</label>
             <input
               type="text"
               value={form.postal_code}
@@ -399,14 +399,14 @@ function AddressForm({
               checked={form.is_default}
               onChange={(e) => setForm({ ...form, is_default: e.target.checked })}
             />
-            Set as default address
+            Jadikan alamat utama
           </label>
           <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
             <button type="button" className="btn btn-ghost" onClick={onClose} style={{ flex: 1 }}>
-              Cancel
+              Batal
             </button>
             <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1 }}>
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </form>

@@ -3,11 +3,10 @@ import Image from "next/image";
 import { Icon } from "@/components/icons";
 
 const STEPS = [
-  { icon: "paw", title: "1. Pet Type", desc: "Dog or Cat", bg: "bg-[#AECBEB]/20" },
-  // Plain string, not JSX — an &apos; entity here renders literally.
-  { icon: "sparkle", title: "2. Main Concern", desc: "What’s your main concern?", bg: "bg-[#F5CDD3]/20" },
-  { icon: "leaf", title: "3. Skin & Coat", desc: "How is their skin & coat?", bg: "bg-[#C5D6C8]/20" },
-  { icon: "spray", title: "4. Scent Preference", desc: "Any scent preference?", bg: "bg-[#E0CBE8]/20" },
+  { icon: "paw", title: "1. Pet Type", desc: "Anjing atau kucing", bg: "bg-[#AECBEB]/20" },
+  { icon: "sparkle", title: "2. Main Concern", desc: "Apa perhatian utama Anda?", bg: "bg-[#F5CDD3]/20" },
+  { icon: "leaf", title: "3. Skin & Coat", desc: "Bagaimana kondisi kulit & bulunya?", bg: "bg-[#C5D6C8]/20" },
+  { icon: "spray", title: "4. Scent Preference", desc: "Ada preferensi aroma?", bg: "bg-[#E0CBE8]/20" },
 ];
 
 export function QuizCTA() {
@@ -32,23 +31,23 @@ export function QuizCTA() {
                 className="text-[#5A6072] leading-relaxed max-w-md"
                 style={{ fontSize: "clamp(0.9rem, 1.3vw, 1.05rem)" }}
               >
-                Answer 4 quick questions and receive personalized ClariPet recommendations based on your pet&apos;s needs.
+                Jawab 4 pertanyaan singkat dan dapatkan rekomendasi ClariPet yang dipersonalisasi sesuai kebutuhan hewan peliharaan Anda.
               </p>
               <div className="flex flex-col items-start gap-4">
                 {/* Site primary button rather than a pale --sky fill: white on
                     #AECBEB is ~1.9:1 contrast, well under the 4.5:1 minimum,
                     which is why it read as washed out. */}
                 <Link href="/quiz" className="btn btn-primary btn-lg">
-                  Start Quiz
+                  Mulai Kuis
                   <Icon name="arrowRight" size={18} />
                 </Link>
                 <div className="flex items-center gap-1.5 text-xs text-[#8A90A0]">
                   <Icon name="shield" size={14} className="text-sage" />
-                  <span>100% Free</span>
+                  <span>100% Gratis</span>
                   <span className="text-[#C5CDD8]">•</span>
-                  <span>Takes 1 Minute</span>
+                  <span>1 Menit Saja</span>
                   <span className="text-[#C5CDD8]">•</span>
-                  <span>No Sign Up</span>
+                  <span>Tanpa Daftar</span>
                 </div>
               </div>
             </div>

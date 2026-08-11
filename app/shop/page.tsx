@@ -54,7 +54,7 @@ export default async function ShopPage() {
           <div className="shop-hero-copy">
             <h1 className="h1" style={{ marginBottom: 12 }}>Shop ClariPet</h1>
             <p className="lead">
-              Everything your pet needs for grooming, wellness, hygiene and everyday care.
+              Semua yang dibutuhkan hewan peliharaan Anda untuk grooming, kesehatan, kebersihan, dan perawatan sehari-hari.
             </p>
           </div>
           <BannerDecor />
@@ -87,7 +87,7 @@ export default async function ShopPage() {
           ))}
         </div>
         <Link href="#all-products" className="btn btn-primary btn-block shop-all-btn">
-          View All Products <Icon name="arrowRight" size={18} />
+          Lihat Semua Produk <Icon name="arrowRight" size={18} />
         </Link>
       </section>
 
@@ -136,11 +136,11 @@ export default async function ShopPage() {
               Helping You Help Them.
             </h2>
             <p className="lead" style={{ marginBottom: 22 }}>
-              Not sure where to start? Take our quick quiz and we&apos;ll match
-              your pet with the right care.
+              Belum yakin harus mulai dari mana? Ikuti kuis singkat kami dan
+              kami akan mencarikan perawatan yang tepat untuk hewan peliharaan Anda.
             </p>
             <Link href="/quiz" className="btn btn-primary btn-lg">
-              <Icon name="sparkle" size={18} /> Find My Product
+              <Icon name="sparkle" size={18} /> Temukan Produk Saya
             </Link>
           </div>
           <BannerDecor />

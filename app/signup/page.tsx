@@ -37,7 +37,7 @@ function SignupForm() {
       <main className="auth-page" style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
         <div className="center">
           <div style={{ width: 40, height: 40, border: "3px solid var(--line)", borderTopColor: "var(--navy)", borderRadius: "50%", animation: "spinner .6s linear infinite", margin: "0 auto 16px" }} />
-          <p className="muted">Loading…</p>
+          <p className="muted">Memuat…</p>
         </div>
       </main>
     );
@@ -50,7 +50,7 @@ function SignupForm() {
     setLoading(true);
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError("Kata sandi minimal harus 8 karakter");
       setLoading(false);
       return;
     }
@@ -71,13 +71,13 @@ function SignupForm() {
           <div className="auth-success-icon">
             <Icon name="check" size={36} strokeWidth={3} />
           </div>
-          <h2 className="h2" style={{ marginBottom: 12 }}>Check your email</h2>
+          <h2 className="h2" style={{ marginBottom: 12 }}>Periksa email Anda</h2>
           <p className="muted">
-            We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click it to
-            activate your account.
+            Kami telah mengirim tautan konfirmasi ke <strong>{email}</strong>. Klik
+            tautan tersebut untuk mengaktifkan akun Anda.
           </p>
           <Link href="/login" className="btn btn-primary btn-block btn-lg" style={{ marginTop: 28 }}>
-            Go to Login
+            Ke Halaman Masuk
           </Link>
         </div>
       </AuthShell>
@@ -87,8 +87,8 @@ function SignupForm() {
   return (
     <AuthShell>
       <div className="form-head">
-        <h2 className="h2">Create an account</h2>
-        <p className="muted">Join the ClariPet family</p>
+        <h2 className="h2">Buat akun</h2>
+        <p className="muted">Bergabunglah dengan keluarga ClariPet</p>
       </div>
 
       {error && (
@@ -98,19 +98,19 @@ function SignupForm() {
         </div>
       )}
 
-      <GoogleButton redirectPath={redirect} label="Sign up with Google" />
+      <GoogleButton redirectPath={redirect} label="Daftar dengan Google" />
 
-      <div className="auth-divider">or sign up with email</div>
+      <div className="auth-divider">atau daftar dengan email</div>
 
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
-          <label htmlFor="fullName">Full Name</label>
+          <label htmlFor="fullName">Nama Lengkap</label>
           <input
             id="fullName"
             type="text"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Your name"
+            placeholder="Nama Anda"
             required
             autoFocus
           />
@@ -129,14 +129,14 @@ function SignupForm() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Kata Sandi</label>
           <div className="pw-wrap">
             <input
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 8 characters"
+              placeholder="Minimal 8 karakter"
               required
               minLength={8}
             />
@@ -156,13 +156,13 @@ function SignupForm() {
           className="btn btn-primary btn-block btn-lg"
           disabled={loading}
         >
-          {loading ? "Creating account..." : "Create Account"}
+          {loading ? "Membuat akun..." : "Buat Akun"}
         </button>
       </form>
 
       <p className="auth-footer">
-        Already have an account?{" "}
-        <Link href={`/login${redirect !== "/" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`}>Sign in</Link>
+        Sudah punya akun?{" "}
+        <Link href={`/login${redirect !== "/" ? `?redirect=${encodeURIComponent(redirect)}` : ""}`}>Masuk</Link>
       </p>
     </AuthShell>
   );
@@ -170,7 +170,7 @@ function SignupForm() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<main className="section"><div className="wrap center">Loading…</div></main>}>
+    <Suspense fallback={<main className="section"><div className="wrap center">Memuat…</div></main>}>
       <SignupForm />
     </Suspense>
   );

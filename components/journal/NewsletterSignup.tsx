@@ -40,8 +40,8 @@ export function NewsletterSignup() {
               Stay Updated, Pet Parent!
             </h2>
             <p className="text-[#5A6072] leading-relaxed max-w-md text-[0.95rem]">
-              Get helpful pet care tips, exclusive offers, and ClariPet news
-              straight to your inbox.
+              Dapatkan tips perawatan hewan, penawaran eksklusif, dan info
+              terbaru ClariPet langsung ke email Anda.
             </p>
 
             <form onSubmit={submit} className="flex flex-col sm:flex-row gap-3 max-w-md">
@@ -54,7 +54,7 @@ export function NewsletterSignup() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
+                  placeholder="Masukkan alamat email Anda"
                   className="w-full rounded-full bg-white pl-11 pr-4 py-3 text-[15px] text-navy outline-none border border-transparent focus:border-sky transition-colors"
                 />
               </div>
@@ -62,22 +62,22 @@ export function NewsletterSignup() {
                 type="submit"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-navy hover:bg-[#11203c] text-white font-semibold px-7 py-3 transition-colors whitespace-nowrap"
               >
-                Subscribe
+                Berlangganan
               </button>
             </form>
 
             <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-[12px] text-[#5A6072]">
               <span className="inline-flex items-center gap-1.5">
-                <Icon name="check" size={14} className="text-sage" /> No spam, ever
+                <Icon name="check" size={14} className="text-sage" /> Tanpa spam, selamanya
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <Icon name="check" size={14} className="text-sage" /> Unsubscribe anytime
+                <Icon name="check" size={14} className="text-sage" /> Berhenti berlangganan kapan saja
               </span>
             </div>
 
             {done && (
               <p className="text-[13px] text-sage font-medium flex items-center gap-1.5">
-                <Icon name="check" size={15} /> Thanks! Check your inbox to confirm.
+                <Icon name="check" size={15} /> Terima kasih! Cek email Anda untuk konfirmasi.
               </p>
             )}
           </div>

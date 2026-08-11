@@ -49,7 +49,7 @@ function SavedList() {
     return () => { mounted = false; };
   }, [slugs, wishlistLoading]);
 
-  if (wishlistLoading || loading) return <p className="muted">Loading your saved items…</p>;
+  if (wishlistLoading || loading) return <p className="muted">Memuat item tersimpan Anda…</p>;
 
   const saved = slugs
     .map((slug) => products.find((p) => p.slug === slug))
@@ -59,11 +59,11 @@ function SavedList() {
     return (
       <div className="empty-state">
         <div className="ec"><Icon name="heart" size={32} /></div>
-        <h3 className="h3" style={{ marginBottom: 8 }}>No saved items yet</h3>
+        <h3 className="h3" style={{ marginBottom: 8 }}>Belum ada item tersimpan</h3>
         <p className="muted" style={{ marginBottom: 18 }}>
-          Tap the heart on any product to save it here for later.
+          Ketuk ikon hati pada produk mana pun untuk menyimpannya di sini.
         </p>
-        <Link href="/shop" className="btn btn-primary">Browse products</Link>
+        <Link href="/shop" className="btn btn-primary">Jelajahi Produk</Link>
       </div>
     );
   }

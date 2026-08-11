@@ -42,7 +42,7 @@ function RecentList() {
     if (!authLoading && user) load();
   }, [authLoading, user, load]);
 
-  if (loading) return <p className="muted">Loading…</p>;
+  if (loading) return <p className="muted">Memuat…</p>;
 
   const items = slugs
     .map((slug) => products.find((p) => p.slug === slug))
@@ -52,11 +52,11 @@ function RecentList() {
     return (
       <div className="empty-state">
         <div className="ec"><Icon name="clock" size={32} /></div>
-        <h3 className="h3" style={{ marginBottom: 8 }}>Nothing here yet</h3>
+        <h3 className="h3" style={{ marginBottom: 8 }}>Belum ada apa pun di sini</h3>
         <p className="muted" style={{ marginBottom: 18 }}>
-          Products you view will appear here so you can find them again easily.
+          Produk yang Anda lihat akan muncul di sini agar mudah ditemukan kembali.
         </p>
-        <Link href="/shop" className="btn btn-primary">Start browsing</Link>
+        <Link href="/shop" className="btn btn-primary">Mulai Jelajahi</Link>
       </div>
     );
   }
