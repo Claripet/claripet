@@ -1,8 +1,7 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@/components/icons";
 import { getProduct } from "@/data/products";
-import { SectionDoodles } from "@/components/DecorIcons";
 import dynamic from "next/dynamic";
 
 const FavoriteCardBody = dynamic(() => import("./FavoriteCardBody").then(m => m.FavoriteCardBody));
@@ -22,8 +21,7 @@ const FAVORITES = [
 
 export function PetParentFavorites() {
   return (
-    <section className="section bg-sand section-doodles" style={{ background: "var(--sand)" }}>
-      <SectionDoodles marks={["heart-round", "trail-sweep", "paw-mini", "sparkle-soft"]} />
+    <section className="section" style={{ background: "var(--mist)" }} id="favorites">
       <div className="wrap">
         <div className="sec-head reveal">
           <div>

@@ -4,8 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@/components/icons";
 import { Placeholder } from "@/components/Placeholder";
-import { SectionDoodles } from "@/components/DecorIcons";
-
 const STORIES = [
   {
     name: "Jessica & Mochi",
@@ -55,8 +53,7 @@ function Stars({ value }: { value: number }) {
 export function ReviewsView() {
   return (
     <main>
-      <section className="wrap reviews-hero section-doodles">
-        <SectionDoodles marks={["heart-mini", "sparkle-mini", "leaf", "trail-curve"]} />
+      <section className="wrap reviews-hero">
         <div className="eyebrow" style={{ marginBottom: 14 }}>
           <Icon name="heart" size={16} /> Reviews
         </div>

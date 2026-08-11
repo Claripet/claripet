@@ -6,6 +6,7 @@ import { Providers } from "./Providers";
 import { SiteChrome } from "@/components/SiteChrome";
 import { FlyToCartProvider } from "@/context/FlyToCartContext";
 import { SITE_URL } from "@/lib/site";
+import { GlobalDecor } from "@/components/GlobalDecor";
 
 const Toast = nextDynamic(
   () => import("@/components/Toast").then((mod) => mod.Toast),
@@ -103,6 +104,7 @@ export default function RootLayout({
             <SiteChrome>{children}</SiteChrome>
           </FlyToCartProvider>
           <Toast />
+          <GlobalDecor />
         </Providers>
       </body>
     </html>

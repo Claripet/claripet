@@ -2,12 +2,10 @@ import Link from "next/link";
 import { CATEGORIES } from "@/data/categories";
 import { Icon } from "@/components/icons";
 import { CategoryCard } from "@/components/CategoryCard";
-import { SectionDoodles } from "@/components/DecorIcons";
 
 export function ShopByCategory() {
   return (
-    <section className="section shop-cat-wide section-doodles" style={{ margin: "0 auto" }}>
-      <SectionDoodles marks={["paw-soft", "sparkle-mini", "heart-mini", "trail-curve"]} />
+    <section className="section shop-cat-wide" style={{ margin: "0 auto" }}>
       <div className="wrap">
         <div className="sec-head reveal">
           <div>
