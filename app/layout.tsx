@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins, Caveat } from "next/font/google";
 import nextDynamic from "next/dynamic";
 import "./globals.css";
@@ -37,6 +37,20 @@ const caveat = Caveat({
 // falls back to a placeholder instead of throwing, so each route is free to
 // choose its own rendering mode. Do not reintroduce a `dynamic` export here;
 // set it on the individual routes that genuinely need per-request data.
+// Locks the mobile viewport: the layout renders at device width and pinch-zoom
+// is disabled, so the page cannot be scaled in or out.
+//
+// TRADE-OFF: this fails WCAG 2.2 SC 1.4.4 (Resize Text). Users with low vision
+// lose the ability to magnify the page, and iOS Safari ignores userScalable
+// anyway from iOS 10 onward, so the lock only really binds on Android. Remove
+// maximumScale/userScalable to restore zoom.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   // Renders <meta name="application-name" content="ClariPet">. Google's OAuth
