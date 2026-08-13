@@ -134,12 +134,12 @@ export function AccountShell({
         .account-user {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 16px;
+          gap: 13px;
+          padding: 18px;
         }
         .account-avatar {
-          width: 44px;
-          height: 44px;
+          width: 46px;
+          height: 46px;
           border-radius: 50%;
           background: var(--navy);
           color: #fff;
@@ -149,6 +149,8 @@ export function AccountShell({
           font-weight: 700;
           font-size: 18px;
           flex-shrink: 0;
+          /* soft halo so the avatar reads as a distinct object against the card */
+          box-shadow: 0 0 0 4px var(--mist);
         }
         .account-user-info {
           min-width: 0;
@@ -177,7 +179,7 @@ export function AccountShell({
         .account-nav :global(.account-nav-item) {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 11px;
           padding: 12px 14px;
           border-radius: var(--r-md);
           font-size: 14px;
@@ -189,15 +191,24 @@ export function AccountShell({
           text-align: left;
           cursor: pointer;
           font-family: inherit;
-          transition: all 0.15s;
+          transition: background 0.18s var(--ease), color 0.18s var(--ease),
+            transform 0.18s var(--ease);
         }
         .account-nav :global(.account-nav-item:hover) {
           background: var(--mist);
           color: var(--navy);
+          transform: translateX(2px);
         }
         .account-nav :global(.account-nav-item.active) {
           background: var(--navy);
           color: #fff;
+          font-weight: 600;
+          transform: none;
+          box-shadow: var(--shadow-sm);
+        }
+        .account-nav :global(.account-nav-item:focus-visible) {
+          outline: 2px solid var(--navy);
+          outline-offset: 2px;
         }
         .account-nav :global(.account-nav-item.signout) {
           margin-top: 6px;
@@ -211,21 +222,54 @@ export function AccountShell({
         @media (max-width: 760px) {
           .account-grid {
             grid-template-columns: 1fr;
+            gap: 18px;
           }
           .account-sidebar {
             position: static;
+            gap: 12px;
           }
+          .account-user {
+            padding: 14px 16px;
+          }
+
+          /* One scrollable row of pills instead of a ragged two-line wrap.
+             Kept inside the card's own padding — no negative-margin bleed, so
+             this cannot push the page wider than the viewport. */
           .account-nav {
             flex-direction: row;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
+            gap: 8px;
+            padding: 8px;
+            overflow-x: auto;
+            scroll-snap-type: x proximity;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+          .account-nav::-webkit-scrollbar {
+            display: none;
           }
           .account-nav :global(.account-nav-item) {
             width: auto;
+            flex: 0 0 auto;
+            white-space: nowrap;
+            /* every pill is a valid snap target, so scrolling settles cleanly */
+            scroll-snap-align: start;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: var(--r-pill);
+            background: var(--mist);
+            font-size: 13px;
+          }
+          .account-nav :global(.account-nav-item:hover) {
+            transform: none;
           }
           .account-nav :global(.account-nav-item.signout) {
             margin-top: 0;
             border-top: none;
-            border-radius: var(--r-md);
+            border-radius: var(--r-pill);
+            background: var(--pink-50);
+            color: #b04050;
           }
         }
       `}</style>
