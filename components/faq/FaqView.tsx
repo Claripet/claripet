@@ -7,7 +7,7 @@ import Image from "next/image";
 import { BannerDecor } from "@/components/BannerDecor";
 import { FAQS } from "@/data/faqs";
 
-const WHATSAPP = "6281234567890";
+const WHATSAPP = "62881080963188";
 
 export function FaqView() {
   const [open, setOpen] = useState<number | null>(0);

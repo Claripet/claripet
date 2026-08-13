@@ -10,10 +10,31 @@ const WHATSAPP_DISPLAY = "0881.0809.63188";
 const EMAIL = "claripetindonesia@gmail.com";
 
 const INQUIRIES = [
-  { icon: "bag", t: "Pertanyaan Produk", d: "Butuh bantuan memilih produk ClariPet yang tepat?" },
-  { icon: "package", t: "Bantuan Pesanan", d: "Ada pertanyaan seputar pesanan, pengiriman, atau pengantaran?" },
-  { icon: "users", t: "Bisnis & Kemitraan", d: "Untuk retailer, distributor, media, atau kolaborasi." },
-  { icon: "heart", t: "Pertanyaan Umum", d: "Ada hal lain? Kami siap membantu." },
+  {
+    icon: "bag",
+    t: "Pertanyaan Produk",
+    d: "Butuh bantuan memilih produk ClariPet yang tepat?",
+    action: "form" as const,
+  },
+  {
+    icon: "package",
+    t: "Bantuan Pesanan",
+    d: "Ada pertanyaan seputar pesanan, pengiriman, atau pengantaran?",
+    action: "whatsapp" as const,
+    waText: "Halo ClariPet, saya ingin bertanya tentang pesanan saya.",
+  },
+  {
+    icon: "users",
+    t: "Bisnis & Kemitraan",
+    d: "Untuk retailer, distributor, media, atau kolaborasi.",
+    action: "email" as const,
+  },
+  {
+    icon: "heart",
+    t: "Pertanyaan Umum",
+    d: "Ada hal lain? Kami siap membantu.",
+    action: "form" as const,
+  },
 ];
 
 const SUBJECTS = [
@@ -28,6 +49,7 @@ export function ContactView() {
   const [sending, setSending] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [subject, setSubject] = useState("");
+  const [activeInquiry, setActiveInquiry] = useState<number | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   function selectInquiry(topic: string) {
@@ -66,20 +88,60 @@ export function ContactView() {
             <p className="muted">Pilih topik yang paling sesuai dengan pertanyaan Anda agar kami bisa membantu lebih cepat.</p>
           </div>
           <div className="inquiry-grid">
-            {INQUIRIES.map((q, i) => (
-              <button
-                type="button"
-                className="inquiry-card"
-                key={i}
-                onClick={() => selectInquiry(q.t)}
-              >
-                <span className="inquiry-ic">
-                  <Icon name={q.icon} size={24} />
-                </span>
-                <div className="t">{q.t}</div>
-                <div className="d">{q.d}</div>
-              </button>
-            ))}
+            {INQUIRIES.map((q, i) => {
+              const className = `inquiry-card${activeInquiry === i ? " active" : ""}`;
+              const body = (
+                <>
+                  <span className="inquiry-ic">
+                    <Icon name={q.icon} size={24} />
+                  </span>
+                  <div className="t">{q.t}</div>
+                  <div className="d">{q.d}</div>
+                </>
+              );
+
+              if (q.action === "whatsapp") {
+                return (
+                  <a
+                    key={i}
+                    className={className}
+                    href={`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(q.waText ?? "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setActiveInquiry(i)}
+                  >
+                    {body}
+                  </a>
+                );
+              }
+
+              if (q.action === "email") {
+                return (
+                  <a
+                    key={i}
+                    className={className}
+                    href={`mailto:${EMAIL}?subject=${encodeURIComponent(q.t)}`}
+                    onClick={() => setActiveInquiry(i)}
+                  >
+                    {body}
+                  </a>
+                );
+              }
+
+              return (
+                <button
+                  type="button"
+                  className={className}
+                  key={i}
+                  onClick={() => {
+                    setActiveInquiry(i);
+                    selectInquiry(q.t);
+                  }}
+                >
+                  {body}
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
