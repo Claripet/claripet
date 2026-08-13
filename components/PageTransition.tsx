@@ -4,6 +4,22 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export function PageTransition({ children }: { children: ReactNode }) {
+  // iOS Safari has ignored user-scalable=no since iOS 10, so the viewport meta
+  // alone does not stop pinch-zoom there. Swallowing the gesture* events is the
+  // only remaining lever. Requested deliberately; note it is a WCAG 2.2 SC 1.4.4
+  // failure — delete this effect to give low-vision users magnification back.
+  useEffect(() => {
+    const block = (e: Event) => e.preventDefault();
+    document.addEventListener("gesturestart", block);
+    document.addEventListener("gesturechange", block);
+    document.addEventListener("gestureend", block);
+    return () => {
+      document.removeEventListener("gesturestart", block);
+      document.removeEventListener("gesturechange", block);
+      document.removeEventListener("gestureend", block);
+    };
+  }, []);
+
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [entering, setEntering] = useState(false);

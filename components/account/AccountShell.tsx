@@ -232,42 +232,45 @@ export function AccountShell({
             padding: 14px 16px;
           }
 
-          /* One scrollable row of pills instead of a ragged two-line wrap.
-             Kept inside the card's own padding — no negative-margin bleed, so
-             this cannot push the page wider than the viewport. */
+          /* Two-column grid: every item stays fully visible and the edges line
+             up. A scrolling row clipped the last item mid-word, which read as
+             broken rather than scrollable. No negative margins here, so this
+             cannot push the page wider than the viewport. */
           .account-nav {
-            flex-direction: row;
-            flex-wrap: nowrap;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
-            padding: 8px;
-            overflow-x: auto;
-            scroll-snap-type: x proximity;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-          }
-          .account-nav::-webkit-scrollbar {
-            display: none;
+            padding: 10px;
           }
           .account-nav :global(.account-nav-item) {
-            width: auto;
-            flex: 0 0 auto;
-            white-space: nowrap;
-            /* every pill is a valid snap target, so scrolling settles cleanly */
-            scroll-snap-align: start;
-            gap: 8px;
-            padding: 10px 14px;
-            border-radius: var(--r-pill);
+            width: 100%;
+            /* min-width: 0 lets a long label ellipsize instead of forcing the
+               track wider than its share of the row */
+            min-width: 0;
+            gap: 9px;
+            padding: 12px 13px;
+            border-radius: var(--r-md);
             background: var(--mist);
             font-size: 13px;
+          }
+          .account-nav :global(.account-nav-item span),
+          .account-nav :global(.account-nav-item) {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          /* Sign out is the odd one out of eight items — span it full width so
+             the grid never leaves a lopsided gap. */
+          .account-nav :global(.account-nav-item.signout) {
+            grid-column: 1 / -1;
+            justify-content: center;
           }
           .account-nav :global(.account-nav-item:hover) {
             transform: none;
           }
           .account-nav :global(.account-nav-item.signout) {
-            margin-top: 0;
+            margin-top: 2px;
             border-top: none;
-            border-radius: var(--r-pill);
             background: var(--pink-50);
             color: #b04050;
           }

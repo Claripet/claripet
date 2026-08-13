@@ -89,6 +89,9 @@ html {
 body {
   overflow-x: hidden;
   max-width: 100vw;
+  /* Blocks double-tap-to-zoom. Pinch-zoom is handled separately by the
+     gesture* listeners in PageTransition, since iOS ignores user-scalable=no. */
+  touch-action: manipulation;
 }
 
 body {
