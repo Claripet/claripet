@@ -70,9 +70,12 @@ export function PageTransition({ children }: { children: ReactNode }) {
         ".collection-banner",
         ".shop-banner",
       ];
+      const revealSelector = ".reveal, .reveal-left, .reveal-right, .reveal-scale";
       const elements = document.querySelectorAll<HTMLElement>(selectors.join(", "));
       elements.forEach((el, index) => {
-        if (!el.classList.contains("reveal") && !el.classList.contains("reveal-left") && !el.classList.contains("reveal-right") && !el.classList.contains("reveal-scale")) {
+        // Skip elements already animated by themselves or by an ancestor — stacking
+        // reveal-pop on top of a wrapper's reveal makes the child resize mid-animation.
+        if (!el.classList.contains("reveal") && !el.classList.contains("reveal-left") && !el.classList.contains("reveal-right") && !el.classList.contains("reveal-scale") && !el.parentElement?.closest(revealSelector)) {
           el.classList.add("reveal-pop");
         }
         el.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 55}ms`);

@@ -5878,6 +5878,45 @@ select:focus-visible {
   padding-inline: 0;
 }
 
+/* Home category row on mobile: a static grid, not a full-bleed snap carousel.
+   .shop-cat-wide zeroes both the section and wrap gutters, so the carousel's
+   margin-inline: calc(-1 * var(--wrap-pad)) had nothing left to cancel against
+   and hung 16px past both screen edges — which mandatory snapping then lurched
+   around. Placed after the .shop-cat-wide rules above so it wins on source order. */
+@media (max-width: 860px) {
+  .shop-cat-wide > .wrap {
+    padding-inline: var(--wrap-pad);
+  }
+
+  /* Compound selector: needed to beat .cat-grid.cat-grid-row's repeat(6, 1fr)
+     above, which would otherwise apply once display becomes grid. */
+  .cat-grid.cat-grid-row.cat-scroll-mobile {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-bottom: 0;
+  }
+
+  .cat-scroll-mobile > * {
+    min-width: 0;
+    max-width: none;
+    width: auto;
+    flex-shrink: 1;
+    scroll-snap-align: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .cat-grid.cat-grid-row.cat-scroll-mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
 /* ===========================================================
    MOBILE DEPLOY POLISH
    Everything below is inside a max-width media query, so the
