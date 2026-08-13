@@ -30,7 +30,17 @@
 			"id": "395cdaff022748a8bfa1ec01ee81bc03",
 			"remote": true
 		}
-	]
+	],
+	// Workers Logs. Needed to diagnose "Error 1102: Worker exceeded resource
+	// limits" — the dashboard shows CPU time and the outcome of each invocation,
+	// which is the only way to tell whether we are hitting the CPU ceiling or the
+	// 128MB isolate memory limit, and on which route. Sampling is 1 (keep every
+	// invocation) because 1102 is intermittent and sampling would likely miss it;
+	// lower this once the cause is confirmed.
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	}
 	// R2-backed incremental cache is intentionally not configured yet — it needs
 	// an R2 bucket created first (`wrangler r2 bucket create cache`) plus a
 	// self-reference service binding. Without it, ISR/data-cache entries just
