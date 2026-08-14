@@ -2499,6 +2499,14 @@ select:focus-visible {
   padding: 80px 24px;
 }
 
+/* `.lead` is capped at 52ch and carries no auto margins, so inside a centred
+   empty state the paragraph box sits flush left while its text centres within
+   it — leaving the copy visibly off-axis from the heading above. */
+.empty-state .lead {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .empty-state .ec {
   width: 88px;
   height: 88px;
