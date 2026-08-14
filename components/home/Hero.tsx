@@ -64,23 +64,6 @@ export function Hero() {
             </Link>
           </div>
 
-          <div className="hero-trust hero-mobile-hide" aria-label="Trusted by pet parents across Indonesia.">
-            <div className="flex -space-x-2 mr-3">
-              <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-gray-100 flex items-center justify-center">
-                <span className="text-xs font-semibold text-gray-500">SI</span>
-              </div>
-              <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-sky/20 flex items-center justify-center">
-                <span className="text-xs font-semibold text-sky-700">MR</span>
-              </div>
-              <div className="w-8 h-8 rounded-full border-2 border-white overflow-hidden bg-pink/20 flex items-center justify-center">
-                <span className="text-xs font-semibold text-pink-700">DW</span>
-              </div>
-            </div>
-            <div>
-              <span aria-hidden="true" role="img" aria-label="5 stars" className="hero-stars block mb-1">★★★★★</span>
-              <span className="hero-trust-text">&quot;Wanginya tahan lama banget!&quot; <span className="opacity-75">— Sarah, JKT</span></span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -156,11 +139,6 @@ export function Hero() {
         /* ---------- Actions ---------- */
         .hero-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 26px; }
         .hero-action-link { width: 100%; }
-
-        /* ---------- Trust row ---------- */
-        .hero-trust { display: flex; flex-direction: row; align-items: center; gap: 10px; margin-top: 24px; color: var(--navy); font-weight: 600; font-size: 0.85rem; }
-        .hero-stars { color: #fbb03b; letter-spacing: 2px; font-size: 1.1rem; }
-        .hero-trust-text { opacity: 0.85; }
 
         /* ---------- Mobile: full-bg image, minimal copy pinned to bottom ---------- */
         @media (max-width: 767px) {
@@ -239,8 +217,6 @@ export function Hero() {
           .hero-sub { font-size: 1.05rem; max-width: 520px; }
           .hero-actions { flex-direction: row; gap: 14px; margin-top: 28px; }
           .hero-action-link { width: auto; }
-          .hero-trust { font-size: 0.92rem; margin-top: 28px; }
-          .hero-stars { font-size: 1.15rem; }
           .hero-copy { padding-top: 12px; }
         }
 

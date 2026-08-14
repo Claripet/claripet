@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import type { Product, Tone } from "@/lib/types";
+import type { Product, Review, Tone } from "@/lib/types";
 import { PRODUCTS } from "@/data/products";
 import { formatPrice } from "@/lib/format";
 import { Icon } from "@/components/icons";
@@ -24,7 +24,14 @@ import { useAuth } from "@/context/AuthContext";
 
 const FEATURE_ICONS = ["shield", "droplet", "clock", "pin"];
 
-export function ProductView({ product }: { product: Product }) {
+export function ProductView({
+  product,
+  reviews = [],
+}: {
+  product: Product;
+  /** Admin-published reviews linked to this product. */
+  reviews?: Review[];
+}) {
   const { user } = useAuth();
   const cart = useCart();
   const { flyToCart } = useFlyToCart();
@@ -117,6 +124,13 @@ export function ProductView({ product }: { product: Product }) {
       : [];
   const relatedAll = [...related, ...fill];
 
+  // Averaged over the real reviews, rounded to one decimal like the catalogue
+  // rating it sits next to.
+  const reviewAverage =
+    reviews.length > 0
+      ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
+      : 0;
+
   const accItems: AccordionItem[] = [
     {
       title: "Deskripsi",
@@ -140,20 +154,32 @@ export function ProductView({ product }: { product: Product }) {
       ),
     },
     {
-      title: `Ulasan (${product.reviews})`,
-      content: (
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-            <StarRating rating={product.rating} showCount={false} />
-            <span style={{ fontWeight: 600, color: "var(--navy)" }}>{product.rating} dari 5</span>
-            <span className="muted">· {product.reviews} ulasan</span>
+      // Real reviews only — the count follows what an admin actually published
+      // for this product rather than the catalogue's `reviews_count` column.
+      title: reviews.length > 0 ? `Ulasan (${reviews.length})` : "Ulasan",
+      content:
+        reviews.length > 0 ? (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+              <StarRating rating={reviewAverage} showCount={false} />
+              <span style={{ fontWeight: 600, color: "var(--navy)" }}>{reviewAverage} dari 5</span>
+              <span className="muted">· {reviews.length} ulasan</span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {reviews.map((r) => (
+                <div key={r.id}>
+                  <p>“{r.body}”</p>
+                  <span className="muted" style={{ fontSize: 13 }}>
+                    — {r.authorName}
+                    {r.petName ? ` · ${r.petName}` : ""}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-          <p>
-            “Jujur, ini produk yang paling gampang dipakai dan anak anjing saya nggak
-            keberatan sama sekali. Hasilnya juga cepat terasa.” — Pembeli Terverifikasi
-          </p>
-        </div>
-      ),
+        ) : (
+          <p>Belum ada ulasan untuk produk ini.</p>
+        ),
     },
   ];
 

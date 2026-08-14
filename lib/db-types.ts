@@ -125,3 +125,20 @@ export interface DBOrder {
   // joined
   items?: DBOrderItem[];
 }
+
+export interface DBReview {
+  id: string;
+  author_name: string;
+  pet_name: string | null;
+  rating: number;
+  body: string;
+  photo_url: string | null;
+  product_id: string | null;
+  tone: Tone | null;
+  featured: boolean;
+  published: boolean;
+  sort_order: number;
+  created_at: string;
+  // joined
+  product?: Pick<DBProduct, "slug" | "name"> | null;
+}

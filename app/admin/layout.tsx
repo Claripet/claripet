@@ -39,6 +39,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/admin/categories", label: "Categories", icon: "boxes" },
     { href: "/admin/orders", label: "Orders", icon: "package" },
     { href: "/admin/articles", label: "Journal", icon: "edit" },
+    { href: "/admin/reviews", label: "Reviews", icon: "star" },
     { href: "/admin/inventory", label: "Inventory", icon: "shield" },
   ];
 

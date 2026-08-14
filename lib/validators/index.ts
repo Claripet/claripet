@@ -6,3 +6,4 @@ export * from "./address";
 export * from "./order";
 export * from "./article";
 export * from "./contact";
+export * from "./review";

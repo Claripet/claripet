@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PRODUCTS } from "@/data/products";
-import { getProductBySlug } from "@/lib/data";
+import { getProductBySlug, getReviewsByProductSlug } from "@/lib/data";
 import { ProductView } from "@/components/product/ProductView";
 import { SITE_URL } from "@/lib/site";
 import { metaDescription, rollingPriceValidUntil } from "@/lib/seo";
@@ -57,7 +57,10 @@ export default async function ProductPage({
 }: {
   params: { slug: string };
 }) {
-  const product = await getProductBySlug(params.slug);
+  const [product, reviews] = await Promise.all([
+    getProductBySlug(params.slug),
+    getReviewsByProductSlug(params.slug),
+  ]);
   if (!product) notFound();
 
   const productUrl = `${SITE_URL}/product/${product.slug}`;
@@ -131,7 +134,7 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <ProductView product={product} />
+      <ProductView product={product} reviews={reviews} />
     </>
   );
 }

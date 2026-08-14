@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import { ReviewsView } from "@/components/reviews/ReviewsView";
+import { getReviews } from "@/lib/data";
+
+// Prerendered at build, refreshed in the background every 5 minutes so reviews
+// added in /admin/reviews appear without a redeploy.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Reviews",
@@ -21,6 +26,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ReviewsPage() {
-  return <ReviewsView />;
+export default async function ReviewsPage() {
+  const reviews = await getReviews();
+  return <ReviewsView reviews={reviews} />;
 }

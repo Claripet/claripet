@@ -1,6 +1,9 @@
 ﻿import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Hero } from "@/components/home/Hero";
+// Async server component (reads reviews from Supabase), so it is imported
+// statically rather than through next/dynamic.
+import { CustomerReviews } from "@/components/home/CustomerReviews";
 import { SITE_URL } from "@/lib/site";
 
 // Prerendered at build, refreshed in the background every 5 minutes — the
@@ -85,6 +88,7 @@ export default function HomePage() {
         <ShopByCategory />
         <PetParentFavorites />
         <WhyChoose />
+        <CustomerReviews />
         <QuizCTA />
       </main>
     </>

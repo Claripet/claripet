@@ -15,7 +15,8 @@ import { CATEGORIES, getCategory as getStaticCategory } from "@/data/categories"
 import { ARTICLES, getArticle as getStaticArticle, FEATURED_ARTICLE } from "@/data/articles";
 import { mapDBProductToProduct } from "@/lib/data/mapProduct";
 import { CATEGORY_CARD_IMAGES } from "@/lib/categoryArt";
-import type { Product, Category, Article } from "@/lib/types";
+import type { Product, Category, Article, Review } from "@/lib/types";
+import type { DBReview } from "@/lib/db-types";
 
 /**
  * The DB rows carry no merchandising facets (petType / concern) and sometimes
@@ -208,6 +209,86 @@ export async function getFeaturedArticle(): Promise<Article | undefined> {
   }
 }
 
+// ----- REVIEWS -----
+
+// Reviews are admin-authored and live only in the DB — there is no static seed
+// to fall back on, so an unreachable database yields an empty list and every
+// review surface hides itself rather than showing invented testimonials.
+const REVIEW_SELECT = "*, product:products(slug, name)";
+
+/** Published reviews, newest first within the admin's manual ordering. */
+export async function getReviews(limit?: number): Promise<Review[]> {
+  if (!USE_DATABASE) return [];
+
+  try {
+    const supabase = createClient();
+    let qb = supabase
+      .from("reviews")
+      .select(REVIEW_SELECT)
+      .eq("published", true)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (limit) qb = qb.limit(limit);
+
+    const { data, error } = await qb;
+    if (error || !data) return [];
+
+    return data.map(mapDBReviewToReview);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Reviews for the home page shelf: the ones the admin flagged as featured,
+ * topped up with the newest published reviews when fewer than `limit` are
+ * flagged, so the section is never half-empty just because nobody ticked a box.
+ */
+export async function getFeaturedReviews(limit = 3): Promise<Review[]> {
+  if (!USE_DATABASE) return [];
+
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("reviews")
+      .select(REVIEW_SELECT)
+      .eq("published", true)
+      .order("featured", { ascending: false })
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error || !data) return [];
+
+    return data.map(mapDBReviewToReview);
+  } catch {
+    return [];
+  }
+}
+
+/** Published reviews linked to one product, for the PDP "Ulasan" tab. */
+export async function getReviewsByProductSlug(slug: string): Promise<Review[]> {
+  if (!USE_DATABASE) return [];
+
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*, product:products!inner(slug, name)")
+      .eq("product.slug", slug)
+      .eq("published", true)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false });
+
+    if (error || !data) return [];
+
+    return data.map(mapDBReviewToReview);
+  } catch {
+    return [];
+  }
+}
+
 // ----- MAPPERS -----
 
 interface DBCategoryRow {
@@ -271,5 +352,20 @@ function mapDBArticleToArticle(db: DBArticleRow): Article {
     publishedAt: toDateOnly(db.created_at) ?? seed?.publishedAt,
     updatedAt: seed?.updatedAt,
     author: seed?.author,
+  };
+}
+
+function mapDBReviewToReview(db: DBReview): Review {
+  return {
+    id: db.id,
+    authorName: db.author_name,
+    petName: db.pet_name ?? undefined,
+    rating: Number(db.rating ?? 5),
+    body: db.body,
+    photoUrl: db.photo_url ?? undefined,
+    tone: db.tone ?? "sky",
+    featured: db.featured ?? false,
+    publishedAt: toDateOnly(db.created_at),
+    product: db.product ? { slug: db.product.slug, name: db.product.name } : undefined,
   };
 }

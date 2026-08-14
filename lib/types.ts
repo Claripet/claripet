@@ -77,3 +77,24 @@ export interface CartItem {
   size: string;
   qty: number;
 }
+
+/**
+ * A customer review, authored in /admin/reviews. Shown on the reviews page,
+ * the home page shelf, and the reviewed product's page.
+ */
+export interface Review {
+  id: string;
+  authorName: string;
+  /** Subtitle under the name, e.g. "Mochi · Poodle". */
+  petName?: string;
+  rating: number;
+  body: string;
+  /** Uploaded photo. Empty → illustrated tone placeholder. */
+  photoUrl?: string;
+  tone: Tone;
+  featured: boolean;
+  /** `YYYY-MM-DD`, when the review was added. */
+  publishedAt?: string;
+  /** The reviewed product, when one was linked. */
+  product?: { slug: string; name: string };
+}

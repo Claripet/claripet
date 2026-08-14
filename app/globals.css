@@ -4398,6 +4398,22 @@ select:focus-visible {
   font-size: 13px;
 }
 
+/* Link to the reviewed product, when the review is tied to one. */
+.story-card figcaption .story-product {
+  margin-top: 6px;
+  align-self: flex-start;
+  background: var(--mist);
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.story-card figcaption .story-product:hover {
+  background: var(--lavender);
+}
+
 .prod-review-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
