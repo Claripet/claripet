@@ -15,6 +15,9 @@ function safeRedirectPath(value: string | null): string {
   return /^\/[^/\\]/.test(value) || value === "/" ? value : "/";
 }
 
+/** Give up on a sign-in that never settles, so the button can recover. */
+const SIGN_IN_TIMEOUT_MS = 20_000;
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -42,6 +45,9 @@ function LoginForm() {
     }
   }, [user, redirect, router]);
 
+  // Already signed in and on the way out: show the spinner rather than a blank
+  // frame while the redirect above (or the one in handleSubmit) completes.
+
   if (authLoading) {
     return (
       <main className="auth-page" style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
@@ -52,21 +58,52 @@ function LoginForm() {
       </main>
     );
   }
-  if (user) return null;
+  if (user) {
+    return (
+      <main className="auth-page" style={{ minHeight: "100vh", display: "grid", placeItems: "center" }}>
+        <div className="center">
+          <div style={{ width: 40, height: 40, border: "3px solid var(--line)", borderTopColor: "var(--navy)", borderRadius: "50%", animation: "spinner .6s linear infinite", margin: "0 auto 16px" }} />
+          <p className="muted">Signing you in…</p>
+        </div>
+      </main>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const { error: err } = await signIn(email, password);
-    if (err) {
-      setError(err);
-      setLoading(false);
-    } else {
+    try {
+      // Bounded so a stalled request surfaces an error instead of leaving the
+      // button frozen on "Signing in..." forever.
+      const { error: err } = await Promise.race([
+        signIn(email, password),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("SIGN_IN_TIMEOUT")), SIGN_IN_TIMEOUT_MS),
+        ),
+      ]);
+
+      if (err) {
+        setError(err);
+        setLoading(false);
+        return;
+      }
+
       if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("returnTo")) sessionStorage.removeItem("returnTo");
-      router.push(redirect);
-      router.refresh();
+
+      // Full page load rather than router.push: the session lives in cookies,
+      // and a fresh request guarantees the destination is rendered with them.
+      // `loading` stays true on purpose — this page is on its way out.
+      window.location.assign(redirect);
+    } catch (err) {
+      console.error("[login] sign-in failed", err);
+      setError(
+        err instanceof Error && err.message === "SIGN_IN_TIMEOUT"
+          ? "Sign-in is taking too long. Check your connection and try again."
+          : "Something went wrong signing in. Please try again.",
+      );
+      setLoading(false);
     }
   };
 

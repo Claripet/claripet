@@ -26,6 +26,13 @@ interface AuthUser extends User {
 interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
+  /**
+   * True while the profile row for the current user is still in flight. The
+   * session lands first and the profile follows, so anything gating on
+   * `profile.role` must wait for this rather than treating a null profile as
+   * "not an admin".
+   */
+  profileLoading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithGoogle: (redirectPath?: string) => Promise<{ error: string | null }>;
@@ -49,9 +56,19 @@ function authOrigin(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "";
 }
 
+/** Milliseconds before a profile fetch is abandoned so the UI stops waiting. */
+const PROFILE_TIMEOUT_MS = 10_000;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
+  // Guards against out-of-order profile responses and lets a sign-out cancel a
+  // fetch that is still in flight.
+  const profileRequestId = useRef(0);
+  // The user id whose profile is already loaded, so a token refresh does not
+  // re-query it on every event.
+  const profileLoadedFor = useRef<string | null>(null);
   // Stabilise the client so it is created only once per provider mount, not on
   // every render.  createClient() reads env vars and allocates internal state,
   // so repeated calls are wasteful even if the library caches internally.
@@ -69,6 +86,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase],
   );
 
+  /**
+   * Loads the profile in the background and patches it onto the user.
+   *
+   * Deliberately fire-and-forget: this is called from `onAuthStateChange`,
+   * and `signInWithPassword` does not resolve until every state-change
+   * listener has returned. Awaiting a Supabase query in there makes the whole
+   * sign-in wait on it — a slow or stalled profile query left the login button
+   * frozen on "Signing in..." with no error, which is exactly what happened in
+   * production.
+   */
+  const loadProfileInBackground = useCallback(
+    (authUser: User) => {
+      const requestId = ++profileRequestId.current;
+      setProfileLoading(true);
+
+      const timer = setTimeout(() => {
+        if (requestId === profileRequestId.current) {
+          console.warn("[auth] profile fetch timed out");
+          setProfileLoading(false);
+        }
+      }, PROFILE_TIMEOUT_MS);
+
+      fetchProfile(authUser.id)
+        .then((profile) => {
+          if (requestId !== profileRequestId.current) return;
+          profileLoadedFor.current = authUser.id;
+          setUser((prev) =>
+            prev && prev.id === authUser.id ? { ...prev, profile } : prev,
+          );
+        })
+        .catch((err) => {
+          console.error("[auth] profile fetch failed", err);
+        })
+        .finally(() => {
+          clearTimeout(timer);
+          if (requestId === profileRequestId.current) setProfileLoading(false);
+        });
+    },
+    [fetchProfile],
+  );
+
   const refreshUser = useCallback(async () => {
     const {
       data: { user: authUser },
@@ -76,8 +134,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (authUser) {
       const profile = await fetchProfile(authUser.id);
+      profileLoadedFor.current = authUser.id;
       setUser({ ...authUser, profile });
     } else {
+      profileLoadedFor.current = null;
       setUser(null);
     }
   }, [supabase, fetchProfile]);
@@ -99,14 +159,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // Listen for auth changes
+    // Listen for auth changes.
+    //
+    // The callback is intentionally synchronous. Supabase awaits every listener
+    // before `signIn*` resolves, so anything awaited in here blocks sign-in
+    // itself — the session is published immediately and the profile is patched
+    // on afterwards by `loadProfileInBackground`.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        const profile = await fetchProfile(session.user.id);
-        setUser({ ...session.user, profile });
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const authUser = session?.user;
+
+      if (authUser) {
+        // Keep the profile already held for this user across token refreshes
+        // so the UI never flickers back to a profile-less state.
+        setUser((prev) =>
+          prev && prev.id === authUser.id
+            ? { ...authUser, profile: prev.profile }
+            : { ...authUser, profile: null },
+        );
+        if (profileLoadedFor.current !== authUser.id) {
+          loadProfileInBackground(authUser);
+        }
       } else {
+        // Cancels any profile fetch still in flight for the old session.
+        profileRequestId.current++;
+        profileLoadedFor.current = null;
+        setProfileLoading(false);
         setUser(null);
       }
       setLoading(false);
@@ -117,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [supabase, fetchProfile, refreshUser]);
+  }, [supabase, loadProfileInBackground, refreshUser]);
 
   const signUp = useCallback(
     async (email: string, password: string, fullName: string) => {
@@ -152,6 +231,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
+    profileRequestId.current++;
+    profileLoadedFor.current = null;
+    setProfileLoading(false);
     setUser(null);
   }, [supabase]);
 
@@ -195,7 +277,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, signUp, signIn, signInWithGoogle, signOut, refreshUser, requestPasswordReset, updatePassword }}
+      value={{ user, loading, profileLoading, signUp, signIn, signInWithGoogle, signOut, refreshUser, requestPasswordReset, updatePassword }}
     >
       {children}
     </AuthContext.Provider>

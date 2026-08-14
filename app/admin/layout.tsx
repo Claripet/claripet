@@ -7,11 +7,14 @@ import { Icon } from "@/components/icons";
 import type { ReactNode } from "react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, profileLoading, signOut } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
-  if (loading) {
+  // `profileLoading` matters as much as `loading`: the session now arrives
+  // before the profile row, and a null profile must not be read as "not an
+  // admin" while the query is still in flight.
+  if (loading || profileLoading) {
     return (
       <main className="section">
         <div className="wrap center">Loading...</div>
