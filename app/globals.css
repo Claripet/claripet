@@ -54,6 +54,20 @@
   --line: #E7EDF5;
   --line-soft: #EFF3F8;
 
+  /* Page surfaces — three steps, sampled from the client mockup.
+     The storefront reads as a pastel-blue canvas with white content floating
+     on it, not as white with blue accents:
+       --page       the canvas behind every page
+       --panel      hero blocks that open a page
+       --panel-deep the closing CTA band, a step heavier so the page lands
+       --surface    cards, product tiles, filter panels — white so they lift
+     Individual product pages opt out (see .pdp-page): each product carries its
+     own colour identity. */
+  --page: #EFF4FC;
+  --panel: #DFEAF8;
+  --panel-deep: #CFE0F5;
+  --surface: #FFFFFF;
+
   /* Radii */
   --r-sm: 12px;
   --r-md: 18px;
@@ -97,7 +111,7 @@ body {
 body {
   margin: 0;
   font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--offwhite);
+  background: var(--page);
   color: var(--text);
   font-weight: 400;
   line-height: 1.6;
@@ -1371,7 +1385,7 @@ select:focus-visible {
    =========================================================== */
 .quiz-cta {
   position: relative;
-  background: var(--offwhite);
+  background: var(--panel-deep);
   border-radius: var(--r-xl);
   padding: 56px;
   display: grid;
@@ -1597,6 +1611,17 @@ select:focus-visible {
 /* ===========================================================
    PRODUCT PAGE
    =========================================================== */
+
+/* Individual product pages sit out the pastel-blue canvas: each product leads
+   with its own packaging colour, and a blue page fights the ones that aren't
+   blue. Painting the page element (not <body>) keeps the override local, so no
+   other route has to know about it. `min-height` covers short products, where
+   the element would otherwise stop above the fold and let the canvas show. */
+.pdp-page {
+  background: var(--offwhite);
+  min-height: calc(100vh - var(--nav-h));
+}
+
 .pdp {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -3502,7 +3527,7 @@ select:focus-visible {
     gap: 14px;
     align-items: center;
     padding: 14px;
-    background: var(--offwhite);
+    background: var(--page);
     border-radius: var(--r-md);
     margin-bottom: 18px;
   }
@@ -4098,7 +4123,7 @@ select:focus-visible {
   justify-content: space-between;
   gap: 28px;
   flex-wrap: wrap;
-  background: var(--offwhite);
+  background: var(--panel-deep);
   border-radius: var(--r-xl);
   padding: 44px;
 }
@@ -4581,7 +4606,7 @@ select:focus-visible {
   grid-template-columns: 1fr 1.15fr;
   gap: 32px;
   align-items: center;
-  background: var(--offwhite);
+  background: var(--panel);
   border-radius: var(--r-xl);
   padding: 48px;
   margin-top: 8px;
@@ -4827,7 +4852,7 @@ select:focus-visible {
   display: block;
   overflow: hidden;
   min-height: 280px;
-  background: var(--offwhite);
+  background: var(--panel-deep);
   border-radius: var(--r-xl);
   padding: 48px;
 }
@@ -5051,7 +5076,7 @@ select:focus-visible {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
   gap: 36px;
   align-items: center;
-  background: var(--offwhite);
+  background: var(--panel);
   border-radius: var(--r-xl);
   padding: 44px 48px;
 }
@@ -5180,7 +5205,7 @@ select:focus-visible {
   gap: 28px;
   align-items: center;
   overflow: hidden;
-  background: var(--offwhite);
+  background: var(--panel);
   border-radius: var(--r-xl);
   padding: 44px 48px;
 }

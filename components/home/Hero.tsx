@@ -5,9 +5,9 @@ import { SecondaryButton } from "@/components/ui/SecondaryButton";
 
 export function Hero() {
   return (
-    <section className="hero" style={{ background: "#ffffff" }}>
+    <section className="hero">
       <div className="wrap hero-inner">
-        {/* Image sits behind the copy and melts into white on the left edge */}
+        {/* Image sits behind the copy and melts into the panel on the left edge */}
         <div className="hero-media" aria-hidden="false" style={{ transform: "translateX(160px)" }}>
           <Image
             src="/images/hero-home.png"
@@ -70,7 +70,22 @@ export function Hero() {
       <style dangerouslySetInnerHTML={{
         __html: `
         /* ---------- Layout ---------- */
-        .hero { position: relative; }
+        /* The hero photo is an opaque JPEG-style PNG with a white interior, so
+           the panel can only be blue where the photo isn't: pastel blue behind
+           the copy on the left, resolving to white under the photo on the right
+           (the .hero-img mask fades its left edge across the same span). The
+           first layer then melts the whole band into the page canvas at the
+           bottom, so there is no hard edge against the section below. */
+        .hero {
+          position: relative;
+          background:
+            linear-gradient(to bottom, transparent 58%, var(--page) 100%),
+            linear-gradient(100deg,
+              var(--panel) 0%,
+              var(--panel) 24%,
+              #fff 60%,
+              #fff 100%);
+        }
         .hero-inner {
           position: relative;
           display: flex;
@@ -171,13 +186,17 @@ export function Hero() {
             -webkit-mask-image: none !important;
             mask-image: none !important;
           }
-          /* Soft fade at the bottom so headline sits cleanly over white */
+          /* The photo covers the whole band on mobile, so the horizontal blue
+             never shows — the fade below the copy carries the colour instead
+             and hands off to the page canvas. */
+          .hero { background: var(--page); }
+          /* Soft fade at the bottom so headline sits cleanly over the canvas */
           .hero::after {
             content: "";
             position: absolute;
             left: 0; right: 0; bottom: 0;
             height: 40%;
-            background: linear-gradient(to top, #ffffff 0%, rgba(255,255,255,0.85) 40%, transparent 100%);
+            background: linear-gradient(to top, var(--page) 0%, rgba(239, 244, 252, 0.85) 40%, transparent 100%);
             z-index: 1;
             pointer-events: none;
           }

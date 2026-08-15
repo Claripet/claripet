@@ -184,7 +184,9 @@ export function ProductView({
   ];
 
   return (
-    <main>
+    // .pdp-page opts this route out of the site-wide pastel canvas — product
+    // pages follow their own packaging colours.
+    <main className="pdp-page">
       <Breadcrumb
         trail={[
           { label: "Shop", href: "/shop" },

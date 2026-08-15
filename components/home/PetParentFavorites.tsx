@@ -21,7 +21,9 @@ const FAVORITES = [
 
 export function PetParentFavorites() {
   return (
-    <section className="section" style={{ background: "var(--mist)" }} id="favorites">
+    // Canvas, not a band: the deeper tone is reserved for the closing CTA, as
+    // in the mockup. The product cards are white, so they still lift on their own.
+    <section className="section" style={{ background: "var(--page)" }} id="favorites">
       <div className="wrap">
         <div className="sec-head reveal">
           <div>
