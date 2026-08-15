@@ -24,7 +24,7 @@ export function Hero() {
         <div className="hero-copy">
           <span className="hero-eyebrow hero-mobile-hide">
             <span aria-hidden="true">🐾</span>
-            PREMIUM PET CARE FOR CATS &amp; DOGS
+            Better Care for Every Pet
           </span>
           <h1 className="sr-only">ClariPet - Premium Pet Care, Grooming &amp; Health Products</h1>
           <h2 className="h-display hero-title">
@@ -37,7 +37,7 @@ export function Hero() {
               otherwise see only the slogan above. Keep this in sync with the
               sr-only h1 and the metadata description. */}
           <p className="hero-purpose hero-mobile-hide">
-            ClariPet is an online shop for premium grooming, hygiene and health products for cats and dogs.
+            ClariPet is a pet care brand dedicated to thoughtful, effective products for everyday grooming, hygiene, health and wellness.
           </p>
           <p className="lead hero-sub hero-mobile-hide">
             Perawatan hewan peliharaan yang lembut dan efektif untuk memudahkan rutinitas grooming, menjaga kesehatan, dan mempererat ikatan setiap hari.
