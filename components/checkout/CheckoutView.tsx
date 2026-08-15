@@ -661,7 +661,7 @@ function Voucher({ title, code, until, min, tone }: { title: string; code: strin
 function CheckoutStyles() {
   return (
     <style jsx global>{`
-      .checkout-page { background:#f3f5f7; min-height:100vh; padding:28px 0 60px; overflow-x: hidden; width: 100%; max-width: 100%; }
+      .checkout-page { background:var(--page); min-height:100vh; padding:28px 0 60px; overflow-x: hidden; width: 100%; max-width: 100%; }
       .checkout-page *, .checkout-page *::before, .checkout-page *::after { box-sizing: border-box; }
       .checkout-shell { width: 100%; max-width: 1240px; margin:0 auto; box-sizing: border-box; padding: 0 16px; overflow-x: hidden; }
       .checkout-title, .checkout-shell h1 { font-size:26px; margin:0 0 20px; font-weight:800; color:#171717; }

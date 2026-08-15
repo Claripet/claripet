@@ -27,7 +27,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         .auth-page {
           position: relative;
           min-height: 100vh;
-          background: var(--offwhite);
+          background: var(--page);
           display: flex;
           align-items: center;
           justify-content: center;

@@ -21,7 +21,7 @@ const FAVORITES = [
 
 export function PetParentFavorites() {
   return (
-    <section className="section" style={{ background: "var(--mist)" }} id="favorites">
+    <section className="section" style={{ background: "var(--panel)" }} id="favorites">
       <div className="wrap">
         <div className="sec-head reveal">
           <div>

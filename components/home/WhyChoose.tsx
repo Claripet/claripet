@@ -270,7 +270,9 @@ export function WhyChoose() {
       className="relative overflow-hidden"
       style={{
         padding: "84px 0",
-        background: "var(--offwhite)",
+        // White band on the pastel canvas — the alternation is what keeps the
+        // page from reading as one flat colour.
+        background: "var(--surface)",
       }}
     >
       {/* Decorative doodles — hidden below md */}

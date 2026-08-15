@@ -37,7 +37,7 @@ export function WhatIsClariPet() {
   return (
     <section
       aria-labelledby="what-is-claripet"
-      style={{ padding: "64px 0", background: "var(--offwhite)" }}
+      style={{ padding: "64px 0", background: "var(--surface)" }}
     >
       <div className="wrap">
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
