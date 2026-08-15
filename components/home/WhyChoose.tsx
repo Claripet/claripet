@@ -270,9 +270,10 @@ export function WhyChoose() {
       className="relative overflow-hidden"
       style={{
         padding: "84px 0",
-        // White band on the pastel canvas — the alternation is what keeps the
-        // page from reading as one flat colour.
-        background: "var(--surface)",
+        // Canvas, not white: the feature panel inside this section is already
+        // #fff, so a white band would swallow it and leave a flat white gap
+        // between the two pastel sections either side.
+        background: "var(--page)",
       }}
     >
       {/* Decorative doodles — hidden below md */}
