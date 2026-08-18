@@ -87,6 +87,16 @@ export const metadata: Metadata = {
       "Toko online produk perawatan hewan peliharaan premium untuk anjing & kucing — parfum, shampoo, perawatan kulit & bulu, dan penghilang bau. Aman & dibuat di Indonesia.",
     creator: "@ClariPet",
   },
+  // Renders <meta name="google-site-verification"> when the env var is set, and
+  // nothing at all when it is not — so an unset value is safe.
+  //
+  // This is the HTML-tag fallback for Search Console. Prefer verifying the
+  // property by DNS TXT record in Cloudflare: DNS verification covers the apex
+  // and every subdomain at once and cannot be lost to a deploy, whereas the
+  // meta tag verifies only the exact host that serves it.
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
   robots: {
     index: true,
     follow: true,

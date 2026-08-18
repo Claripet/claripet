@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CATEGORIES } from "@/data/categories";
 import { Icon } from "@/components/icons";
+import { SOCIAL_LINKS } from "@/lib/social";
 
 export function Footer() {
   return (
@@ -20,14 +21,34 @@ export function Footer() {
             <p className="footer-blurb">
               Merawat hewan peliharaan seharusnya tidak terasa rumit.
             </p>
+            {/*
+              These were href="#" placeholders, which rendered three dead
+              buttons and gave the site no outbound link to the profiles it
+              shares an identity with. The URLs live in lib/social.ts so they
+              stay in sync with the Organization `sameAs` on the home page.
+
+              Facebook is intentionally absent: no ClariPet Facebook page has
+              been confirmed, and an icon pointing at the wrong page is worse
+              than no icon. Add it to SOCIAL_LINKS and restore it here once the
+              real URL is known.
+            */}
             <div className="socials">
-              <a className="social" href="#" aria-label="Facebook">
-                <Icon name="facebook" size={18} />
-              </a>
-              <a className="social" href="#" aria-label="Instagram">
+              <a
+                className="social"
+                href={SOCIAL_LINKS.instagram}
+                aria-label="ClariPet on Instagram"
+                target="_blank"
+                rel="noopener noreferrer me"
+              >
                 <Icon name="instagram" size={18} />
               </a>
-              <a className="social" href="#" aria-label="TikTok">
+              <a
+                className="social"
+                href={SOCIAL_LINKS.tiktok}
+                aria-label="ClariPet on TikTok"
+                target="_blank"
+                rel="noopener noreferrer me"
+              >
                 <Icon name="tiktok" size={18} />
               </a>
             </div>

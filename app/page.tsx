@@ -5,6 +5,7 @@ import { Hero } from "@/components/home/Hero";
 // statically rather than through next/dynamic.
 import { CustomerReviews } from "@/components/home/CustomerReviews";
 import { SITE_URL } from "@/lib/site";
+import { SAME_AS } from "@/lib/social";
 
 // Prerendered at build, refreshed in the background every 5 minutes — the
 // Pet Parent Favorites shelf reads best sellers from the catalogue.
@@ -24,11 +25,16 @@ const QuizCTA = dynamic(() =>
 );
 
 export const metadata: Metadata = {
-  // Deliberately the bare app name, matching the Google Cloud console App name
-  // 1:1 for OAuth brand verification. Restore the keyword title
-  // ("ClariPet | Premium Pet Care & Grooming Supplies Indonesia") once the app
-  // is approved — this costs home page SEO for as long as it stands.
-  title: "ClariPet",
+  // Was pinned to the bare app name ("ClariPet") to match the Google Cloud
+  // console App name 1:1 while OAuth brand verification was under review. That
+  // review has been approved, so the keyword title is restored as the original
+  // note intended — this is the highest-value title tag on the site, and the
+  // brand competes for the string "claripet" against an unrelated claripet.com.
+  //
+  // `applicationName` in app/layout.tsx still renders <meta
+  // name="application-name" content="ClariPet">, so the exact-match brand
+  // signal OAuth review looked for survives independently of this title.
+  title: "ClariPet | Premium Pet Care & Grooming Supplies Indonesia",
   description:
     "Produk perawatan hewan peliharaan premium untuk anjing & kucing: parfum, shampoo, vitamin, dan perawatan kulit & bulu. Aman, efektif, dibuat di Indonesia.",
   alternates: { canonical: "/" },
@@ -55,6 +61,10 @@ const organizationJsonLd = {
   logo: `${SITE_URL}/images/brand/logo-dark.png`,
   description:
     "Premium, pet-safe care made with love in Indonesia. Gentle formulas for happy, healthy pets.",
+  // Ties this domain to the profiles that already rank for "claripet". Without
+  // it Google has no stated relationship between the storefront and the
+  // Instagram/Shopee/Tokopedia pages outranking it for the brand's own name.
+  sameAs: SAME_AS,
 };
 
 const websiteJsonLd = {
