@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 /** Google "G" multicolor logo as inline SVG. */
@@ -27,6 +27,20 @@ function GoogleMark() {
   );
 }
 
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: Record<string, unknown>) => void;
+          renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
+          prompt: (notification?: (notification: unknown) => void) => void;
+        };
+      };
+    };
+  }
+}
+
 export function GoogleButton({
   redirectPath = "/",
   label = "Continue with Google",
@@ -34,11 +48,99 @@ export function GoogleButton({
   redirectPath?: string;
   label?: string;
 }) {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInWithGoogleIdToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const buttonContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const handleClick = async () => {
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+  const handleCredential = useCallback(
+    async (response: { credential?: string }) => {
+      if (!response.credential) return;
+      setError(null);
+      setLoading(true);
+
+      try {
+        const { error: err } = await signInWithGoogleIdToken(response.credential);
+        if (err) {
+          setError(err);
+          setLoading(false);
+          return;
+        }
+
+        if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("returnTo")) {
+          sessionStorage.removeItem("returnTo");
+        }
+        window.location.assign(redirectPath);
+      } catch (err) {
+        console.error("[google-gis] sign in failed", err);
+        setError("Gagal masuk dengan Google. Silakan coba lagi.");
+        setLoading(false);
+      }
+    },
+    [redirectPath, signInWithGoogleIdToken],
+  );
+
+  useEffect(() => {
+    if (!googleClientId || typeof window === "undefined") return;
+
+    let mounted = true;
+
+    const setupGoogleAuth = () => {
+      if (!mounted || !window.google?.accounts?.id || !buttonContainerRef.current) return;
+
+      const isSignUp = label.toLowerCase().includes("daftar") || label.toLowerCase().includes("sign up");
+
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleCredential,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        if (buttonContainerRef.current) {
+          buttonContainerRef.current.innerHTML = "";
+          window.google.accounts.id.renderButton(buttonContainerRef.current, {
+            type: "standard",
+            theme: "outline",
+            size: "large",
+            text: isSignUp ? "signup_with" : "signin_with",
+            shape: "pill",
+            logo_alignment: "left",
+            width: 340,
+          });
+        }
+      } catch (err) {
+        console.error("[google-gis] setup failed", err);
+      }
+    };
+
+    const scriptId = "google-gis-script";
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    if (window.google?.accounts?.id) {
+      setupGoogleAuth();
+    } else if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = setupGoogleAuth;
+      document.head.appendChild(script);
+    } else {
+      script.addEventListener("load", setupGoogleAuth);
+    }
+
+    return () => {
+      mounted = false;
+      script?.removeEventListener("load", setupGoogleAuth);
+    };
+  }, [googleClientId, label, handleCredential]);
+
+  const handleClickFallback = async () => {
     setError(null);
     setLoading(true);
     const { error: err } = await signInWithGoogle(redirectPath);
@@ -46,7 +148,6 @@ export function GoogleButton({
       setError(err);
       setLoading(false);
     }
-    // On success the browser redirects to Google, so no need to reset loading.
   };
 
   return (
@@ -56,17 +157,84 @@ export function GoogleButton({
           {error}
         </div>
       )}
-      <button
-        type="button"
-        className="google-btn"
-        onClick={handleClick}
-        disabled={loading}
-      >
-        <GoogleMark />
-        {loading ? "Redirecting..." : label}
-      </button>
+
+      <div className="google-auth-container">
+        {googleClientId ? (
+          <div
+            ref={buttonContainerRef}
+            className="google-gis-slot"
+            suppressHydrationWarning
+          >
+            <button
+              type="button"
+              className="google-btn"
+              onClick={handleClickFallback}
+              disabled={loading}
+            >
+              <GoogleMark />
+              {loading ? "Menghubungkan..." : label}
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="google-btn"
+            onClick={handleClickFallback}
+            disabled={loading}
+          >
+            <GoogleMark />
+            {loading ? "Redirecting..." : label}
+          </button>
+        )}
+
+        {loading && (
+          <div className="google-loading-overlay">
+            <span className="spinner-sm" /> Sedang masuk...
+          </div>
+        )}
+      </div>
 
       <style jsx>{`
+        .google-auth-container {
+          width: 100%;
+          position: relative;
+          display: flex;
+          justify-content: center;
+          min-height: 48px;
+        }
+        .google-gis-slot {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+        }
+        .google-gis-slot :global(iframe) {
+          margin: 0 auto !important;
+        }
+        .google-loading-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(255, 255, 255, 0.88);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--navy);
+          border-radius: var(--r-pill);
+          z-index: 10;
+        }
+        .spinner-sm {
+          width: 16px;
+          height: 16px;
+          border: 2px solid var(--line);
+          border-top-color: var(--navy);
+          border-radius: 50%;
+          animation: spin .6s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
         .google-btn {
           width: 100%;
           display: inline-flex;

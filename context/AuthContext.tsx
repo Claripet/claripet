@@ -36,6 +36,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signInWithGoogle: (redirectPath?: string) => Promise<{ error: string | null }>;
+  signInWithGoogleIdToken: (idToken: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
@@ -253,6 +254,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase],
   );
 
+  const signInWithGoogleIdToken = useCallback(
+    async (idToken: string) => {
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: idToken,
+      });
+      if (error) return { error: error.message };
+      return { error: null };
+    },
+    [supabase],
+  );
+
   const requestPasswordReset = useCallback(
     async (email: string) => {
       // Route recovery links through the callback too — the reset link carries
@@ -277,7 +290,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, profileLoading, signUp, signIn, signInWithGoogle, signOut, refreshUser, requestPasswordReset, updatePassword }}
+      value={{ user, loading, profileLoading, signUp, signIn, signInWithGoogle, signInWithGoogleIdToken, signOut, refreshUser, requestPasswordReset, updatePassword }}
     >
       {children}
     </AuthContext.Provider>

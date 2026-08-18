@@ -16,13 +16,13 @@ const isDev = process.env.NODE_ENV !== "production";
 const scriptSrc = [
   "script-src 'self' 'unsafe-inline'",
   isDev ? "'unsafe-eval' blob:" : "",
-  "https://app.sandbox.midtrans.com https://app.midtrans.com",
+  "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/client",
 ]
   .filter(Boolean)
   .join(" ");
 
 const connectSrc = [
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://app.sandbox.midtrans.com https://app.midtrans.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/",
   isDev ? "ws://localhost:* http://localhost:*" : "",
 ]
   .filter(Boolean)
@@ -47,23 +47,24 @@ const securityHeaders = [
   // - Supabase realtime uses wss:// and https://
   // - Midtrans Snap loads a script from app.sandbox.midtrans.com (test) /
   //   app.midtrans.com (production) and POSTs to those origins
+  // - Google Identity Services (GSI) for Google Sign-In button and One Tap
   // - RajaOngkir API calls are server-side only (not listed here)
   {
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      // Scripts: own origin + Midtrans Snap widget (+ eval/blob in dev for HMR)
+      // Scripts: own origin + Midtrans Snap widget + Google Identity Services (+ eval/blob in dev for HMR)
       scriptSrc,
-      // Styles: own origin + inline styles (Tailwind generates inline styles in some cases)
-      "style-src 'self' 'unsafe-inline'",
-      // Images: own origin + Supabase storage + Midtrans QR
-      "img-src 'self' data: https://*.supabase.co https://api.sandbox.midtrans.com https://api.midtrans.com",
-      // Fonts: own origin
-      "font-src 'self'",
-      // XHR/fetch: own origin + Supabase REST/Auth/Realtime + Midtrans (+ ws in dev for HMR)
+      // Styles: own origin + inline styles (Tailwind generates inline styles in some cases) + Google GSI styles
+      "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
+      // Images: own origin + Supabase storage + Midtrans QR + Google avatars
+      "img-src 'self' data: https://*.supabase.co https://api.sandbox.midtrans.com https://api.midtrans.com https://*.googleusercontent.com https://lh3.googleusercontent.com",
+      // Fonts: own origin + Google fonts
+      "font-src 'self' https://fonts.gstatic.com",
+      // XHR/fetch: own origin + Supabase REST/Auth/Realtime + Midtrans + Google (+ ws in dev for HMR)
       connectSrc,
-      // Frames: Midtrans Snap renders an iframe for the payment sheet
-      "frame-src https://app.sandbox.midtrans.com https://app.midtrans.com",
+      // Frames: Midtrans Snap renders an iframe for the payment sheet + Google GSI iframe
+      "frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/",
       // Everything else denied
       "object-src 'none'",
       "base-uri 'self'",

@@ -7,6 +7,16 @@
 		"nodejs_compat",
 		"global_fetch_strictly_public"
 	],
+	"routes": [
+		{
+			"pattern": "claripetcare.com",
+			"custom_domain": true
+		},
+		{
+			"pattern": "claripetcare.id",
+			"custom_domain": true
+		}
+	],
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"
@@ -17,7 +27,8 @@
 	// RAJAONGKIR_ORIGIN_ID is a public RajaOngkir district ID (Jakarta), not a
 	// credential, so it lives here rather than in `wrangler secret`.
 	"vars": {
-		"RAJAONGKIR_ORIGIN_ID": "17547"
+		"RAJAONGKIR_ORIGIN_ID": "17547",
+		"NEXT_PUBLIC_GOOGLE_CLIENT_ID": "649983855932-5kmj2mis1avt250tou83360atc309ale.apps.googleusercontent.com"
 	},
 	"images": {
 		// Enable Next.js Image Optimization via Cloudflare's built-in binding

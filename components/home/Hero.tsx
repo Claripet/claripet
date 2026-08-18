@@ -36,8 +36,8 @@ export function Hero() {
               and a reviewer who does not read the Indonesian copy below would
               otherwise see only the slogan above. Keep this in sync with the
               sr-only h1 and the metadata description. */}
-          <p className="hero-purpose">
-            ClariPet (claripetcare.com) is a pet care application dedicated to thoughtful, effective products for everyday grooming, hygiene, health and wellness.
+          <p className="hero-purpose hero-mobile-hide">
+            ClariPet is a pet care brand dedicated to thoughtful, effective products for everyday grooming, hygiene, health and wellness.
           </p>
           <p className="lead hero-sub hero-mobile-hide">
             Perawatan hewan peliharaan yang lembut dan efektif untuk memudahkan rutinitas grooming, menjaga kesehatan, dan mempererat ikatan setiap hari.

@@ -15,8 +15,6 @@ import { useCart } from "@/context/CartContext";
 interface QuizOption {
   value: string;
   label: string;
-  icon: string;
-  tone: string;
 }
 interface QuizStep {
   key: string;
@@ -29,64 +27,98 @@ const QUIZ_STEPS: QuizStep[] = [
     key: "pet",
     q: "Sedang belanja untuk siapa hari ini?",
     options: [
-      { value: "dog", label: "Anjing", icon: "dog", tone: "sky" },
-      { value: "cat", label: "Kucing", icon: "cat", tone: "pink" },
+      { value: "dog", label: "Anjing" },
+      { value: "cat", label: "Kucing" },
     ],
   },
   {
     key: "concern",
     q: "Apa perhatian utama Anda saat ini?",
     options: [
-      { value: "bad-breath", label: "Bau mulut", icon: "droplet", tone: "sky" },
-      { value: "tear-stains", label: "Noda air mata", icon: "sparkle", tone: "lavender" },
-      { value: "odor-freshness", label: "Bau badan & kesegaran", icon: "spray", tone: "sage" },
-      { value: "general", label: "Perawatan umum", icon: "heart", tone: "pink" },
+      { value: "bad-breath", label: "Bau mulut" },
+      { value: "tear-stains", label: "Noda air mata" },
+      { value: "odor-freshness", label: "Bau badan & kesegaran" },
+      { value: "general", label: "Perawatan umum" },
     ],
   },
   {
     key: "skin",
     q: "Bagaimana kondisi kulit & bulunya?",
     options: [
-      { value: "sensitive", label: "Sensitif / gatal", icon: "leaf", tone: "sage" },
-      { value: "normal", label: "Normal & sehat", icon: "smile", tone: "cream" },
-      { value: "dull", label: "Kusam atau kering", icon: "droplet", tone: "sky" },
-      { value: "unsure", label: "Tidak yakin", icon: "check", tone: "lavender" },
+      { value: "sensitive", label: "Sensitif / gatal" },
+      { value: "normal", label: "Normal & sehat" },
+      { value: "dull", label: "Kusam atau kering" },
+      { value: "unsure", label: "Tidak yakin" },
     ],
   },
   {
     key: "scent",
     q: "Ada preferensi aroma?",
     options: [
-      { value: "baby-powder", label: "Baby powder lembut", icon: "sparkle", tone: "pink" },
-      { value: "lavender", label: "Lavender yang menenangkan", icon: "leaf", tone: "lavender" },
-      { value: "fresh", label: "Bersih & segar", icon: "droplet", tone: "sky" },
-      { value: "none", label: "Tanpa aroma", icon: "check", tone: "sage" },
+      { value: "baby-powder", label: "Baby powder lembut" },
+      { value: "lavender", label: "Lavender yang menenangkan" },
+      { value: "fresh", label: "Bersih & segar" },
+      { value: "none", label: "Tanpa aroma" },
     ],
   },
 ];
 
-const HYGIENE_CONCERNS = new Set(["bad-breath", "tear-stains", "odor-freshness"]);
-
 function recommend(answers: Record<string, string>): Product[] {
-  const recs = new Set<string>();
-  const byCat = (c: string) => PRODUCTS.filter((p) => p.category === c).forEach((p) => recs.add(p.slug));
+  const scores = new Map<string, number>();
+  PRODUCTS.forEach((p) => scores.set(p.slug, 0));
 
-  if (HYGIENE_CONCERNS.has(answers.concern)) byCat("hygiene-grooming");
-  else {
-    recs.add("claripet-skin-guard-silver-heal");
-    recs.add("claripet-shu-shu-cat");
+  const addScore = (slug: string, points: number) => {
+    scores.set(slug, (scores.get(slug) || 0) + points);
+  };
+
+  const byCat = (cat: string, points: number) => {
+    PRODUCTS.forEach((p) => {
+      if (p.category === cat) addScore(p.slug, points);
+    });
+  };
+
+  if (answers.concern === "bad-breath") {
+    addScore("claripet-smell-clean", 10);
+    byCat("hygiene-grooming", 2);
+  } else if (answers.concern === "tear-stains") {
+    addScore("claripet-tear-stain-remover", 10);
+    byCat("hygiene-grooming", 5);
+  } else if (answers.concern === "odor-freshness") {
+    addScore("claripet-shu-shu-cat", 10);
+    byCat("perfumes", 5);
+  } else {
+    byCat("skin-care", 2);
+    byCat("perfumes", 2);
   }
 
-  if (answers.skin === "sensitive" || answers.skin === "dull") recs.add("claripet-skin-guard-fungal-spray");
+  if (answers.skin === "sensitive") {
+    addScore("claripet-skin-guard-silver-heal", 10);
+    addScore("claripet-skin-guard-fungal-spray", 8);
+  } else if (answers.skin === "dull") {
+    addScore("claripet-skin-guard-fungal-spray", 5);
+    addScore("claripet-baby-powder", 2);
+  }
 
-  if (answers.scent === "baby-powder") recs.add("claripet-baby-powder");
-  else if (answers.scent === "lavender") recs.add("claripet-botanica-bloom");
-  else if (answers.scent === "fresh") recs.add("claripet-shu-shu-cat");
+  if (answers.scent === "baby-powder") {
+    addScore("claripet-baby-powder", 10);
+  } else if (answers.scent === "lavender") {
+    addScore("claripet-botanica-bloom", 10);
+  } else if (answers.scent === "fresh") {
+    addScore("claripet-shu-shu-cat", 10);
+    addScore("claripet-smell-clean", 5);
+  }
 
-  let list = Array.from(recs)
-    .map((s) => getProduct(s))
+  PRODUCTS.forEach((p) => {
+    if (p.bestSeller) addScore(p.slug, 1);
+  });
+
+  const sorted = Array.from(scores.entries())
+    .sort((a, b) => b[1] - a[1])
+    .filter((entry) => entry[1] > 0)
+    .map((entry) => getProduct(entry[0]))
     .filter((p): p is Product => Boolean(p));
-  if (list.length === 0) list = PRODUCTS.filter((p) => p.bestSeller);
+
+  let list = sorted.length > 0 ? sorted : PRODUCTS.filter((p) => p.bestSeller);
   return list.slice(0, 3);
 }
 
@@ -172,9 +204,6 @@ export function Quiz() {
                 className={"quiz-opt" + (answers[current.key] === o.value ? " selected" : "")}
                 onClick={() => choose(current.key, o.value)}
               >
-                <span className="qic" style={{ background: `var(--${o.tone})`, color: "var(--navy)" }}>
-                  <Icon name={o.icon} size={22} />
-                </span>
                 {o.label}
               </button>
             ))}
