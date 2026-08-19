@@ -158,7 +158,7 @@ export const PRODUCTS: Product[] = [
     images: [{url: '/images/products/gentle-wash.png', alt: 'Botol ClariPet Gentle Wash Shampoo untuk kulit sensitif anjing dan kucing'}, {url: '/images/products/gentle-wash-1.png', alt: 'Kemasan ClariPet Gentle Wash Shampoo tampak samping'}, {url: '/images/products/gentle-wash-2.png', alt: 'Detail label dan komposisi ClariPet Gentle Wash Shampoo'}, {url: '/images/products/gentle-wash-6.png', alt: 'Tekstur busa lembut ClariPet Gentle Wash Shampoo'}, {url: '/images/products/gentle-wash-7.png', alt: 'ClariPet Gentle Wash Shampoo digunakan saat memandikan anjing'}, {url: '/images/products/gentle-wash-chatgpt.png', alt: 'ClariPet Gentle Wash Shampoo untuk perawatan kulit gatal dan jamur'}], category: "hygiene-grooming", categoryName: "Hygiene & Grooming",
     price: 65000, rating: 4.8, reviews: 287,
     tone: "pink" as const, bestSeller: false,
-    sizes: ["250ml"],
+    sizes: ["250ml","500ml"],
     short: "ClariPet Gentle Wash Shampoo adalah sampo perawatan kulit yang diformulasikan khusus untuk membantu menjaga kebersihan kulit dan bulu hewan peliharaan yang mengalami berbagai masalah kulit sehari-hari.",
     benefits: ["Membantu merawat kulit yang sensitif dan mudah gatal","Cocok digunakan untuk membantu perawatan kulit yang berkaitan dengan jamur","Membantu perawatan kulit akibat kutu ringan","Membersihkan tanpa membuat kulit terasa kering"],
     features: ["Pet Safe Ingredients","Made in Indonesia"],

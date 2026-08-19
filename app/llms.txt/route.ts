@@ -24,7 +24,7 @@ ${CATEGORIES.map((c) => `- [${c.name}](${SITE_URL}/shop/${c.slug}): ${c.blurb}`)
 ${PRODUCTS.slice(0, 8).map((p) => `- [${p.name}](${SITE_URL}/product/${p.slug}) - Rp ${p.price.toLocaleString("id-ID")}: ${p.short}`).join("\n")}
 
 ## Interactive Tools
-- [Pet Care Recommendation Quiz](${SITE_URL}/quiz): Answer 4 simple questions in 1 minute to receive personalized product pairings based on your pet type, coat condition, and main care concerns.
+- [Pet Care Recommendation Quiz](${SITE_URL}/quiz): A branching quiz of about 5-7 questions, under 2 minutes, covering pet type, age, and up to two main care needs (bathing, skin, coat and nutrition, eyes/ears/mouth, scent, behaviour and household odour). Returns one main product plus up to two companions. Pets under 2 months old are shown veterinary guidance instead of product recommendations.
 
 ## Contact & Help
 - Website: ${SITE_URL}

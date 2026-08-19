@@ -3,10 +3,10 @@ import Image from "next/image";
 import { Icon } from "@/components/icons";
 
 const STEPS = [
-  { icon: "paw", title: "1. Pet Type", desc: "Anjing atau kucing", bg: "bg-[#AECBEB]/20" },
-  { icon: "sparkle", title: "2. Main Concern", desc: "Apa perhatian utama Anda?", bg: "bg-[#F5CDD3]/20" },
-  { icon: "leaf", title: "3. Skin & Coat", desc: "Bagaimana kondisi kulit & bulunya?", bg: "bg-[#C5D6C8]/20" },
-  { icon: "spray", title: "4. Scent Preference", desc: "Ada preferensi aroma?", bg: "bg-[#E0CBE8]/20" },
+  { icon: "paw", title: "1. Jenis Anabul", desc: "Anjing atau kucing", bg: "bg-[#AECBEB]/20" },
+  { icon: "heart", title: "2. Usia", desc: "Berapa usia anabulmu?", bg: "bg-[#F5CDD3]/20" },
+  { icon: "leaf", title: "3. Kebutuhan Utama", desc: "Pilih maksimal dua kebutuhan", bg: "bg-[#C5D6C8]/20" },
+  { icon: "sparkle", title: "4. Rekomendasi", desc: "Produk yang paling sesuai", bg: "bg-[#E0CBE8]/20" },
 ];
 
 export function QuizCTA() {
@@ -31,7 +31,7 @@ export function QuizCTA() {
                 className="text-[#5A6072] leading-relaxed max-w-md"
                 style={{ fontSize: "clamp(0.9rem, 1.3vw, 1.05rem)" }}
               >
-                Jawab 4 pertanyaan singkat dan dapatkan rekomendasi ClariPet yang dipersonalisasi sesuai kebutuhan hewan peliharaan Anda.
+                Jawab beberapa pertanyaan singkat dan dapatkan rekomendasi ClariPet yang dipersonalisasi sesuai kebutuhan hewan peliharaan Anda.
               </p>
               <div className="flex flex-col items-start gap-4">
                 {/* Site primary button rather than a pale --sky fill: white on
@@ -45,7 +45,7 @@ export function QuizCTA() {
                   <Icon name="shield" size={14} className="text-sage" />
                   <span>100% Gratis</span>
                   <span className="text-[#C5CDD8]">•</span>
-                  <span>1 Menit Saja</span>
+                  <span>2 Menit Saja</span>
                   <span className="text-[#C5CDD8]">•</span>
                   <span>Tanpa Daftar</span>
                 </div>

@@ -1,173 +1,295 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import type { Product } from "@/lib/types";
-import { PRODUCTS, getProduct } from "@/data/products";
+import { getProduct } from "@/data/products";
+import {
+  COMING_SOON,
+  INTRO,
+  TOO_YOUNG,
+  buildSteps,
+  isAnswered,
+  recommend,
+  resultHeading,
+  type Answers,
+  type AnswerKey,
+  type Ref as ProductRef,
+  type Step,
+} from "@/data/quiz";
+import { formatPrice } from "@/lib/format";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/PageHead";
-import { Mascot } from "@/components/Mascot";
-import { ProductCard } from "@/components/ProductCard";
+import { StarRating } from "@/components/ui/StarRating";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import { useCart } from "@/context/CartContext";
+import { useFlyToCart } from "@/context/FlyToCartContext";
 
-interface QuizOption {
-  value: string;
-  label: string;
+/** Milliseconds a single-select answer stays visible before advancing. */
+const ADVANCE_DELAY = 220;
+
+/* ------------------------------------------------------------- helpers --- */
+
+function asArray(value: unknown): string[] {
+  return Array.isArray(value) ? (value as string[]) : [];
 }
-interface QuizStep {
-  key: string;
-  q: string;
-  options: QuizOption[];
-}
 
-const QUIZ_STEPS: QuizStep[] = [
-  {
-    key: "pet",
-    q: "Sedang belanja untuk siapa hari ini?",
-    options: [
-      { value: "dog", label: "Anjing" },
-      { value: "cat", label: "Kucing" },
-    ],
-  },
-  {
-    key: "concern",
-    q: "Apa perhatian utama Anda saat ini?",
-    options: [
-      { value: "bad-breath", label: "Bau mulut" },
-      { value: "tear-stains", label: "Noda air mata" },
-      { value: "odor-freshness", label: "Bau badan & kesegaran" },
-      { value: "general", label: "Perawatan umum" },
-    ],
-  },
-  {
-    key: "skin",
-    q: "Bagaimana kondisi kulit & bulunya?",
-    options: [
-      { value: "sensitive", label: "Sensitif / gatal" },
-      { value: "normal", label: "Normal & sehat" },
-      { value: "dull", label: "Kusam atau kering" },
-      { value: "unsure", label: "Tidak yakin" },
-    ],
-  },
-  {
-    key: "scent",
-    q: "Ada preferensi aroma?",
-    options: [
-      { value: "baby-powder", label: "Baby powder lembut" },
-      { value: "lavender", label: "Lavender yang menenangkan" },
-      { value: "fresh", label: "Bersih & segar" },
-      { value: "none", label: "Tanpa aroma" },
-    ],
-  },
-];
+/**
+ * Recommendation card. A coming-soon ref has no catalogue entry, so it renders
+ * as a muted card with a "Segera Hadir" badge and no purchase button.
+ */
+function RecCard({
+  refItem,
+  variant,
+}: {
+  refItem: ProductRef;
+  variant: "primary" | "companion";
+}) {
+  const cart = useCart();
+  const { flyToCart } = useFlyToCart();
+  const addRef = useRef<HTMLDivElement>(null);
 
-function recommend(answers: Record<string, string>): Product[] {
-  const scores = new Map<string, number>();
-  PRODUCTS.forEach((p) => scores.set(p.slug, 0));
+  const product: Product | undefined = refItem.comingSoon ? undefined : getProduct(refItem.slug);
+  const placeholder = refItem.comingSoon ? COMING_SOON[refItem.slug] : undefined;
 
-  const addScore = (slug: string, points: number) => {
-    scores.set(slug, (scores.get(slug) || 0) + points);
+  // A ref that points at neither a real product nor a placeholder is a data
+  // bug, not something to render an empty card for.
+  if (!product && !placeholder) return null;
+
+  const name = product?.name ?? placeholder!.name;
+  const subtitle = product?.subtitle ?? placeholder!.subtitle;
+  const image = product?.images?.[0];
+
+  const handleAdd = () => {
+    if (!product) return;
+    if (addRef.current) flyToCart(addRef.current);
+    cart.add(product.slug, refItem.size, 1, product);
   };
 
-  const byCat = (cat: string, points: number) => {
-    PRODUCTS.forEach((p) => {
-      if (p.category === cat) addScore(p.slug, points);
-    });
-  };
+  return (
+    <article className={`quiz-rec quiz-rec-${variant}`}>
+      <div className="quiz-rec-media">
+        {image ? (
+          <Image
+            src={image.url}
+            alt={image.alt ?? name}
+            fill
+            sizes={variant === "primary" ? "(max-width: 720px) 90vw, 320px" : "(max-width: 720px) 45vw, 220px"}
+            className="quiz-rec-img"
+          />
+        ) : (
+          <span className="quiz-rec-empty">
+            <Icon name="image" size={28} className="muted" />
+          </span>
+        )}
+        {refItem.comingSoon && <span className="quiz-rec-soon">Segera Hadir</span>}
+      </div>
 
-  if (answers.concern === "bad-breath") {
-    addScore("claripet-smell-clean", 10);
-    byCat("hygiene-grooming", 2);
-  } else if (answers.concern === "tear-stains") {
-    addScore("claripet-tear-stain-remover", 10);
-    byCat("hygiene-grooming", 5);
-  } else if (answers.concern === "odor-freshness") {
-    addScore("claripet-shu-shu-cat", 10);
-    byCat("perfumes", 5);
-  } else {
-    byCat("skin-care", 2);
-    byCat("perfumes", 2);
-  }
+      <div className="quiz-rec-body">
+        <div className="quiz-rec-role">
+          {variant === "primary" ? "Rekomendasi Utama" : "Produk Pendamping"}
+        </div>
+        {product ? (
+          <Link className="quiz-rec-name" href={`/product/${product.slug}`}>
+            {name}
+          </Link>
+        ) : (
+          <span className="quiz-rec-name">{name}</span>
+        )}
+        <p className="quiz-rec-sub">{refItem.why ?? subtitle}</p>
 
-  if (answers.skin === "sensitive") {
-    addScore("claripet-skin-guard-silver-heal", 10);
-    addScore("claripet-skin-guard-fungal-spray", 8);
-  } else if (answers.skin === "dull") {
-    addScore("claripet-skin-guard-fungal-spray", 5);
-    addScore("claripet-baby-powder", 2);
-  }
-
-  if (answers.scent === "baby-powder") {
-    addScore("claripet-baby-powder", 10);
-  } else if (answers.scent === "lavender") {
-    addScore("claripet-botanica-bloom", 10);
-  } else if (answers.scent === "fresh") {
-    addScore("claripet-shu-shu-cat", 10);
-    addScore("claripet-smell-clean", 5);
-  }
-
-  PRODUCTS.forEach((p) => {
-    if (p.bestSeller) addScore(p.slug, 1);
-  });
-
-  const sorted = Array.from(scores.entries())
-    .sort((a, b) => b[1] - a[1])
-    .filter((entry) => entry[1] > 0)
-    .map((entry) => getProduct(entry[0]))
-    .filter((p): p is Product => Boolean(p));
-
-  let list = sorted.length > 0 ? sorted : PRODUCTS.filter((p) => p.bestSeller);
-  return list.slice(0, 3);
+        {product ? (
+          <>
+            <div className="quiz-rec-meta">
+              <span className="quiz-rec-price">{formatPrice(product.price)}</span>
+              {refItem.size && <span className="quiz-rec-size">{refItem.size}</span>}
+              <StarRating rating={product.rating} reviews={product.reviews} />
+            </div>
+            <div className="quiz-rec-actions" ref={addRef}>
+              <PrimaryButton size="sm" onClick={handleAdd} aria-label={`Tambah ${name} ke keranjang`}>
+                Tambah ke Keranjang
+              </PrimaryButton>
+              <Link className="btn btn-secondary btn-sm" href={`/product/${product.slug}`}>
+                Lihat Produk
+              </Link>
+            </div>
+          </>
+        ) : (
+          <p className="quiz-rec-soon-note">
+            Produk ini belum tersedia untuk dibeli. Nantikan peluncurannya, ya!
+          </p>
+        )}
+      </div>
+    </article>
+  );
 }
+
+/* ---------------------------------------------------------------- quiz --- */
 
 export function Quiz() {
-  const cart = useCart();
-  const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [started, setStarted] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [done, setDone] = useState(false);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const done = step >= QUIZ_STEPS.length;
-  const progress = done ? 100 : (step / QUIZ_STEPS.length) * 100;
+  const clearAdvance = useCallback(() => {
+    if (advanceTimer.current) {
+      clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+  }, []);
+  useEffect(() => clearAdvance, [clearAdvance]);
 
-  const choose = (key: string, value: string) => {
-    setAnswers((prev) => ({ ...prev, [key]: value }));
-    setTimeout(() => setStep((s) => s + 1), 220);
-  };
+  const steps = useMemo(() => buildSteps(answers), [answers]);
+  const tooYoung = answers.age === "under2m";
+
+  // Answering an earlier question can shorten the branch under it, so the index
+  // has to be pulled back inside the new list rather than pointing past its end.
+  const safeIndex = Math.min(index, Math.max(steps.length - 1, 0));
+  const current: Step | undefined = steps[safeIndex];
+
   const reset = () => {
+    clearAdvance();
     setAnswers({});
-    setStep(0);
+    setIndex(0);
+    setDone(false);
+    setStarted(false);
   };
 
-  if (done) {
-    const recs = recommend(answers);
-    const petLabel = answers.pet === "cat" ? "kucing" : "anjing";
+  const setAnswer = (key: AnswerKey, value: unknown) =>
+    setAnswers((prev) => ({ ...prev, [key]: value }));
+
+  const goNext = useCallback(() => {
+    clearAdvance();
+    setIndex((i) => i + 1);
+  }, [clearAdvance]);
+
+  // The optional pet-name field is always the terminal step, so it — not the
+  // index — is what decides whether the CTA finishes the quiz. Using the index
+  // would mislabel the age question during the brief window before a branch
+  // opens up beneath it.
+  const isLast = current?.kind === "text";
+
+  const chooseSingle = (step: Step, value: string) => {
+    clearAdvance();
+    setAnswer(step.key, value);
+    // The last step is never a single-select (the name field is), so advancing
+    // here can only ever move onto another question.
+    advanceTimer.current = setTimeout(() => {
+      advanceTimer.current = null;
+      setIndex((i) => i + 1);
+    }, ADVANCE_DELAY);
+  };
+
+  const toggleMulti = (step: Extract<Step, { kind: "multi" }>, value: string) => {
+    const selected = asArray(answers[step.key]);
+    const option = step.options.find((o) => o.value === value);
+
+    if (selected.includes(value)) {
+      setAnswer(step.key, selected.filter((v) => v !== value));
+      return;
+    }
+    if (option?.exclusive) {
+      setAnswer(step.key, [value]);
+      return;
+    }
+    // Picking a normal option drops any exclusive one ("Semuanya") first.
+    const exclusives = step.options.filter((o) => o.exclusive).map((o) => o.value);
+    const kept = selected.filter((v) => !exclusives.includes(v));
+    if (kept.length >= step.max) return;
+    setAnswer(step.key, [...kept, value]);
+  };
+
+  /* ------------------------------------------------------------ intro --- */
+
+  if (!started) {
     return (
       <main>
-        <PageHead
-          title="Rekomendasi Personal untuk Anda"
-          subtitle={`Berdasarkan jawaban Anda, ini yang akan kami sarankan pertama kali untuk ${petLabel} Anda.`}
-        />
-        <div className="wrap quiz-shell" style={{ maxWidth: 980 }}>
-          <Mascot tone="sky" speech="Pilihan bagus menanti!" sub="Rekomendasi ClariPet" />
-          <div
-            className="prod-grid"
-            style={{ gridTemplateColumns: `repeat(auto-fit, minmax(180px, 1fr))`, marginTop: 28 }}
-          >
-            {recs.map((p) => (
-              <ProductCard key={p.slug} product={p} />
-            ))}
-          </div>
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 36, flexWrap: "wrap" }}>
-            <PrimaryButton
-              onClick={() => {
-                recs.forEach((p) => cart.add(p.slug));
-                router.push("/cart");
-              }}
-            >
-              Tambah Semua ke Keranjang
+        <div className="wrap quiz-shell">
+          <h1 className="quiz-intro-title">{INTRO.title}</h1>
+          <div className="quiz-card quiz-intro">
+            <div className="eyebrow center" style={{ justifyContent: "center" }}>
+              <Icon name="sparkle" size={16} /> Temukan yang cocok
+            </div>
+            <p className="quiz-intro-body">{INTRO.body}</p>
+            <div className="quiz-intro-perks">
+              {INTRO.perks.map((perk, i) => (
+                <span key={perk}>
+                  {i > 0 && <span className="quiz-intro-dot">•</span>}
+                  <Icon name="shield" size={14} /> {perk}
+                </span>
+              ))}
+            </div>
+            <PrimaryButton size="lg" icon="arrowRight" onClick={() => setStarted(true)}>
+              {INTRO.cta}
             </PrimaryButton>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  /* --------------------------------------------------- under 2 months --- */
+
+  // Deliberately renders no product, price or cart control of any kind.
+  if (tooYoung) {
+    return (
+      <main>
+        <div className="wrap quiz-shell">
+          <div className="quiz-card quiz-stop">
+            <span className="quiz-stop-icon">
+              <Icon name="shield" size={28} />
+            </span>
+            <h2 className="h3">{TOO_YOUNG.title}</h2>
+            {TOO_YOUNG.body.map((p) => (
+              <p key={p} className="quiz-stop-body">
+                {p}
+              </p>
+            ))}
+            <PrimaryButton onClick={reset}>{TOO_YOUNG.cta}</PrimaryButton>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  /* ----------------------------------------------------------- result --- */
+
+  if (done || !current) {
+    const { primary, companions, disclaimers } = recommend(answers);
+    const heading = resultHeading(answers.petName);
+    return (
+      <main>
+        <PageHead title={heading.title} subtitle={heading.subtitle} />
+        <div className="wrap quiz-shell quiz-result-shell">
+          {primary ? (
+            <>
+              <RecCard refItem={primary} variant="primary" />
+              {companions.length > 0 && (
+                <div className="quiz-rec-companions">
+                  {companions.map((ref) => (
+                    <RecCard key={`${ref.slug}|${ref.size ?? ""}`} refItem={ref} variant="companion" />
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="quiz-stop-body center">
+              Kami belum bisa menyusun rekomendasi dari jawaban ini. Coba ulangi kuisnya, ya.
+            </p>
+          )}
+
+          {disclaimers.map((text) => (
+            <div key={text} className="quiz-disclaimer" role="note">
+              <Icon name="shield" size={18} />
+              <p>{text}</p>
+            </div>
+          ))}
+
+          <div className="quiz-result-nav">
             <SecondaryButton onClick={reset}>Ulangi Kuis</SecondaryButton>
           </div>
         </div>
@@ -175,51 +297,110 @@ export function Quiz() {
     );
   }
 
-  const current = QUIZ_STEPS[step];
+  /* --------------------------------------------------------- question --- */
+
+  const answered = isAnswered(current, answers);
+  const progress = ((safeIndex + 1) / steps.length) * 100;
+
   return (
     <main>
       <div className="wrap quiz-shell">
-        {/* The results branch above gets its <h1> from PageHead, but this is the
-            state crawlers land on, and it had no <h1> at all. Visually hidden
-            rather than rendered, matching components/home/Hero.tsx, so the
-            page's existing layout is unchanged. */}
-        <h1 className="sr-only">
-          Quiz Rekomendasi Produk ClariPet untuk Anjing &amp; Kucing
-        </h1>
-        <div className="eyebrow center" style={{ display: "flex", justifyContent: "center", marginBottom: 22 }}>
-          <Icon name="sparkle" size={16} /> Temukan yang cocok
-        </div>
+        {/* Crawlers land on this state, so it carries the page's only h1.
+            Visually hidden rather than rendered, matching components/home/Hero.tsx. */}
+        <h1 className="sr-only">Quiz Rekomendasi Produk ClariPet untuk Anjing &amp; Kucing</h1>
+
         <div className="quiz-progress">
           <div className="bar" style={{ width: `${progress}%` }} />
         </div>
         <div className="quiz-step-label">
-          Langkah {step + 1} dari {QUIZ_STEPS.length}
+          Langkah {safeIndex + 1} dari {steps.length}
         </div>
+
         <div className="quiz-card">
           <h2 className="h3">{current.q}</h2>
-          <div className="quiz-options">
-            {current.options.map((o) => (
-              <button
-                key={o.value}
-                className={"quiz-opt" + (answers[current.key] === o.value ? " selected" : "")}
-                onClick={() => choose(current.key, o.value)}
-              >
-                {o.label}
+          {current.hint && <p className="quiz-hint">{current.hint}</p>}
+
+          {current.kind === "single" && (
+            <div className="quiz-options" role="radiogroup" aria-label={current.q}>
+              {current.options.map((o) => {
+                const selected = answers[current.key] === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    className={"quiz-opt" + (selected ? " selected" : "")}
+                    onClick={() => chooseSingle(current, o.value)}
+                  >
+                    {o.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {current.kind === "multi" && (
+            <div className="quiz-options" role="group" aria-label={current.q}>
+              {current.options.map((o) => {
+                const selected = asArray(answers[current.key]).includes(o.value);
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    aria-pressed={selected}
+                    className={"quiz-opt" + (selected ? " selected" : "")}
+                    onClick={() => toggleMulti(current, o.value)}
+                  >
+                    <span className="quiz-opt-check" aria-hidden>
+                      {selected && <Icon name="check" size={14} />}
+                    </span>
+                    {o.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {current.kind === "text" && (
+            <div className="quiz-text-field">
+              <input
+                type="text"
+                className="quiz-input"
+                placeholder={current.placeholder}
+                maxLength={40}
+                autoComplete="off"
+                value={(answers[current.key] as string) ?? ""}
+                onChange={(e) => setAnswer(current.key, e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setDone(true);
+                }}
+              />
+              <button type="button" className="btn btn-ghost" onClick={() => setDone(true)}>
+                {current.skipLabel}
               </button>
-            ))}
-          </div>
+            </div>
+          )}
+
           <div className="quiz-nav">
             <button
+              type="button"
               className="btn btn-ghost"
-              onClick={() => setStep((s) => Math.max(0, s - 1))}
-              disabled={step === 0}
-              style={{ opacity: step === 0 ? 0.4 : 1 }}
+              onClick={() => {
+                clearAdvance();
+                setIndex((i) => Math.max(0, Math.min(i, steps.length - 1) - 1));
+              }}
+              disabled={safeIndex === 0}
+              style={{ opacity: safeIndex === 0 ? 0.4 : 1 }}
             >
               Kembali
             </button>
-            {answers[current.key] && (
-              <PrimaryButton onClick={() => setStep((s) => s + 1)} icon="arrowRight">
-                Lanjut
+            {answered && (
+              <PrimaryButton
+                icon="arrowRight"
+                onClick={() => (isLast ? setDone(true) : goNext())}
+              >
+                {isLast ? "Lihat Rekomendasi" : "Lanjut"}
               </PrimaryButton>
             )}
           </div>
