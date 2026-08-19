@@ -8,14 +8,13 @@ export function Hero() {
     <section className="hero">
       <div className="wrap hero-inner">
         {/* Image sits behind the copy and melts into the panel on the left edge */}
-        <div className="hero-media" aria-hidden="false" style={{ transform: "translateX(160px)" }}>
+        <div className="hero-media" aria-hidden="false" style={{ transform: "translateX(215px)" }}>
           <Image
-            src="/images/hero-home.png"
-            alt="A happy, healthy pet cared for with ClariPet premium grooming and wellness products"
+            src="/images/hero-home.jpg"
+            alt="A cat and a golden retriever resting on a sofa beside their owner at home"
             fill
             priority
             sizes="(max-width: 768px) 160vw, 1600px"
-            style={{ objectFit: "contain" }}
             className="hero-img"
           />
         </div>
@@ -103,10 +102,19 @@ export function Hero() {
           z-index: 0;
           pointer-events: none;
         }
+        /* The hero band is far taller than the 3:2 photo, so object-fit cover
+           crops it horizontally, and how much survives depends on the viewport.
+           Narrow
+           screens keep only ~60% of the frame, so they centre it to hold both
+           animals; wide screens keep ~82% and can anchor left, which brings the
+           cat clear of the masked edge without losing the dog. See the
+           min-width: 1200px block. */
         .hero-img {
-          /* Default (desktop): fade the left edge into white so the image merges with the copy */
-          -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 30%, black 60%, black 100%);
-          mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 30%, black 60%, black 100%);
+          object-fit: cover;
+          object-position: center;
+          /* Fade the left edge so the image melts into the copy panel. */
+          -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.30) 26%, black 52%, black 100%);
+          mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.30) 26%, black 52%, black 100%);
         }
 
         /* ---------- Copy on top ---------- */
@@ -190,13 +198,18 @@ export function Hero() {
              never shows — the fade below the copy carries the colour instead
              and hands off to the page canvas. */
           .hero { background: var(--page); }
-          /* Soft fade at the bottom so headline sits cleanly over the canvas */
+          /* Soft fade at the bottom so headline sits cleanly over the canvas.
+             The hero photo is a dark interior shot, so the fade has to carry
+             most of the contrast here: navy on the unfaded photo measures as
+             low as 1.3:1, well under the 3:1 large-text minimum. These stops
+             keep every part of the headline above 3:1 while still letting the
+             photo read through above it. */
           .hero::after {
             content: "";
             position: absolute;
             left: 0; right: 0; bottom: 0;
-            height: 40%;
-            background: linear-gradient(to top, var(--page) 0%, rgba(239, 244, 252, 0.85) 40%, transparent 100%);
+            height: 54%;
+            background: linear-gradient(to top, var(--page) 0%, var(--page) 26%, rgba(239, 244, 252, 0.92) 52%, transparent 100%);
             z-index: 1;
             pointer-events: none;
           }
@@ -233,7 +246,9 @@ export function Hero() {
           .hero-eyebrow { font-size: 0.74rem; padding: 7px 13px; margin-bottom: 20px; }
           .h-display.hero-title { font-size: clamp(2.8rem, 4.2vw, 4rem); }
           .hero-purpose { font-size: 1.05rem; max-width: 520px; margin-bottom: 12px; }
-          .hero-sub { font-size: 1.05rem; max-width: 520px; }
+          /* Stops short of .hero-purpose so the line ends before the photo
+             turns fully opaque — at 520px its tail fell to 4.1:1 on navy. */
+          .hero-sub { font-size: 1.05rem; max-width: 468px; }
           .hero-actions { flex-direction: row; gap: 14px; margin-top: 28px; }
           .hero-action-link { width: auto; }
           .hero-copy { padding-top: 12px; }
@@ -243,7 +258,26 @@ export function Hero() {
         @media (min-width: 1200px) {
           .hero-inner { padding: 56px 28px 72px; }
           .h-display.hero-title { font-size: clamp(3.4rem, 4.5vw, 4.6rem); }
-          .hero-media { width: 82%; }
+          /* Bleed the photo out of the centred content column to the right
+             edge of the screen. .hero-media is absolutely positioned inside
+             .hero-inner (a .wrap), so without this it stops at the column and
+             leaves a white gap on wide monitors. 100% here is the wrap's width,
+             so the offset is exactly half the leftover viewport. body has
+             overflow-x: hidden, so the bleed cannot create a scrollbar. */
+          .hero-media {
+            width: auto;
+            left: 34%;
+            right: calc((100% - 100vw) / 2);
+            transform: none !important;
+          }
+          /* Enough of the frame survives here to show the cat and the dog, so
+             anchor left and let the fade resolve early — centred + a wide fade
+             buries the cat entirely. */
+          .hero-img {
+            object-position: left center;
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.45) 12%, black 30%, black 100%);
+            mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.45) 12%, black 30%, black 100%);
+          }
         }
 
         /* ---------- Small phones ---------- */
