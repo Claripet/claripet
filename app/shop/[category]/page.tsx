@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { jsonLdScript } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { CATEGORIES } from "@/data/categories";
 import {
@@ -80,7 +81,7 @@ export default async function CollectionPage({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbJsonLd) }}
       />
       <ShopCategoryPills />
       <CollectionView

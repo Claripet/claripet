@@ -4,7 +4,7 @@ import { PRODUCTS } from "@/data/products";
 import { getProductBySlug, getReviewsByProductSlug } from "@/lib/data";
 import { ProductView } from "@/components/product/ProductView";
 import { SITE_URL } from "@/lib/site";
-import { metaDescription, rollingPriceValidUntil } from "@/lib/seo";
+import { metaDescription, rollingPriceValidUntil, jsonLdScript } from "@/lib/seo";
 
 // Prerendered at build, refreshed in the background every 5 minutes so price
 // and stock edits from the admin panel land without a redeploy.
@@ -72,17 +72,38 @@ export default async function ProductPage({
     name: product.name,
     description: product.short,
     url: productUrl,
-    ...(imageUrl && { image: imageUrl }),
+    // Schema.org requires an absolute URL here. The catalogue stores
+    // root-relative paths ("/images/products/x.png"), which Google cannot
+    // fetch — the product rich result then loses its image.
+    ...(imageUrl && {
+      image: imageUrl.startsWith("http") ? imageUrl : `${SITE_URL}${imageUrl}`,
+    }),
     category: product.categoryName,
     // No dedicated SKU column exists; the slug is the stable, unique merchant
     // identifier for the product, which is what Google asks `sku` to carry.
     sku: product.slug,
     brand: { "@type": "Brand", name: "ClariPet" },
-    ...(product.reviews > 0 && {
+    // Gate on REAL review rows, not on `product.reviews`.
+    //
+    // `product.rating` / `product.reviews` are seeded marketing figures — they
+    // come from data/products.ts and 004_seed.sql inserts them straight into
+    // products.rating / products.reviews_count, and no trigger ever recomputes
+    // them from the reviews table. Keying the markup off that field meant every
+    // product advertised an AggregateRating (e.g. 4.7 from 145 reviews) while
+    // the page rendered zero reviews.
+    //
+    // Google treats review markup with no corresponding on-page reviews as
+    // spam, and the penalty is a manual action that strips rich results from
+    // the whole site — not just the stars. Deriving both numbers from the rows
+    // actually rendered below keeps the markup and the page in agreement.
+    ...(reviews.length > 0 && {
       aggregateRating: {
         "@type": "AggregateRating",
-        ratingValue: product.rating,
-        reviewCount: product.reviews,
+        ratingValue:
+          Math.round(
+            (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10,
+          ) / 10,
+        reviewCount: reviews.length,
         bestRating: 5,
         worstRating: 1,
       },
@@ -128,11 +149,11 @@ export default async function ProductPage({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbJsonLd) }}
       />
       <ProductView product={product} reviews={reviews} />
     </>

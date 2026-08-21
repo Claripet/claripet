@@ -6,7 +6,12 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const IS_CONFIGURED =
   SUPABASE_URL.length > 10 && !SUPABASE_URL.includes("placeholder");
 
-const PROTECTED_PATHS = ["/account", "/admin"];
+// /checkout belongs here: POST /api/orders calls requireUser(), so a guest who
+// fills in the whole address form and picks a courier — burning a paid
+// RajaOngkir quote on the way — only discovers they are signed out when the pay
+// button throws a raw English "Unauthorized" alert. Gating the page sends them
+// to /login?redirect=/checkout and back, before any of that work is wasted.
+const PROTECTED_PATHS = ["/account", "/admin", "/checkout"];
 const CALLBACK_PATH = "/api/auth/callback";
 
 /**

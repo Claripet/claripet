@@ -45,3 +45,26 @@ export function rollingPriceValidUntil(from: Date = new Date()): string {
   until.setFullYear(until.getFullYear() + 1);
   return until.toISOString().split("T")[0];
 }
+
+/**
+ * Serialise a JSON-LD object for injection into a <script type="application/ld+json">.
+ *
+ * `JSON.stringify` does not escape `<`, so any string that reaches the markup
+ * containing `</script>` closes the tag early and everything after it is parsed
+ * as HTML. Product names, category names and article titles are all
+ * admin-authored and flow into this markup, which makes it a stored-XSS path —
+ * and `script-src` still carries 'unsafe-inline', so injected script would run.
+ *
+ * Escaping `<` to its \u003c form is the standard fix: it is a no-op for JSON
+ * consumers (the parser resolves the escape back to `<`) but leaves no literal
+ * `</script>` in the HTML for the tokenizer to trip on. `&` and the line/
+ * paragraph separators are escaped for the same class of reason.
+ */
+export function jsonLdScript(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\u003c")
+    .replace(/>/g, "\u003e")
+    .replace(/&/g, "\u0026")
+    .replace(/\u2028/g, "\u2028")
+    .replace(/\u2029/g, "\u2029");
+}

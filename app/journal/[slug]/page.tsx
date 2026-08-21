@@ -4,7 +4,7 @@ import { getAllArticles, getArticleBySlug } from "@/lib/data";
 import { ARTICLES } from "@/data/articles";
 import { ArticleView } from "@/components/journal/ArticleView";
 import { SITE_URL } from "@/lib/site";
-import { metaDescription } from "@/lib/seo";
+import { metaDescription, jsonLdScript } from "@/lib/seo";
 
 // See app/journal/page.tsx — prerendered, revalidated in the background.
 export const revalidate = 300;
@@ -112,11 +112,11 @@ export default async function ArticlePage({
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(articleJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbJsonLd) }}
       />
       <ArticleView article={article} more={more} />
     </>

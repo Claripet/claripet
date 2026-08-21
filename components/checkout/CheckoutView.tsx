@@ -76,8 +76,6 @@ export function CheckoutView() {
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
   const [addressSaved, setAddressSaved] = useState(false);
-  const [promoOpen, setPromoOpen] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
   const [modal, setModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -231,9 +229,14 @@ export function CheckoutView() {
 
   const itemCount = cart.detailed.reduce((sum, item) => sum + item.qty, 0);
   const shippingFee = selectedRate?.fee ?? 0;
-  const discount = promoCode.trim() ? Math.min(Math.round(cart.subtotal * 0.05), 25000) : 0;
-  const total = cart.subtotal + shippingFee - discount;
-  const points = Math.floor(total / 200);
+  // This must stay identical to what the server charges. create_order_from_cart
+  // computes `v_total := v_subtotal + p_shipping_fee` from the products table
+  // (003_functions.sql:91) and Midtrans is billed `orders.total`. Any term
+  // subtracted here that the server does not know about — the old client-only
+  // promo discount did exactly this — quotes the customer one price and bills
+  // them a higher one. Do not reintroduce a discount here without a
+  // server-side promo table and validation to match.
+  const total = cart.subtotal + shippingFee;
   const canPay = addressSaved && !!selectedRate;
 
   function updateForm(key: keyof FormState, value: string) {
@@ -540,51 +543,24 @@ export function CheckoutView() {
               </div>
             )}
 
-            <section className="voucher-section">
-              <div className="voucher-head"><h2>Voucher tersedia</h2><button>Selengkapnya</button></div>
-              <div className="voucher-row">
-                <Voucher title="testPets Member Benefit" code="25%" until="31 Desember 2026" min="Rp250.000" tone="orange" />
-                <Voucher title="BUY 3 GET 10%" code="B3G10" until="30 Juni 2026" min="Rp10.000" tone="blue" />
-                <Voucher title="Free Gift Grooming" code="PETLOVE" until="30 Juni 2026" min="Rp150.000" tone="white" />
-              </div>
-            </section>
           </section>
 
-          <aside className="checkout-sidebar">
-            <div className="side-card">
-              <h2>Diskon</h2>
-              <p>Pilih salah satu</p>
-              <button className="discount-option" onClick={() => setPromoOpen((v) => !v)}>
-                <span className="radio" />
-                <span className="tag-icon">🏷</span>
-                <strong>{promoCode ? `Promo ${promoCode}` : "Gunakan Kode Promo"}</strong>
-                <span className="chev">›</span>
-              </button>
-              {promoOpen && (
-                <div className="promo-box">
-                  <input value={promoCode} onChange={(e) => setPromoCode(e.target.value.toUpperCase())} placeholder="Kode promo" />
-                  <p>Demo: isi kode apapun untuk diskon 5% max Rp25.000.</p>
-                </div>
-              )}
-              <div className="points-option">
-                <span className="radio" />
-                <div>
-                  <strong>Gunakan Poin testPets</strong>
-                  <div className="points-grid"><span>Total Poin Saya</span><b>Rp 0</b><span>Poin digunakan</span><b className="accent">Rp 0</b></div>
-                  <p>Penggunaan poin hanya berlaku jika total pesanan lebih dari Rp10.000</p>
-                  <p>Nilai 1 Poin sama dengan 1 Rupiah</p>
-                </div>
-              </div>
-            </div>
+          {/* The voucher carousel, the promo-code box and the "Gunakan Poin"
+              panel all used to live here. None of them were wired to anything:
+              the vouchers were hardcoded placeholders, the promo box applied a
+              discount the server never saw (so the customer was billed more
+              than the quoted total), and no code path ever awards a reward
+              point. Shipping a checkout that misquotes the price is a
+              consumer-protection problem, so they are removed until there is a
+              server-side promo/points implementation to back them. */}
 
+          <aside className="checkout-sidebar">
             <div className="side-card summary-card">
               <div className="summary-head"><div><h2>Ringkasan Belanja</h2><p>{itemCount} item dalam keranjang</p></div><button onClick={() => router.push("/cart")}>Ubah</button></div>
               <SummaryRow label={`Total Harga (${itemCount} barang)`} value={formatPrice(cart.subtotal)} />
               {selectedRate && <SummaryRow label={`Pengiriman (${selectedRate.courierName.toUpperCase()})`} value={selectedRate.fee === 0 ? "GRATIS" : formatPrice(shippingFee)} />}
-              {discount > 0 && <SummaryRow label="Diskon Promo" value={`- ${formatPrice(discount)}`} />}
-              <SummaryRow label="Total Biaya" value={formatPrice(cart.subtotal + shippingFee - discount)} />
+              <SummaryRow label="Total Biaya" value={formatPrice(total)} />
               <div className="summary-total"><span>Total Tagihan</span><strong>{formatPrice(total)}</strong></div>
-              <div className="reward-strip">🎁 Kamu akan mendapatkan <b>{points} testPets Poin</b> dari transaksi ini</div>
               <button className="pay-btn" disabled={!canPay || isProcessing} onClick={handlePayment}>
                 {isProcessing ? "Memproses..." : "Lanjutkan ke Pembayaran"}
               </button>
@@ -649,14 +625,6 @@ function CourierLogo({ code, name }: { code: string; name: string }) {
   return <span className="courier-logo generic" aria-label={name}>{(name || code).slice(0, 8).toUpperCase()}</span>;
 }
 
-function Voucher({ title, code, until, min, tone }: { title: string; code: string; until: string; min: string; tone: string }) {
-  return (
-    <article className="voucher-card">
-      <div className={`voucher-art ${tone}`}><span>{title}</span><strong>{code}</strong></div>
-      <div className="voucher-meta"><span>Berlaku hingga</span><b>{until}</b><span>Minimum transaksi</span><b>{min}</b></div>
-    </article>
-  );
-}
 
 function CheckoutStyles() {
   return (

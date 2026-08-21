@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import { jsonLdScript } from "@/lib/seo";
 import { Hero } from "@/components/home/Hero";
 // Async server component (reads reviews from Supabase), so it is imported
 // statically rather than through next/dynamic.
@@ -87,11 +88,11 @@ export default function HomePage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(organizationJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(websiteJsonLd) }}
       />
       <main>
         <Hero />

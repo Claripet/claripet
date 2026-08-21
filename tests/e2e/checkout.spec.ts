@@ -18,9 +18,10 @@ test.describe("shop & product flow", () => {
 });
 
 test.describe("checkout flow", () => {
-  test("redirects unauthenticated users to /login?alert=checkout", async ({ page }) => {
+  test("redirects unauthenticated users to /login?redirect=/checkout", async ({ page }) => {
     await page.goto("/checkout");
     await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/redirect=%2Fcheckout|redirect=\/checkout/);
   });
 
   // TODO: full checkout E2E once test Supabase + Midtrans sandbox are wired:

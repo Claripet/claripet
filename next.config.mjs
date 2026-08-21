@@ -76,6 +76,10 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
 
+  // Drop `X-Powered-By: Next.js`. It tells an attacker the framework and, by
+  // implication, which CVE set to try, and buys nothing in return.
+  poweredByHeader: false,
+
   async headers() {
     return [
       {
