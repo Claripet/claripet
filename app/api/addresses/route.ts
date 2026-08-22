@@ -9,11 +9,11 @@ import { withErrorHandling } from "@/lib/helpers/handler";
 // GET /api/addresses
 export const GET = withErrorHandling(async () => {
   const user = await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error: dbError } = await supabase
     .from("addresses")
-    .select("*")
+    .select("id, label, full_name, phone, street, city, province, postal_code, is_default")
     .eq("user_id", user.id)
     .order("is_default", { ascending: false })
     .order("created_at", { ascending: false });
@@ -27,7 +27,7 @@ export const POST = withErrorHandling(async (req: Request) => {
   const user = await requireUser();
   const body = await req.json();
   const input = addressSchema.parse(body);
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // If marking as default, unset other defaults
   if (input.is_default) {

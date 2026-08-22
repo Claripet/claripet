@@ -6,18 +6,19 @@ import { withErrorHandling } from "@/lib/helpers/handler";
 
 // PATCH /api/cart/[id] — update qty
 export const PATCH = withErrorHandling(
-  async (req: Request, { params }: { params: { id: string } }) => {
+  async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const user = await requireUser();
     const body = await req.json();
     const { qty } = updateCartItemSchema.parse(body);
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Verify ownership and check stock
     const { data: item } = await supabase
       .from("cart_items")
       .select("id, size:product_sizes(stock)")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .single();
 
@@ -31,7 +32,7 @@ export const PATCH = withErrorHandling(
     const { data, error: dbError } = await supabase
       .from("cart_items")
       .update({ qty })
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .select()
       .single();
@@ -43,14 +44,15 @@ export const PATCH = withErrorHandling(
 
 // DELETE /api/cart/[id] — remove item
 export const DELETE = withErrorHandling(
-  async (_req: Request, { params }: { params: { id: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const user = await requireUser();
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { error: dbError } = await supabase
       .from("cart_items")
       .delete()
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id);
 
     if (dbError) return error(dbError.message, 500);

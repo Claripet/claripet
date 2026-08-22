@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Icon } from "@/components/icons";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { Turnstile } from "@/components/auth/Turnstile";
 
 /** Accept only relative paths to prevent open-redirect attacks. */
 function safeRedirectPath(value: string | null): string {
@@ -27,6 +28,7 @@ function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   useEffect(() => {
     if (user) router.replace(redirect);
@@ -55,7 +57,7 @@ function SignupForm() {
       return;
     }
 
-    const { error: err } = await signUp(email, password, fullName);
+    const { error: err } = await signUp(email, password, fullName, turnstileToken);
     if (err) {
       setError(err);
       setLoading(false);
@@ -150,6 +152,8 @@ function SignupForm() {
             </button>
           </div>
         </div>
+
+        <Turnstile onToken={setTurnstileToken} />
 
         <button
           type="submit"

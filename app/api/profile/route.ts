@@ -11,7 +11,7 @@ export const PUT = withErrorHandling(async (req: Request) => {
   const user = await requireUser();
   const body = await req.json();
   const input = updateProfileSchema.parse(body);
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error: dbError } = await supabase
     .from("profiles")

@@ -20,7 +20,7 @@ export interface AuthUser extends User {
  * Returns null if not authenticated.
  */
 export async function getUser(): Promise<AuthUser | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

@@ -3,6 +3,9 @@ import { contactMessageSchema } from "@/lib/validators/contact";
 import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
 import { rateLimit } from "@/lib/helpers/rateLimit";
+import { stripDangerousMarkup } from "@/lib/helpers/sanitize";
+import { verifyTurnstile } from "@/lib/helpers/turnstile";
+import { logSecurityEvent } from "@/lib/helpers/securityLog";
 
 export const POST = withErrorHandling(async (req: Request) => {
   // Rate Limit: 5 submissions per 10 minutes per IP — this endpoint is public/unauthenticated.
@@ -12,9 +15,18 @@ export const POST = withErrorHandling(async (req: Request) => {
   }
 
   const body = await req.json();
-  const input = contactMessageSchema.parse(body);
+  const { turnstileToken, ...input } = contactMessageSchema.parse(body);
 
-  const supabase = createClient();
+  if (!(await verifyTurnstile(turnstileToken, ip))) {
+    await logSecurityEvent("bot_check_failed", { route: "contact", ip });
+    return error("Bot verification failed. Please try again.", 400);
+  }
+
+  input.name = stripDangerousMarkup(input.name);
+  input.subject = stripDangerousMarkup(input.subject);
+  input.message = stripDangerousMarkup(input.message);
+
+  const supabase = await createClient();
   const { data, error: dbError } = await supabase
     .from("contact_messages")
     .insert(input)

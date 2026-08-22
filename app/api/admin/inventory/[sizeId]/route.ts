@@ -10,17 +10,18 @@ const updateStockSchema = z.object({
 
 // PATCH /api/admin/inventory/[sizeId] — set stock
 export const PATCH = withErrorHandling(
-  async (req: Request, { params }: { params: { sizeId: string } }) => {
+  async (req: Request, { params }: { params: Promise<{ sizeId: string }> }) => {
+    const { sizeId } = await params;
     await requireAdmin();
     const body = await req.json();
     const { stock } = updateStockSchema.parse(body);
 
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data, error: dbError } = await supabase
       .from("product_sizes")
       .update({ stock })
-      .eq("id", params.sizeId)
+      .eq("id", sizeId)
       .select("*, product:products(slug, name)")
       .single();
 

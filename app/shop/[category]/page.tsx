@@ -22,9 +22,10 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { category: string };
+  params: Promise<{ category: string }>;
 }): Promise<Metadata> {
-  const category = await getCategoryBySlug(params.category);
+  const { category: categorySlug } = await params;
+  const category = await getCategoryBySlug(categorySlug);
   if (!category) return {};
   return {
     title: `${category.name} Collection`,
@@ -47,13 +48,14 @@ export async function generateMetadata({
 export default async function CollectionPage({
   params,
 }: {
-  params: { category: string };
+  params: Promise<{ category: string }>;
 }) {
-  const category = await getCategoryBySlug(params.category);
+  const { category: categorySlug } = await params;
+  const category = await getCategoryBySlug(categorySlug);
   if (!category) notFound();
 
   const [products, categories] = await Promise.all([
-    getProductsByCategory(params.category),
+    getProductsByCategory(categorySlug),
     getAllCategories(),
   ]);
 

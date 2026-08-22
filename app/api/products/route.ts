@@ -19,7 +19,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     slugs: searchParams.get("slugs") ?? undefined,
   });
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let qb = supabase
     .from("products")

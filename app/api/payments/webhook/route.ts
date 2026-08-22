@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/helpers/rateLimit";
+import { logSecurityEvent } from "@/lib/helpers/securityLog";
 
 /**
  * POST /api/payments/webhook
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
 
     if (!signaturesMatch) {
       console.error("[Payment Webhook Error] Invalid signature");
+      await logSecurityEvent("webhook_signature_invalid", { orderId: body.order_id, ip });
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
@@ -78,6 +80,7 @@ export async function POST(req: NextRequest) {
         orderId,
         gross_amount: body.gross_amount,
       });
+      await logSecurityEvent("webhook_amount_mismatch", { orderId, grossAmount: body.gross_amount, ip });
       return NextResponse.json({ error: "Amount mismatch" }, { status: 400 });
     }
 

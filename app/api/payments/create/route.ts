@@ -2,6 +2,7 @@ import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
 import { requireUser } from "@/lib/helpers/auth";
 import { createClient } from "@/lib/supabase/server";
+import { paymentCreateSchema } from "@/lib/validators/order";
 import { Snap } from "midtrans-client";
 
 /**
@@ -11,13 +12,9 @@ import { Snap } from "midtrans-client";
 export const POST = withErrorHandling(async (req: Request) => {
   const user = await requireUser();
   const body = await req.json();
-  const orderId = body.order_id;
+  const { order_id: orderId } = paymentCreateSchema.parse(body);
 
-  if (!orderId) {
-    return error("order_id is required", 400);
-  }
-
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: order, error: dbError } = await supabase
     .from("orders")
     .select("*, items:order_items(*)")

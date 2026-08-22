@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/helpers/auth";
 import { createReviewSchema } from "@/lib/validators/review";
 import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
+import { stripDangerousMarkup } from "@/lib/helpers/sanitize";
 import type { NextRequest } from "next/server";
 
 const REVIEW_SELECT = "*, product:products(slug, name)";
@@ -13,7 +14,7 @@ const REVIEW_SELECT = "*, product:products(slug, name)";
 export const GET = withErrorHandling(async (req: NextRequest) => {
   await requireAdmin();
   const { searchParams } = new URL(req.url);
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let qb = supabase
     .from("reviews")
@@ -35,8 +36,13 @@ export const POST = withErrorHandling(async (req: Request) => {
   await requireAdmin();
   const body = await req.json();
   const reviewData = createReviewSchema.parse(body);
+  reviewData.author_name = stripDangerousMarkup(reviewData.author_name);
+  if (reviewData.pet_name !== undefined) {
+    reviewData.pet_name = stripDangerousMarkup(reviewData.pet_name);
+  }
+  reviewData.body = stripDangerousMarkup(reviewData.body);
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error: insertError } = await supabase
     .from("reviews")

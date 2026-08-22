@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { signupSchema } from "@/lib/validators/auth";
-import { ok, error, serverError } from "@/lib/helpers/response";
+import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
 import { rateLimit } from "@/lib/helpers/rateLimit";
+import { verifyTurnstile } from "@/lib/helpers/turnstile";
+import { logSecurityEvent } from "@/lib/helpers/securityLog";
 
 export const POST = withErrorHandling(async (req: Request) => {
   // Rate Limit: 3 requests per minute
@@ -12,14 +14,23 @@ export const POST = withErrorHandling(async (req: Request) => {
   }
 
   const body = await req.json();
-  const { email, password, full_name } = signupSchema.parse(body);
+  const { email, password, full_name, turnstileToken } = signupSchema.parse(body);
 
-  const supabase = createClient();
+  if (!(await verifyTurnstile(turnstileToken, ip))) {
+    await logSecurityEvent("bot_check_failed", { route: "signup", ip });
+    return error("Bot verification failed. Please try again.", 400);
+  }
+
+  const supabase = await createClient();
   const { data, error: authError } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name },
+      // Confirmation links must land on the callback route so the session
+      // is exchanged; without this Supabase uses the project Site URL and
+      // the code arrives on a page that cannot consume it.
+      emailRedirectTo: `${new URL(req.url).origin}/api/auth/callback?next=%2F`,
     },
   });
 

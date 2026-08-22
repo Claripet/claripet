@@ -7,3 +7,5 @@ export * from "./order";
 export * from "./article";
 export * from "./contact";
 export * from "./review";
+export * from "./wishlist";
+export * from "./shipping";

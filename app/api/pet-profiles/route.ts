@@ -9,10 +9,10 @@ import { petProfileSchema } from "@/lib/validators/petProfile";
 // GET /api/pet-profiles
 export const GET = withErrorHandling(async () => {
   const user = await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error: dbError } = await supabase
     .from("pet_profiles")
-    .select("*")
+    .select("id, name, species, breed, birthdate, notes")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
   if (dbError) return error(dbError.message, 500);
@@ -23,7 +23,7 @@ export const GET = withErrorHandling(async () => {
 export const POST = withErrorHandling(async (req: Request) => {
   const user = await requireUser();
   const input = petProfileSchema.parse(await req.json());
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error: dbError } = await supabase
     .from("pet_profiles")
     .insert({ ...input, user_id: user.id })

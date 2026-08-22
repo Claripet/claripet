@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Icon } from "@/components/icons";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { Turnstile } from "@/components/auth/Turnstile";
 
 export default function ForgotPasswordPage() {
   const { requestPasswordReset } = useAuth();
@@ -13,13 +14,14 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const { error: err } = await requestPasswordReset(email);
+    const { error: err } = await requestPasswordReset(email, turnstileToken);
     if (err) {
       setError(err);
       setLoading(false);
@@ -76,6 +78,8 @@ export default function ForgotPasswordPage() {
             autoFocus
           />
         </div>
+
+        <Turnstile onToken={setTurnstileToken} />
 
         <button
           type="submit"

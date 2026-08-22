@@ -12,7 +12,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
   const threshold = searchParams.get("threshold");
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let qb = supabase
     .from("product_sizes")

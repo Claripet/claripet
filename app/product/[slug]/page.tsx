@@ -17,9 +17,10 @@ export function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const product = await getProductBySlug(params.slug);
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
   if (!product) return {};
   const ogImage = product.images?.[0]?.url
     ? [
@@ -55,11 +56,12 @@ export async function generateMetadata({
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
   const [product, reviews] = await Promise.all([
-    getProductBySlug(params.slug),
-    getReviewsByProductSlug(params.slug),
+    getProductBySlug(slug),
+    getReviewsByProductSlug(slug),
   ]);
   if (!product) notFound();
 

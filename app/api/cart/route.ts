@@ -9,7 +9,7 @@ import { z } from "zod";
 // GET /api/cart — list current user's cart items with product details
 export const GET = withErrorHandling(async () => {
   await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error: dbError } = await supabase
     .from("cart_items")
@@ -39,7 +39,7 @@ export const POST = withErrorHandling(async (req: Request) => {
   const body = await req.json();
   const { product_slug, size_label, qty } = addBySlugSchema.parse(body);
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Resolve product + size by slug/label
   const { data: product } = await supabase
@@ -104,7 +104,7 @@ export const POST = withErrorHandling(async (req: Request) => {
 // DELETE /api/cart — clear cart
 export const DELETE = withErrorHandling(async () => {
   const user = await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error: dbError } = await supabase
     .from("cart_items")

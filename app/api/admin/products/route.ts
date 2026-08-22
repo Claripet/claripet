@@ -11,7 +11,7 @@ import type { NextRequest } from "next/server";
 export const GET = withErrorHandling(async (req: NextRequest) => {
   await requireAdmin();
   const { searchParams } = new URL(req.url);
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let qb = supabase
     .from("products")
@@ -44,7 +44,7 @@ export const POST = withErrorHandling(async (req: Request) => {
   const body = await req.json();
   const { sizes, images, ...productData } = createProductSchema.parse(body);
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: product, error: insertError } = await supabase
     .from("products")

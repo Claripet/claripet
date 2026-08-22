@@ -1,17 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins, Caveat } from "next/font/google";
-import nextDynamic from "next/dynamic";
 import "./globals.css";
 import { Providers } from "./Providers";
 import { SiteChrome } from "@/components/SiteChrome";
 import { FlyToCartProvider } from "@/context/FlyToCartContext";
 import { SITE_URL } from "@/lib/site";
 import { GlobalDecor } from "@/components/GlobalDecor";
-
-const Toast = nextDynamic(
-  () => import("@/components/Toast").then((mod) => mod.Toast),
-  { ssr: false },
-);
+import { ToastLoader } from "@/components/ToastLoader";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -127,7 +122,7 @@ export default function RootLayout({
           <FlyToCartProvider>
             <SiteChrome>{children}</SiteChrome>
           </FlyToCartProvider>
-          <Toast />
+          <ToastLoader />
           <GlobalDecor />
         </Providers>
       </body>

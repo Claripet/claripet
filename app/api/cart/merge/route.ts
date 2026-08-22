@@ -24,7 +24,7 @@ export const POST = withErrorHandling(async (req: Request) => {
 
   if (items.length === 0) return ok({ merged: 0 });
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let merged = 0;
   for (const item of items) {

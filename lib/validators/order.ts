@@ -39,7 +39,12 @@ export const orderQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
+export const paymentCreateSchema = z.object({
+  order_id: z.string().uuid(),
+});
+
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
 export type OrderQuery = z.infer<typeof orderQuerySchema>;
+export type PaymentCreateInput = z.infer<typeof paymentCreateSchema>;

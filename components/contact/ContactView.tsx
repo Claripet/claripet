@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@/components/icons";
 import { BannerDecor } from "@/components/BannerDecor";
+import { Turnstile } from "@/components/auth/Turnstile";
 
 const WHATSAPP = "62881080963188";
 const WHATSAPP_DISPLAY = "0881.0809.63188";
@@ -50,6 +51,7 @@ export function ContactView() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [subject, setSubject] = useState("");
   const [activeInquiry, setActiveInquiry] = useState<number | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   function selectInquiry(topic: string) {
@@ -231,6 +233,7 @@ export function ContactView() {
                       email: data.get("email"),
                       subject: data.get("subject"),
                       message: data.get("message"),
+                      turnstileToken,
                     }),
                   });
                   const json = await res.json();
@@ -270,6 +273,8 @@ export function ContactView() {
                 <span>Pesan <b>*</b></span>
                 <textarea required name="message" rows={5} placeholder="Bagaimana kami bisa membantu?" />
               </label>
+              <Turnstile onToken={setTurnstileToken} />
+
               <button type="submit" className="btn btn-primary btn-lg" disabled={sending}>
                 <Icon name="arrowRight" size={18} /> {sending ? "Mengirim..." : "Kirim Pesan"}
               </button>

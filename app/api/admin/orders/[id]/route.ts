@@ -7,14 +7,15 @@ import { withErrorHandling } from "@/lib/helpers/handler";
 
 // GET /api/admin/orders/[id]
 export const GET = withErrorHandling(
-  async (_req: Request, { params }: { params: { id: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     await requireAdmin();
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data } = await supabase
       .from("orders")
       .select("*, items:order_items(*), profile:profiles(full_name)")
-      .eq("id", params.id)
+      .eq("id", id)
       .single();
 
     if (!data) return notFound("Order not found");
@@ -24,7 +25,8 @@ export const GET = withErrorHandling(
 
 // PATCH /api/admin/orders/[id] — update status
 export const PATCH = withErrorHandling(
-  async (req: Request, { params }: { params: { id: string } }) => {
+  async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     await requireAdmin();
     const body = await req.json();
     const { status } = updateOrderStatusSchema.parse(body);
@@ -46,7 +48,7 @@ export const PATCH = withErrorHandling(
       const { data: cancelled, error: cancelError } = await supabase
         .from("orders")
         .update({ status })
-        .eq("id", params.id)
+        .eq("id", id)
         .neq("status", "cancelled")
         .select("*, items:order_items(*)")
         .maybeSingle();
@@ -60,7 +62,7 @@ export const PATCH = withErrorHandling(
         const { data: existing } = await supabase
           .from("orders")
           .select("*, items:order_items(*)")
-          .eq("id", params.id)
+          .eq("id", id)
           .maybeSingle();
 
         if (!existing) return notFound("Order not found");
@@ -68,7 +70,7 @@ export const PATCH = withErrorHandling(
       }
 
       const { error: rpcError } = await supabase.rpc("restore_stock_for_order", {
-        p_order_id: params.id,
+        p_order_id: id,
       });
       if (rpcError) return error(rpcError.message, 500);
 
@@ -78,7 +80,7 @@ export const PATCH = withErrorHandling(
     const { data, error: dbError } = await supabase
       .from("orders")
       .update({ status })
-      .eq("id", params.id)
+      .eq("id", id)
       .select("*, items:order_items(*)")
       .maybeSingle();
 

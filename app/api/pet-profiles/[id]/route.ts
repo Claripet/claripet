@@ -7,14 +7,15 @@ import { withErrorHandling } from "@/lib/helpers/handler";
 import { petProfileSchema } from "@/lib/validators/petProfile";
 
 // PATCH /api/pet-profiles/[id]
-export const PATCH = withErrorHandling(async (req: Request, { params }: { params: { id: string } }) => {
+export const PATCH = withErrorHandling(async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const user = await requireUser();
   const input = petProfileSchema.parse(await req.json());
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error: dbError } = await supabase
     .from("pet_profiles")
     .update(input)
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
     .select()
     .single();
@@ -23,14 +24,15 @@ export const PATCH = withErrorHandling(async (req: Request, { params }: { params
 });
 
 // DELETE /api/pet-profiles/[id]
-export const DELETE = withErrorHandling(async (_req: Request, { params }: { params: { id: string } }) => {
+export const DELETE = withErrorHandling(async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   const user = await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error: dbError } = await supabase
     .from("pet_profiles")
     .delete()
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id);
   if (dbError) return error(dbError.message, 500);
-  return ok({ removed: params.id });
+  return ok({ removed: id });
 });

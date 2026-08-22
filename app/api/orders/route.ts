@@ -20,7 +20,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     limit: searchParams.get("limit") ?? 20,
   });
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let qb = supabase
     .from("orders")
@@ -54,7 +54,7 @@ export const POST = withErrorHandling(async (req: Request) => {
   const body = await req.json();
   const input = createOrderSchema.parse(body);
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Resolve shipping address
   let shippingAddress: Record<string, string>;

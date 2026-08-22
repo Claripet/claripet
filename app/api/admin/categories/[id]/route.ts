@@ -6,16 +6,17 @@ import { withErrorHandling } from "@/lib/helpers/handler";
 
 // PUT /api/admin/categories/[id]
 export const PUT = withErrorHandling(
-  async (req: Request, { params }: { params: { id: string } }) => {
+  async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     await requireAdmin();
     const body = await req.json();
     const input = updateCategorySchema.parse(body);
 
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data, error: dbError } = await supabase
       .from("categories")
       .update(input)
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single();
 
@@ -27,14 +28,15 @@ export const PUT = withErrorHandling(
 
 // DELETE /api/admin/categories/[id]
 export const DELETE = withErrorHandling(
-  async (_req: Request, { params }: { params: { id: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     await requireAdmin();
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { error: dbError } = await supabase
       .from("categories")
       .delete()
-      .eq("id", params.id);
+      .eq("id", id);
 
     if (dbError) return error(dbError.message, 500);
     return ok({ message: "Category deleted" });

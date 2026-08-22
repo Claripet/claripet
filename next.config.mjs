@@ -16,13 +16,13 @@ const isDev = process.env.NODE_ENV !== "production";
 const scriptSrc = [
   "script-src 'self' 'unsafe-inline'",
   isDev ? "'unsafe-eval' blob:" : "",
-  "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/client",
+  "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/client https://challenges.cloudflare.com",
 ]
   .filter(Boolean)
   .join(" ");
 
 const connectSrc = [
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/ https://challenges.cloudflare.com",
   isDev ? "ws://localhost:* http://localhost:*" : "",
 ]
   .filter(Boolean)
@@ -63,8 +63,8 @@ const securityHeaders = [
       "font-src 'self' https://fonts.gstatic.com",
       // XHR/fetch: own origin + Supabase REST/Auth/Realtime + Midtrans + Google (+ ws in dev for HMR)
       connectSrc,
-      // Frames: Midtrans Snap renders an iframe for the payment sheet + Google GSI iframe
-      "frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/",
+      // Frames: Midtrans Snap renders an iframe for the payment sheet + Google GSI iframe + Turnstile challenge iframe
+      "frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/ https://challenges.cloudflare.com",
       // Everything else denied
       "object-src 'none'",
       "base-uri 'self'",
@@ -92,9 +92,6 @@ const nextConfig = {
 
   // Compress responses with gzip (serves dev proxy too; production CDN can override)
   compress: true,
-
-  // Opt in to the faster Rust-based compiler minifier (default in Next 14, explicit for clarity)
-  swcMinify: true,
 
   experimental: {
     // Tree-shake lucide-react so only the icons actually imported end up in

@@ -18,7 +18,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     limit: searchParams.get("limit") ?? 20,
   });
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   let qb = supabase
     .from("orders")

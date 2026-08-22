@@ -33,13 +33,13 @@ interface AuthContextValue {
    * "not an admin".
    */
   profileLoading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, fullName: string, turnstileToken?: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string, turnstileToken?: string) => Promise<{ error: string | null }>;
   signInWithGoogle: (redirectPath?: string) => Promise<{ error: string | null }>;
   signInWithGoogleIdToken: (idToken: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
-  requestPasswordReset: (email: string) => Promise<{ error: string | null }>;
+  requestPasswordReset: (email: string, turnstileToken?: string) => Promise<{ error: string | null }>;
   updatePassword: (password: string) => Promise<{ error: string | null }>;
 }
 
@@ -59,6 +59,33 @@ function authOrigin(): string {
 
 /** Milliseconds before a profile fetch is abandoned so the UI stops waiting. */
 const PROFILE_TIMEOUT_MS = 10_000;
+
+/**
+ * POST JSON to one of our own /api/auth/* routes and unwrap the standard
+ * { success, data | error } envelope from lib/helpers/response.ts.
+ *
+ * signIn/signUp/requestPasswordReset go through these routes (rather than
+ * calling the Supabase browser client directly, as they used to) so the
+ * app's own rate limiting, account lockout, and bot-check actually apply —
+ * a direct client call bypasses this Next.js server entirely.
+ */
+async function postAuthJson<T>(path: string, body: unknown): Promise<{ data: T | null; error: string | null }> {
+  try {
+    const res = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      return { data: null, error: json.error || "Something went wrong. Please try again." };
+    }
+    return { data: json.data as T, error: null };
+  } catch (err) {
+    console.error(`[auth] ${path} request failed`, err);
+    return { data: null, error: "Something went wrong. Please check your connection and try again." };
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -200,34 +227,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [supabase, loadProfileInBackground, refreshUser]);
 
   const signUp = useCallback(
-    async (email: string, password: string, fullName: string) => {
-      const { error } = await supabase.auth.signUp({
+    async (email: string, password: string, fullName: string, turnstileToken?: string) => {
+      const { error } = await postAuthJson("/api/auth/signup", {
         email,
         password,
-        options: {
-          data: { full_name: fullName },
-          // Confirmation links must land on the callback route so the session
-          // is exchanged; without this Supabase uses the project Site URL and
-          // the code arrives on a page that cannot consume it.
-          emailRedirectTo: `${authOrigin()}/api/auth/callback?next=%2F`,
-        },
+        full_name: fullName,
+        turnstileToken,
       });
-      if (error) return { error: error.message };
-      return { error: null };
+      return { error };
     },
-    [supabase],
+    [],
   );
 
   const signIn = useCallback(
-    async (email: string, password: string) => {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) return { error: error.message };
+    async (email: string, password: string, turnstileToken?: string) => {
+      const { error } = await postAuthJson("/api/auth/login", { email, password, turnstileToken });
+      if (error) return { error };
+      // The API route authenticates server-side and sets the session cookies
+      // on its response; the client SDK never called signInWithPassword
+      // itself, so onAuthStateChange won't fire on its own — sync now.
+      await refreshUser();
       return { error: null };
     },
-    [supabase],
+    [refreshUser],
   );
 
   const signOut = useCallback(async () => {
@@ -267,22 +289,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const requestPasswordReset = useCallback(
-    async (email: string) => {
-      // Route recovery links through the callback too — the reset link carries
-      // a PKCE code that has to be exchanged before /reset-password can call
-      // updateUser().
-      const redirectTo = `${authOrigin()}/api/auth/callback?next=%2Freset-password`;
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-      if (error) return { error: error.message };
-      return { error: null };
+    async (email: string, turnstileToken?: string) => {
+      const { error } = await postAuthJson("/api/auth/forgot-password", { email, turnstileToken });
+      return { error };
     },
-    [supabase],
+    [],
   );
 
   const updatePassword = useCallback(
     async (password: string) => {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) return { error: error.message };
+      // Changing the password should not leave other devices/sessions
+      // signed in. scope: "others" revokes every session except this one
+      // and needs no admin/service-role client — it uses the current
+      // session's own token.
+      await supabase.auth.signOut({ scope: "others" });
       return { error: null };
     },
     [supabase],

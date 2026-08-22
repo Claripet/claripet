@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Icon } from "@/components/icons";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { Turnstile } from "@/components/auth/Turnstile";
 
 /** Accept only relative paths to prevent open-redirect attacks. */
 function safeRedirectPath(value: string | null): string {
@@ -37,6 +38,7 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(callbackError);
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -78,7 +80,7 @@ function LoginForm() {
       // Bounded so a stalled request surfaces an error instead of leaving the
       // button frozen on "Signing in..." forever.
       const { error: err } = await Promise.race([
-        signIn(email, password),
+        signIn(email, password, turnstileToken),
         new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error("SIGN_IN_TIMEOUT")), SIGN_IN_TIMEOUT_MS),
         ),
@@ -172,6 +174,8 @@ function LoginForm() {
             </button>
           </div>
         </div>
+
+        <Turnstile onToken={setTurnstileToken} />
 
         <button
           type="submit"

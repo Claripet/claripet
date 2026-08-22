@@ -4,11 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/helpers/auth";
 import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
+import { productSlugSchema } from "@/lib/validators/wishlist";
 
 // GET /api/wishlist -> string[] of product slugs
 export const GET = withErrorHandling(async () => {
   const user = await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error: dbError } = await supabase
     .from("wishlist")
     .select("product_slug")
@@ -21,9 +22,9 @@ export const GET = withErrorHandling(async () => {
 // POST /api/wishlist { product_slug }
 export const POST = withErrorHandling(async (req: Request) => {
   const user = await requireUser();
-  const { product_slug } = await req.json();
-  if (typeof product_slug !== "string" || !product_slug) return error("product_slug required", 400);
-  const supabase = createClient();
+  const body = await req.json();
+  const { product_slug } = productSlugSchema.parse(body);
+  const supabase = await createClient();
   const { error: dbError } = await supabase
     .from("wishlist")
     .upsert({ user_id: user.id, product_slug }, { onConflict: "user_id,product_slug" });
@@ -36,7 +37,7 @@ export const DELETE = withErrorHandling(async (req: Request) => {
   const user = await requireUser();
   const slug = new URL(req.url).searchParams.get("slug");
   if (!slug) return error("slug required", 400);
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error: dbError } = await supabase
     .from("wishlist")
     .delete()

@@ -6,14 +6,15 @@ import { withErrorHandling } from "@/lib/helpers/handler";
 
 // GET /api/addresses/[id]
 export const GET = withErrorHandling(
-  async (_req: Request, { params }: { params: { id: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const user = await requireUser();
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { data } = await supabase
       .from("addresses")
       .select("*")
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .single();
 
@@ -24,11 +25,12 @@ export const GET = withErrorHandling(
 
 // PUT /api/addresses/[id]
 export const PUT = withErrorHandling(
-  async (req: Request, { params }: { params: { id: string } }) => {
+  async (req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const user = await requireUser();
     const body = await req.json();
     const input = updateAddressSchema.parse(body);
-    const supabase = createClient();
+    const supabase = await createClient();
 
     if (input.is_default) {
       await supabase
@@ -40,7 +42,7 @@ export const PUT = withErrorHandling(
     const { data, error: dbError } = await supabase
       .from("addresses")
       .update(input)
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id)
       .select()
       .single();
@@ -53,14 +55,15 @@ export const PUT = withErrorHandling(
 
 // DELETE /api/addresses/[id]
 export const DELETE = withErrorHandling(
-  async (_req: Request, { params }: { params: { id: string } }) => {
+  async (_req: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
     const user = await requireUser();
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const { error: dbError } = await supabase
       .from("addresses")
       .delete()
-      .eq("id", params.id)
+      .eq("id", id)
       .eq("user_id", user.id);
 
     if (dbError) return error(dbError.message, 500);

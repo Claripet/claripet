@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     return failure("Missing authentication code. Please sign in again.");
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);

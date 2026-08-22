@@ -9,7 +9,7 @@ export const POST = withErrorHandling(async (req: Request) => {
   const body = await req.json();
   const input = createCategorySchema.parse(body);
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error: dbError } = await supabase
     .from("categories")
     .insert(input)

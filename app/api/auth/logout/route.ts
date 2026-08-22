@@ -3,7 +3,7 @@ import { ok, serverError } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
 
 export const POST = withErrorHandling(async () => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error: authError } = await supabase.auth.signOut();
 
   if (authError) {

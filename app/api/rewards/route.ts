@@ -8,7 +8,7 @@ import { withErrorHandling } from "@/lib/helpers/handler";
 // GET /api/rewards -> { balance, lifetime, tier, events[] }
 export const GET = withErrorHandling(async () => {
   const user = await requireUser();
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Run both queries in parallel — previously sequential, costing an extra RTT.
   const [pointsRes, eventsRes] = await Promise.all([
