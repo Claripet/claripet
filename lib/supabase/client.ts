@@ -7,28 +7,39 @@ import { createBrowserClient } from "@supabase/ssr";
 // which is why the root layout used to carry `export const dynamic = "force-dynamic"`
 // and nothing on the site was ever statically generated.
 //
-// Fall back to a syntactically valid placeholder so prerendering can complete.
-// Nothing is requested during render — every Supabase call in AuthProvider runs
-// from a useEffect or an event handler — and in the browser these NEXT_PUBLIC_
-// values are always inlined at build time, so real credentials are used there.
+// Fall back to a syntactically valid placeholder so prerendering can complete in
+// development and in test runs. Nothing is requested during render — every
+// Supabase call in AuthProvider runs from a useEffect or an event handler.
 const SUPABASE_URL =
   process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
 const SUPABASE_ANON_KEY =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
 
-export function createClient() {
-  // Placeholders keep the build alive but cannot authenticate anyone. If they
-  // ever reach a real browser the deploy was built without its env vars, so say
-  // so loudly rather than failing as a silent, permanently logged-out session.
-  if (
-    typeof window !== "undefined" &&
-    SUPABASE_URL === "https://placeholder.supabase.co"
-  ) {
-    console.error(
-      "[supabase] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY were " +
-        "missing at build time — authentication will not work in this deploy.",
-    );
-  }
+// A production build that falls back to the placeholder inlines it into the
+// client bundle, and the browser then sends people to
+// https://placeholder.supabase.co/auth/v1/authorize — sign-in dies on DNS with
+// nothing but a console message to explain it. These values cannot be corrected
+// after the fact: `NEXT_PUBLIC_*` is substituted at compile time, so the only
+// fix is a rebuild. Break the build instead of shipping that artifact.
+//
+// `next dev`, `vitest` and a clean clone keep the placeholder and stay runnable;
+// only `next build` (which sets NODE_ENV=production) is gated. On Cloudflare
+// Workers Builds these must be set as *build* variables — a wrangler.jsonc
+// `var` or a runtime secret arrives long after the substitution has happened.
+if (
+  process.env.NODE_ENV === "production" &&
+  (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+) {
+  throw new Error(
+    "[supabase] NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY are " +
+      "missing from the build environment. They are inlined at compile time, " +
+      "so a build without them ships a site where authentication can never " +
+      "work. Set them as build-time variables (Cloudflare: Settings → Build → " +
+      "Variables and Secrets) and rebuild.",
+  );
+}
 
+export function createClient() {
   return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }

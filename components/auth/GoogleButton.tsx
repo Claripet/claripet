@@ -48,9 +48,10 @@ export function GoogleButton({
   redirectPath?: string;
   label?: string;
 }) {
-  const { signInWithGoogle, signInWithGoogleIdToken } = useAuth();
+  const { signInWithGoogleIdToken } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
   const buttonContainerRef = useRef<HTMLDivElement | null>(null);
 
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -85,10 +86,10 @@ export function GoogleButton({
   useEffect(() => {
     if (!googleClientId || typeof window === "undefined") return;
 
-    let mounted = true;
+    let active = true;
 
-    const setupGoogleAuth = () => {
-      if (!mounted || !window.google?.accounts?.id || !buttonContainerRef.current) return;
+    const initGis = () => {
+      if (!active || !window.google?.accounts?.id || !buttonContainerRef.current) return;
 
       const isSignUp = label.toLowerCase().includes("daftar") || label.toLowerCase().includes("sign up");
 
@@ -100,53 +101,50 @@ export function GoogleButton({
           cancel_on_tap_outside: true,
         });
 
-        if (buttonContainerRef.current) {
-          buttonContainerRef.current.innerHTML = "";
-          window.google.accounts.id.renderButton(buttonContainerRef.current, {
-            type: "standard",
-            theme: "outline",
-            size: "large",
-            text: isSignUp ? "signup_with" : "signin_with",
-            shape: "pill",
-            logo_alignment: "left",
-            width: 340,
-          });
-        }
+        buttonContainerRef.current.innerHTML = "";
+        window.google.accounts.id.renderButton(buttonContainerRef.current, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          text: isSignUp ? "signup_with" : "signin_with",
+          shape: "pill",
+          logo_alignment: "left",
+          width: 320,
+        });
+
+        setReady(true);
       } catch (err) {
-        console.error("[google-gis] setup failed", err);
+        console.error("[google-gis] init failed", err);
       }
     };
 
-    const scriptId = "google-gis-script";
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
-
     if (window.google?.accounts?.id) {
-      setupGoogleAuth();
-    } else if (!script) {
-      script = document.createElement("script");
-      script.id = scriptId;
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = setupGoogleAuth;
-      document.head.appendChild(script);
+      initGis();
     } else {
-      script.addEventListener("load", setupGoogleAuth);
+      const timer = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          clearInterval(timer);
+          initGis();
+        }
+      }, 100);
+      return () => {
+        active = false;
+        clearInterval(timer);
+      };
     }
 
     return () => {
-      mounted = false;
-      script?.removeEventListener("load", setupGoogleAuth);
+      active = false;
     };
   }, [googleClientId, label, handleCredential]);
 
-  const handleClickFallback = async () => {
-    setError(null);
-    setLoading(true);
-    const { error: err } = await signInWithGoogle(redirectPath);
-    if (err) {
-      setError(err);
-      setLoading(false);
+  const handleManualPrompt = () => {
+    if (window.google?.accounts?.id && googleClientId) {
+      try {
+        window.google.accounts.id.prompt();
+      } catch {
+        // Optional One Tap
+      }
     }
   };
 
@@ -158,32 +156,24 @@ export function GoogleButton({
         </div>
       )}
 
-      <div className="google-auth-container">
-        {googleClientId ? (
-          <div
-            ref={buttonContainerRef}
-            className="google-gis-slot"
-            suppressHydrationWarning
-          >
-            <button
-              type="button"
-              className="google-btn"
-              onClick={handleClickFallback}
-              disabled={loading}
-            >
-              <GoogleMark />
-              {loading ? "Menghubungkan..." : label}
-            </button>
-          </div>
-        ) : (
+      <div className="google-auth-box">
+        {/* The Google GIS official iframe mounts here */}
+        <div
+          ref={buttonContainerRef}
+          className="google-gis-slot"
+          style={{ minHeight: 44 }}
+        />
+
+        {/* Fallback button while Google SDK initializes */}
+        {!ready && (
           <button
             type="button"
-            className="google-btn"
-            onClick={handleClickFallback}
+            className="google-btn-loading"
+            onClick={handleManualPrompt}
             disabled={loading}
           >
             <GoogleMark />
-            {loading ? "Redirecting..." : label}
+            {loading ? "Menghubungkan..." : label}
           </button>
         )}
 
@@ -195,11 +185,12 @@ export function GoogleButton({
       </div>
 
       <style jsx>{`
-        .google-auth-container {
+        .google-auth-box {
           width: 100%;
           position: relative;
           display: flex;
           justify-content: center;
+          align-items: center;
           min-height: 48px;
         }
         .google-gis-slot {
@@ -210,10 +201,25 @@ export function GoogleButton({
         .google-gis-slot :global(iframe) {
           margin: 0 auto !important;
         }
+        .google-btn-loading {
+          position: absolute;
+          inset: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          font-weight: 600;
+          font-size: 15px;
+          border-radius: var(--r-pill);
+          padding: 12px 24px;
+          border: 1.5px solid var(--line);
+          background: #fff;
+          color: var(--navy);
+        }
         .google-loading-overlay {
           position: absolute;
           inset: 0;
-          background: rgba(255, 255, 255, 0.88);
+          background: rgba(255, 255, 255, 0.9);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -234,33 +240,6 @@ export function GoogleButton({
         }
         @keyframes spin {
           to { transform: rotate(360deg); }
-        }
-        .google-btn {
-          width: 100%;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          font-weight: 600;
-          font-size: 15px;
-          border-radius: var(--r-pill);
-          padding: 14px 26px;
-          border: 1.5px solid var(--line);
-          background: #fff;
-          color: var(--navy);
-          transition: background 0.15s var(--ease), border-color 0.15s var(--ease), transform 0.12s var(--ease);
-        }
-        .google-btn:hover:not(:disabled) {
-          background: var(--mist);
-          border-color: var(--line);
-          transform: translateY(-1px);
-        }
-        .google-btn:active:not(:disabled) {
-          transform: scale(0.98);
-        }
-        .google-btn:disabled {
-          opacity: 0.7;
-          cursor: not-allowed;
         }
       `}</style>
     </>

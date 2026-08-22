@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Poppins, Caveat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./Providers";
@@ -118,6 +119,10 @@ export default function RootLayout({
     // content — Google reads the page, not just this attribute.
     <html lang="id" className={`${poppins.variable} ${caveat.variable}`}>
       <body>
+        <Script
+          src="https://accounts.google.com/gsi/client"
+          strategy="afterInteractive"
+        />
         <Providers>
           <FlyToCartProvider>
             <SiteChrome>{children}</SiteChrome>
