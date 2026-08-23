@@ -15,7 +15,7 @@ interface AdminProduct {
   status: string;
   best_seller: boolean;
   category: { name: string } | null;
-  sizes: { id: string; label: string; stock: number }[];
+  sizes: { id: string; label: string; price: number; stock: number }[];
 }
 
 export default function AdminProductsPage() {
@@ -166,6 +166,11 @@ export default function AdminProductsPage() {
             <tbody>
               {products.map((p) => {
                 const totalStock = p.sizes.reduce((s, x) => s + x.stock, 0);
+                // Sizes are priced individually, so the single Price column
+                // shows a range rather than pretending there is one figure.
+                const prices = p.sizes.map((x) => x.price);
+                const lo = prices.length ? Math.min(...prices) : p.price;
+                const hi = prices.length ? Math.max(...prices) : p.price;
                 return (
                   <tr key={p.id}>
                     <td>
@@ -173,7 +178,11 @@ export default function AdminProductsPage() {
                       <div style={{ fontSize: 12, color: "var(--text-soft)" }}>{p.slug}</div>
                     </td>
                     <td>{p.category?.name ?? "—"}</td>
-                    <td>{formatPrice(p.price)}</td>
+                    <td>
+                      {lo === hi
+                        ? formatPrice(lo)
+                        : `${formatPrice(lo)} – ${formatPrice(hi)}`}
+                    </td>
                     <td>
                       <span style={{ color: totalStock < 20 ? "#b04050" : "var(--text)" }}>
                         {totalStock}

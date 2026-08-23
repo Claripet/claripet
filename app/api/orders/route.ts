@@ -75,10 +75,17 @@ export const POST = withErrorHandling(async (req: Request) => {
     return error("Shipping address is required", 400);
   }
 
-  // Calculate shipping
+  // Calculate shipping.
+  //
+  // Priced off the joined size row, not products.price — the latter is only the
+  // "from" figure since 019_per_size_pricing.sql, and totalling a 250ml at it
+  // would under-quote the subtotal and hand out free shipping below the
+  // threshold. This subtotal decides the shipping fee ONLY; the order's own
+  // subtotal is recomputed inside create_order_from_cart from the same
+  // product_sizes rows, so the two cannot disagree about item prices.
   const { data: cartItems } = await supabase
     .from("cart_items")
-    .select("qty, product:products(price)")
+    .select("qty, size:product_sizes(price)")
     .eq("user_id", user.id);
 
   if (!cartItems || cartItems.length === 0) {
@@ -86,7 +93,7 @@ export const POST = withErrorHandling(async (req: Request) => {
   }
 
   const subtotal = cartItems.reduce(
-    (sum, i) => sum + (i.product as any).price * i.qty,
+    (sum, i) => sum + ((i.size as any)?.price ?? 0) * i.qty,
     0,
   );
   const shippingQuote = await calculateShippingQuote({

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
+import { formatListPrice } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 import type { Product } from "@/lib/types";
 
@@ -116,7 +117,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div style={{ fontWeight: 600, color: "var(--navy)" }}>{p.name}</div>
                 <div className="muted" style={{ fontSize: 13 }}>
-                  {p.categoryName} · {formatPrice(p.price)}
+                  {p.categoryName} · {formatListPrice(p)}
                 </div>
               </div>
             </div>

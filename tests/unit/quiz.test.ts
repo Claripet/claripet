@@ -256,8 +256,9 @@ describe("recommend", () => {
 
   it("only asks for a size the catalogue actually carries", () => {
     const gentleWash = PRODUCTS.find((p) => p.slug === "claripet-gentle-wash-shampoo")!;
-    expect(gentleWash.sizes).toContain("250ml");
-    expect(gentleWash.sizes).toContain("500ml");
+    const labels = gentleWash.sizes.map((s) => s.label);
+    expect(labels).toContain("250ml");
+    expect(labels).toContain("500ml");
   });
 });
 

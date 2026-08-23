@@ -3,6 +3,7 @@
 import { memo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/format";
+import { formatListPrice } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 import { StarRating } from "@/components/ui/StarRating";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
@@ -29,7 +30,7 @@ export const FavoriteCardBody = memo(function FavoriteCardBody({ product }: { pr
       <div className="prod-sub">{product.subtitle}</div>
       <div className="prod-foot-wrapper">
         <div className="prod-foot">
-          <span className="prod-price">{formatPrice(product.price)}</span>
+          <span className="prod-price">{formatListPrice(product)}</span>
           <StarRating rating={product.rating} reviews={product.reviews} />
         </div>
         <button className="mobile-add-btn mobile-only" onClick={handleAddToCart} aria-label="Add to cart">

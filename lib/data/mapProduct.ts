@@ -1,4 +1,4 @@
-import type { Product } from "@/lib/types";
+import type { Product, ProductSize } from "@/lib/types";
 
 /**
  * Maps a raw Supabase product row (with joined category/sizes/images)
@@ -21,6 +21,27 @@ function deriveInStock(sizes: any): boolean | undefined {
   return withStock.some((s: any) => s.stock > 0);
 }
 
+/**
+ * Per-size prices, ordered cheapest first so `sizes[0]` is the "from" size the
+ * PDP opens on.
+ *
+ * `price` falls back to the product-level figure for queries that select only
+ * `product_sizes(label, stock)`, and for the static seed's shape. Since
+ * 019_per_size_pricing.sql that product-level number is `min(sizes.price)`, so
+ * the fallback under-quotes a larger size rather than over-quoting it — and it
+ * is display-only either way: `create_order_from_cart` reads `product_sizes`
+ * directly and never sees anything the client sent.
+ */
+function mapSizes(db: any): ProductSize[] {
+  return (db.sizes ?? [])
+    .map((s: any) => ({
+      label: s.label,
+      price: typeof s.price === "number" ? s.price : (db.price ?? 0),
+      ...(typeof s.stock === "number" ? { stock: s.stock } : {}),
+    }))
+    .sort((a: ProductSize, b: ProductSize) => a.price - b.price);
+}
+
 export function mapDBProductToProduct(db: any): Product {
   return {
     slug: db.slug,
@@ -33,7 +54,7 @@ export function mapDBProductToProduct(db: any): Product {
     reviews: db.reviews_count ?? 0,
     tone: db.tone ?? "sky",
     bestSeller: db.best_seller ?? false,
-    sizes: (db.sizes ?? []).map((s: any) => s.label),
+    sizes: mapSizes(db),
     inStock: deriveInStock(db.sizes),
     short: db.short ?? "",
     benefits: db.benefits ?? [],

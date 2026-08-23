@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
+import { formatListPrice } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 import { StarRating } from "@/components/ui/StarRating";
 
@@ -81,7 +82,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
         <div className="prod-sub">{product.subtitle}</div>
         <div className="prod-foot-wrapper">
           <div className="prod-foot">
-            <span className="prod-price">{formatPrice(product.price)}</span>
+            <span className="prod-price">{formatListPrice(product)}</span>
             <StarRating rating={product.rating} reviews={product.reviews} />
           </div>
         </div>

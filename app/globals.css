@@ -1771,6 +1771,15 @@ select:focus-visible {
   color: #fff;
 }
 
+/* Per-size price, shown under the label only when the sizes differ in price. */
+.size-opt-price {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: .75;
+}
+
 .pdp-buy {
   display: flex;
   flex-direction: column;

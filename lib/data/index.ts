@@ -46,7 +46,7 @@ export async function getAllProducts(): Promise<Product[]> {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("products")
-      .select("*, category:categories(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)")
+      .select("*, category:categories(*), sizes:product_sizes(label, price, stock), images:product_images(url, alt, sort_order)")
       .neq("status", "archived")
       .order("best_seller", { ascending: false });
 
@@ -68,7 +68,7 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
     const supabase = createClient();
     const { data, error } = await supabase
       .from("products")
-      .select("*, category:categories(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)")
+      .select("*, category:categories(*), sizes:product_sizes(label, price, stock), images:product_images(url, alt, sort_order)")
       .eq("slug", slug)
       .neq("status", "archived")
       .single();
@@ -90,7 +90,7 @@ export async function getProductsByCategory(categorySlug: string): Promise<Produ
     const { data, error } = await supabase
       .from("products")
       .select(
-        "*, category:categories!inner(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)",
+        "*, category:categories!inner(*), sizes:product_sizes(label, price, stock), images:product_images(url, alt, sort_order)",
       )
       .eq("category.slug", categorySlug)
       .neq("status", "archived")
@@ -111,7 +111,7 @@ export async function getBestSellers(): Promise<Product[]> {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("products")
-      .select("*, category:categories(*), sizes:product_sizes(label, stock), images:product_images(url, alt, sort_order)")
+      .select("*, category:categories(*), sizes:product_sizes(label, price, stock), images:product_images(url, alt, sort_order)")
       .neq("status", "archived")
       .eq("best_seller", true)
       .order("reviews_count", { ascending: false });

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/format";
+import { priceForSize } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/PageHead";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
@@ -88,7 +89,9 @@ export function CartView() {
                   </button>
                 </div>
               </div>
-              <div className="ci-price">{formatPrice((item.product?.price || 0) * item.qty)}</div>
+              <div className="ci-price">
+                {formatPrice(priceForSize(item.product, item.size) * item.qty)}
+              </div>
             </div>
           ))}
         </div>

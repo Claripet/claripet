@@ -10,18 +10,33 @@ export interface Category {
   blurb: string;
 }
 
+/** One purchasable variant of a product. Price is per size, in IDR. */
+export interface ProductSize {
+  label: string;
+  price: number;
+  /** Units on hand. Undefined when the query did not join stock. */
+  stock?: number;
+}
+
 export interface Product {
   slug: string;
   name: string;
   subtitle: string;
   category: string;
   categoryName: string;
+  /**
+   * The "from" price in IDR — the cheapest size. Derived, never charged:
+   * `product_sizes.price` is what a line item actually costs, and the DB
+   * trigger in 019_per_size_pricing.sql keeps this equal to `min(sizes.price)`.
+   * Use it for cards, sorting, and price filters; use `sizes[n].price` (or
+   * `priceForSize`) anywhere money is shown against a chosen size.
+   */
   price: number;
   rating: number;
   reviews: number;
   tone: Tone;
   bestSeller: boolean;
-  sizes: string[];
+  sizes: ProductSize[];
   short: string;
   benefits: string[];
   features: string[];

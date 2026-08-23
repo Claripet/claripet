@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
+import { priceForSize } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 
 /**
@@ -57,7 +58,8 @@ export function CartConfirmSheet() {
           <div className="ccs-product-info">
             <span className="ccs-product-name">{lastAdded?.product.name}</span>
             <span className="ccs-product-price">
-              {lastAdded?.qty}x {formatPrice(lastAdded?.product.price ?? 0)}
+              {lastAdded?.qty}x{" "}
+              {lastAdded ? formatPrice(priceForSize(lastAdded.product, lastAdded.size)) : formatPrice(0)}
             </span>
           </div>
         </div>

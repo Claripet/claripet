@@ -42,7 +42,11 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 export const POST = withErrorHandling(async (req: Request) => {
   await requireAdmin();
   const body = await req.json();
-  const { sizes, images, ...productData } = createProductSchema.parse(body);
+  // `price` is dropped on purpose: products.price is derived from the sizes by
+  // the trigger in 019_per_size_pricing.sql, so writing it here would only be
+  // overwritten a moment later by the size inserts below. Price is set per size.
+  const { sizes, images, price: _ignoredPrice, ...productData } =
+    createProductSchema.parse(body);
 
   const supabase = await createClient();
 
@@ -59,6 +63,7 @@ export const POST = withErrorHandling(async (req: Request) => {
     const sizeRows = sizes.map((s) => ({
       product_id: product.id,
       label: s.label,
+      price: s.price,
       stock: s.stock,
       sku: s.sku ?? null,
     }));

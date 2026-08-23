@@ -7,6 +7,7 @@ import Script from "next/script";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/format";
+import { priceForSize } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 import { Placeholder } from "@/components/Placeholder";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
@@ -492,7 +493,7 @@ export function CheckoutView() {
                           <strong>{item.product.name}</strong>
                           <span>Ukuran {item.size} • Jumlah {item.qty}</span>
                         </div>
-                        <b>{formatPrice(item.product.price * item.qty)}</b>
+                        <b>{formatPrice(priceForSize(item.product, item.size) * item.qty)}</b>
                       </div>
                     ))}
                   </div>

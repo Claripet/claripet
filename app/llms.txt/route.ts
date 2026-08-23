@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/site";
 import { CATEGORIES } from "@/data/categories";
 import { PRODUCTS } from "@/data/products";
+import { formatListPrice } from "@/lib/pricing";
 
 export const dynamic = "force-static";
 
@@ -21,7 +22,7 @@ ClariPet (https://claripetcare.com) is an Indonesian pet care brand specializing
 ${CATEGORIES.map((c) => `- [${c.name}](${SITE_URL}/shop/${c.slug}): ${c.blurb}`).join("\n")}
 
 ## Featured Products
-${PRODUCTS.slice(0, 8).map((p) => `- [${p.name}](${SITE_URL}/product/${p.slug}) - Rp ${p.price.toLocaleString("id-ID")}: ${p.short}`).join("\n")}
+${PRODUCTS.slice(0, 8).map((p) => `- [${p.name}](${SITE_URL}/product/${p.slug}) - ${formatListPrice(p)}: ${p.short}`).join("\n")}
 
 ## Interactive Tools
 - [Pet Care Recommendation Quiz](${SITE_URL}/quiz): A branching quiz of about 5-7 questions, under 2 minutes, covering pet type, age, and up to two main care needs (bathing, skin, coat and nutrition, eyes/ears/mouth, scent, behaviour and household odour). Returns one main product plus up to two companions. Pets under 2 months old are shown veterinary guidance instead of product recommendations.

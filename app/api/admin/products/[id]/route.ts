@@ -47,7 +47,9 @@ export const PUT = withErrorHandling(
     const { id } = await params;
     await requireAdmin();
     const body = await req.json();
-    const { sizes, images, ...productData } = updateProductSchema.parse(body);
+    // See the note in the POST route: products.price is derived from the sizes.
+    const { sizes, images, price: _ignoredPrice, ...productData } =
+      updateProductSchema.parse(body);
 
     const supabase = await createClient();
 
@@ -67,6 +69,7 @@ export const PUT = withErrorHandling(
       const sizeRows = sizes.map((s) => ({
         product_id: id,
         label: s.label,
+        price: s.price,
         stock: s.stock,
         sku: s.sku ?? null,
       }));

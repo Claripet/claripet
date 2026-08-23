@@ -11,6 +11,10 @@ export const toneSchema = z.enum([
 
 export const productSizeSchema = z.object({
   label: z.string().min(1).max(50),
+  // IDR integer. Per size — this is what a line item is charged, so it is
+  // required rather than defaulted: a missing price must be a 400, never a
+  // silent Rp 0 variant.
+  price: z.number().int().min(0),
   stock: z.number().int().min(0).default(0),
   sku: z.string().max(50).optional(),
 });
@@ -30,7 +34,10 @@ export const createProductSchema = z.object({
   name: z.string().min(1).max(200),
   subtitle: z.string().max(200).optional(),
   category_id: z.string().uuid(),
-  price: z.number().int().min(0), // IDR integer
+  // Accepted for backwards compatibility but ignored on write: the DB trigger
+  // in 019_per_size_pricing.sql sets products.price to min(sizes.price). The
+  // admin routes strip it before the insert/update.
+  price: z.number().int().min(0).optional(),
   tone: toneSchema.optional(),
   best_seller: z.boolean().default(false),
   short: z.string().max(500).optional(),

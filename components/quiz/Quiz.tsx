@@ -19,6 +19,7 @@ import {
   type Step,
 } from "@/data/quiz";
 import { formatPrice } from "@/lib/format";
+import { formatListPrice, priceForSize } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/PageHead";
 import { StarRating } from "@/components/ui/StarRating";
@@ -103,7 +104,11 @@ function RecCard({
         {product ? (
           <>
             <div className="quiz-rec-meta">
-              <span className="quiz-rec-price">{formatPrice(product.price)}</span>
+              <span className="quiz-rec-price">
+                {refItem.size
+                  ? formatPrice(priceForSize(product, refItem.size))
+                  : formatListPrice(product)}
+              </span>
               {refItem.size && <span className="quiz-rec-size">{refItem.size}</span>}
               <StarRating rating={product.rating} reviews={product.reviews} />
             </div>

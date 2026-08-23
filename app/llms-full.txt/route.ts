@@ -15,7 +15,7 @@ export async function GET() {
     return `### ${p.name}
 - URL: ${SITE_URL}/product/${p.slug}
 - Category: ${p.categoryName}
-- Price: Rp ${p.price.toLocaleString("id-ID")} (${p.sizes.join(", ")})
+- Price: ${p.sizes.map((s) => `${s.label} Rp ${s.price.toLocaleString("id-ID")}`).join(", ")}
 - Target Pet: ${(p.petType || []).join(" & ") || "Cats & Dogs"}
 - Main Concerns Addressed: ${(p.concern || []).join(", ") || "General Care"}
 - Benefits: ${p.benefits.join("; ")}

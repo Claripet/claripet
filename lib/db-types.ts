@@ -28,6 +28,8 @@ export interface DBProductSize {
   id: string;
   product_id: string;
   label: string;
+  /** IDR, per size. The authoritative price for a line item. */
+  price: number;
   stock: number;
   sku: string | null;
 }
@@ -47,6 +49,7 @@ export interface DBProduct {
   name: string;
   subtitle: string | null;
   category_id: string;
+  /** Derived "from" price — see the note on `Product.price` in lib/types.ts. */
   price: number;
   rating: number;
   reviews_count: number;

@@ -8,6 +8,8 @@ import { useCart } from "@/context/CartContext";
 
 interface Size {
   label: string;
+  /** IDR. Per size — this is the figure a customer is charged. */
+  price: number;
   stock: number;
   sku?: string;
 }
@@ -18,7 +20,6 @@ interface Product {
   name: string;
   subtitle: string;
   category_id: string;
-  price: number;
   tone: string;
   best_seller: boolean;
   short: string;
@@ -47,7 +48,6 @@ export function ProductForm({ product }: { product?: any }) {
     name: product?.name ?? "",
     subtitle: product?.subtitle ?? "",
     category_id: product?.category_id ?? "",
-    price: product?.price ?? 0,
     tone: product?.tone ?? "sky",
     best_seller: product?.best_seller ?? false,
     short: product?.short ?? "",
@@ -58,8 +58,13 @@ export function ProductForm({ product }: { product?: any }) {
     howto: product?.howto ?? "",
     status: product?.status ?? "draft",
     sizes: product?.sizes?.length
-      ? product.sizes.map((s: any) => ({ label: s.label, stock: s.stock, sku: s.sku }))
-      : [{ label: "", stock: 0 }],
+      ? product.sizes.map((s: any) => ({
+          label: s.label,
+          price: s.price ?? 0,
+          stock: s.stock,
+          sku: s.sku,
+        }))
+      : [{ label: "", price: 0, stock: 0 }],
     images: product?.images?.length
       ? [...product.images]
           .sort((a: any, b: any) => a.sort_order - b.sort_order)
@@ -88,10 +93,9 @@ export function ProductForm({ product }: { product?: any }) {
 
     const payload = {
       ...form,
-      price: Number(form.price),
       sizes: form.sizes
         .filter((s) => s.label)
-        .map((s) => ({ ...s, stock: Number(s.stock) })),
+        .map((s) => ({ ...s, price: Number(s.price), stock: Number(s.stock) })),
     };
 
     const url = product?.id
@@ -123,7 +127,13 @@ export function ProductForm({ product }: { product?: any }) {
     setForm({ ...form, sizes: next });
   };
 
-  const addSize = () => setForm({ ...form, sizes: [...form.sizes, { label: "", stock: 0 }] });
+  // Mirrors the DB trigger in 019_per_size_pricing.sql so the read-only field
+  // shows what the product will actually list at once saved.
+  const priced = form.sizes.filter((s) => s.label);
+  const fromPrice = priced.length ? Math.min(...priced.map((s) => Number(s.price) || 0)) : 0;
+
+  const addSize = () =>
+    setForm({ ...form, sizes: [...form.sizes, { label: "", price: 0, stock: 0 }] });
   const removeSize = (i: number) =>
     setForm({ ...form, sizes: form.sizes.filter((_, idx) => idx !== i) });
 
@@ -179,14 +189,11 @@ export function ProductForm({ product }: { product?: any }) {
             </select>
           </div>
           <div className="form-group">
-            <label>Price (IDR) *</label>
-            <input
-              type="number"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-              min={0}
-              required
-            />
+            <label>Price (IDR)</label>
+            <input type="number" value={fromPrice} readOnly disabled />
+            <small className="form-hint">
+              Derived from the cheapest size — set prices under Sizes &amp; Inventory.
+            </small>
           </div>
           <div className="form-group">
             <label>Tone</label>
@@ -289,6 +296,14 @@ export function ProductForm({ product }: { product?: any }) {
             />
             <input
               type="number"
+              placeholder="Price (IDR)"
+              value={s.price}
+              onChange={(e) => updateSize(i, { price: Number(e.target.value) })}
+              min={0}
+              required
+            />
+            <input
+              type="number"
               placeholder="Stock"
               value={s.stock}
               onChange={(e) => updateSize(i, { stock: Number(e.target.value) })}
@@ -371,7 +386,7 @@ export function ProductForm({ product }: { product?: any }) {
         }
         .size-row {
           display: grid;
-          grid-template-columns: 1.5fr 1fr 1.5fr auto;
+          grid-template-columns: 1.5fr 1fr 1fr 1.5fr auto;
           gap: 10px;
           margin-bottom: 10px;
         }
@@ -382,6 +397,18 @@ export function ProductForm({ product }: { product?: any }) {
           font-family: inherit;
           font-size: 14px;
           outline: none;
+        }
+        .size-row input:disabled,
+        .form-group input:disabled {
+          background: var(--mist);
+          color: var(--text-soft);
+          cursor: not-allowed;
+        }
+        .form-hint {
+          display: block;
+          margin-top: 5px;
+          font-size: 12px;
+          color: var(--text-soft);
         }
         .del-btn {
           background: var(--pink-50);

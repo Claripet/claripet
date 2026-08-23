@@ -123,7 +123,8 @@ describe("patchProductSchema (mass-assignment guard)", () => {
 
   it("REJECTS sizes array (managed by PUT)", () => {
     expect(
-      patchProductSchema.safeParse({ sizes: [{ label: "100ml", stock: 10 }] }).success,
+      patchProductSchema.safeParse({ sizes: [{ label: "100ml", price: 59000, stock: 10 }] })
+        .success,
     ).toBe(false);
   });
 
@@ -140,7 +141,7 @@ describe("createProductSchema", () => {
     name: "Test Product",
     category_id: uuid(),
     price: 99000,
-    sizes: [{ label: "100ml", stock: 10 }],
+    sizes: [{ label: "100ml", price: 99000, stock: 10 }],
   };
 
   it("accepts a valid product", () => {
@@ -157,5 +158,23 @@ describe("createProductSchema", () => {
 
   it("rejects empty sizes array", () => {
     expect(createProductSchema.safeParse({ ...valid, sizes: [] }).success).toBe(false);
+  });
+
+  // Price lives on the size since 019_per_size_pricing.sql. Defaulting a
+  // missing one to 0 would quietly create a free variant, so it must 400.
+  it("rejects a size with no price", () => {
+    expect(
+      createProductSchema.safeParse({ ...valid, sizes: [{ label: "100ml", stock: 10 }] })
+        .success,
+    ).toBe(false);
+  });
+
+  it("rejects a negative size price", () => {
+    expect(
+      createProductSchema.safeParse({
+        ...valid,
+        sizes: [{ label: "100ml", price: -1, stock: 10 }],
+      }).success,
+    ).toBe(false);
   });
 });

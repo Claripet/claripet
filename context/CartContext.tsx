@@ -6,6 +6,7 @@ import {
 import type { CartItem, Product } from "@/lib/types";
 import { PRODUCTS } from "@/data/products";
 import { mapDBProductToProduct } from "@/lib/data/mapProduct";
+import { priceForSize } from "@/lib/pricing";
 import { useAuth } from "@/context/AuthContext";
 
 interface DetailedItem extends CartItem {
@@ -205,7 +206,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
 
       const known = product ?? products[slug];
-      const sz = size ?? (known ? known.sizes[0] ?? "" : "");
+      const sz = size ?? (known ? known.sizes[0]?.label ?? "" : "");
 
       const applyAdd = (resolvedSize: string, resolved?: Product) => {
         setItems((prev) => {
@@ -246,7 +247,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       } else {
         // Product not cached (DB-only). Fetch it so we get a valid size + name.
         void ensureProduct(slug).then((fetched) => {
-          const resolvedSize = size ?? (fetched ? fetched.sizes[0] ?? "" : "");
+          const resolvedSize = size ?? (fetched ? fetched.sizes[0]?.label ?? "" : "");
           applyAdd(resolvedSize, fetched);
         });
       }
@@ -320,8 +321,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         .filter((i): i is DetailedItem => Boolean(i.product)),
     [items, products],
   );
+  // Per-size, so a 250ml in the cart is not totalled at the 100ml price. This
+  // figure is for display and for the shipping-threshold hint only — checkout
+  // re-derives the real subtotal server-side in create_order_from_cart.
   const subtotal = useMemo(
-    () => detailed.reduce((s, i) => s + i.product.price * i.qty, 0),
+    () => detailed.reduce((s, i) => s + priceForSize(i.product, i.size) * i.qty, 0),
     [detailed],
   );
 

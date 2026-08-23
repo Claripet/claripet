@@ -5,6 +5,7 @@ import { getProductBySlug, getReviewsByProductSlug } from "@/lib/data";
 import { ProductView } from "@/components/product/ProductView";
 import { SITE_URL } from "@/lib/site";
 import { metaDescription, rollingPriceValidUntil, jsonLdScript } from "@/lib/seo";
+import { hasPriceRange, priceRange } from "@/lib/pricing";
 
 // Prerendered at build, refreshed in the background every 5 minutes so price
 // and stock edits from the admin panel land without a redeploy.
@@ -66,6 +67,13 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const productUrl = `${SITE_URL}/product/${product.slug}`;
+  // Derived from real per-size stock where the DB supplies it. `inStock` is
+  // undefined for the static seed catalogue, which carries no stock data —
+  // treat that as available rather than silently marking everything sold out.
+  const availability =
+    product.inStock === false
+      ? "https://schema.org/OutOfStock"
+      : "https://schema.org/InStock";
   const imageUrl = product.images?.[0]?.url;
 
   const jsonLd = {
@@ -110,21 +118,32 @@ export default async function ProductPage({
         worstRating: 1,
       },
     }),
-    offers: {
-      "@type": "Offer",
-      url: productUrl,
-      priceCurrency: "IDR",
-      price: product.price,
-      // Derived from real per-size stock where the DB supplies it. `inStock` is
-      // undefined for the static seed catalogue, which carries no stock data —
-      // treat that as available rather than silently marking everything sold out.
-      availability:
-        product.inStock === false
-          ? "https://schema.org/OutOfStock"
-          : "https://schema.org/InStock",
-      priceValidUntil: rollingPriceValidUntil(),
-      seller: { "@type": "Organization", name: "ClariPet" },
-    },
+    // A single Offer can carry exactly one price, so a product whose sizes are
+    // priced differently (Salmon Oil: 100ml Rp 55.000, 250ml Rp 115.000) has to
+    // be an AggregateOffer. Quoting one Offer at the "from" price would put a
+    // figure in the markup that two thirds of the variants do not sell for,
+    // which Google flags as a price mismatch against the rendered page.
+    offers: hasPriceRange(product)
+      ? {
+          "@type": "AggregateOffer",
+          url: productUrl,
+          priceCurrency: "IDR",
+          lowPrice: priceRange(product).min,
+          highPrice: priceRange(product).max,
+          offerCount: product.sizes.length,
+          availability,
+          priceValidUntil: rollingPriceValidUntil(),
+          seller: { "@type": "Organization", name: "ClariPet" },
+        }
+      : {
+          "@type": "Offer",
+          url: productUrl,
+          priceCurrency: "IDR",
+          price: product.price,
+          availability,
+          priceValidUntil: rollingPriceValidUntil(),
+          seller: { "@type": "Organization", name: "ClariPet" },
+        },
   };
 
   const breadcrumbJsonLd = {

@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import type { Product, Review, Tone } from "@/lib/types";
 import { PRODUCTS } from "@/data/products";
 import { formatPrice } from "@/lib/format";
+import { priceForSize, hasPriceRange } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { StarRating } from "@/components/ui/StarRating";
@@ -43,7 +44,12 @@ export function ProductView({
   // Set once the visitor picks a slide, so the pin-to-first effect below stops
   // fighting them on any later reflow (rotation, URL bar hide, thumbnail click).
   const hasPickedSlide = useRef(false);
-  const [size, setSize] = useState(product.sizes[0]);
+  const [size, setSize] = useState(product.sizes[0]?.label ?? "");
+  // Sizes are priced individually, so every price on this page follows the
+  // selected one rather than the product's "from" figure.
+  const selectedPrice = priceForSize(product, size);
+  // Only worth putting a price on each size button when they actually differ.
+  const hasRange = hasPriceRange(product);
   const [qty, setQty] = useState(1);
   const [mounted, setMounted] = useState(false);
 
@@ -284,7 +290,7 @@ export function ProductView({
           <div style={{ margin: "14px 0" }}>
             <StarRating rating={product.rating} reviews={product.reviews} />
           </div>
-          <div className="pdp-price">{formatPrice(product.price)}</div>
+          <div className="pdp-price">{formatPrice(selectedPrice)}</div>
           <p className="pdp-desc">{product.short}</p>
 
           <div className="pdp-benefits">
@@ -302,8 +308,13 @@ export function ProductView({
             <div style={{ fontWeight: 600, color: "var(--navy)", marginBottom: 6 }}>Ukuran</div>
             <div className="size-row" style={{ margin: 0 }}>
               {product.sizes.map((s) => (
-                <button key={s} className={"size-opt" + (size === s ? " active" : "")} onClick={() => setSize(s)}>
-                  {s}
+                <button
+                  key={s.label}
+                  className={"size-opt" + (size === s.label ? " active" : "")}
+                  onClick={() => setSize(s.label)}
+                >
+                  {s.label}
+                  {hasRange && <span className="size-opt-price">{formatPrice(s.price)}</span>}
                 </button>
               ))}
             </div>
@@ -311,7 +322,7 @@ export function ProductView({
 
           <div className="pdp-buy" ref={addRef}>
             <div className="pdp-actions-row">
-              <span className="pdp-mobile-price">{formatPrice(product.price)}</span>
+              <span className="pdp-mobile-price">{formatPrice(selectedPrice)}</span>
               <QuantityStepper value={qty} onChange={setQty} />
               <PrimaryButton
                 size="lg"
@@ -369,7 +380,7 @@ export function ProductView({
       {/* Sticky Add to Cart bar — mobile only */}
       {mounted && createPortal(
         <div className="pdp-sticky-bar">
-          <span className="pdp-sticky-price">{formatPrice(product.price)}</span>
+          <span className="pdp-sticky-price">{formatPrice(selectedPrice)}</span>
           <div className="pdp-sticky-qty">
             <QuantityStepper value={qty} onChange={setQty} />
           </div>
