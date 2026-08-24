@@ -11,7 +11,6 @@ export function NewsletterSignup() {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    // eslint-disable-next-line no-console
     console.log("Newsletter signup:", email);
     setDone(true);
     setEmail("");
