@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.110.0",
+    "@supabase/supabase-js": "^2.112.3",
     "lucide-react": "^0.412.0",
     "midtrans-client": "^1.4.3",
     "next": "^16.3.2",
