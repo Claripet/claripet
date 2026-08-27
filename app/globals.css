@@ -47,14 +47,16 @@
 
   /* Text */
   --text: #2D3142;
-  --text-soft: #5A6072;
+  --text-soft: #525872;
   --text-faint: #8A90A0;
 
   /* Lines & surfaces */
   --line: #E7EDF5;
   --line-soft: #EFF3F8;
 
-  /* Page surfaces — three steps, sampled from the client mockup.
+  /* Page surfaces — three steps. --page is the client's pastel blue swatch;
+     --panel and --panel-deep step down from it on the same ramp (~4% lightness
+     each), the spacing the earlier mockup-sampled scale used.
      The storefront reads as a pastel-blue canvas with white content floating
      on it, not as white with blue accents:
        --page       the canvas behind every page
@@ -63,9 +65,9 @@
        --surface    cards, product tiles, filter panels — white so they lift
      Individual product pages opt out (see .pdp-page): each product carries its
      own colour identity. */
-  --page: #EFF4FC;
-  --panel: #DFEAF8;
-  --panel-deep: #CFE0F5;
+  --page: #C0D8F0;
+  --panel: #B0CEEC;
+  --panel-deep: #A0C4E8;
   --surface: #FFFFFF;
 
   /* Radii */
