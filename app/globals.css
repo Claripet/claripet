@@ -758,7 +758,7 @@ select:focus-visible {
   right: 0;
   bottom: 0;
   width: 100%;
-  background: #ffffff;
+  background: var(--pink-50);
   box-shadow: -8px 0 40px rgba(0, 0, 0, 0.18);
   transform: translateX(100%);
   transition: transform .4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -784,7 +784,7 @@ select:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 18px 20px;
-  border-bottom: 1px solid var(--line-soft);
+  border-bottom: 1px solid rgba(245, 205, 211, 0.45);
   flex-shrink: 0;
 }
 
@@ -810,7 +810,7 @@ select:focus-visible {
   gap: 14px;
   padding: 16px;
   margin-bottom: 12px;
-  background: var(--mist);
+  background: rgba(245, 205, 211, 0.32);
   border-radius: var(--r-lg);
 }
 
@@ -867,7 +867,7 @@ select:focus-visible {
 
 .mobile-menu .mobile-nav-link:hover,
 .mobile-menu .mobile-nav-link:active {
-  background: var(--mist);
+  background: rgba(245, 205, 211, 0.45);
   color: var(--blue);
 }
 
@@ -896,7 +896,7 @@ select:focus-visible {
 }
 
 .mobile-menu .signout-btn:hover {
-  background: var(--pink-50);
+  background: rgba(245, 205, 211, 0.45);
 }
 
 .mobile-menu .mobile-auth-actions {
