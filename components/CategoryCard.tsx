@@ -19,8 +19,13 @@ export function CategoryCard({ cat }: { cat: Category }) {
       aria-label={`Shop ${cat.name} category`}
     >
       {src ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img src={src} alt={cat.name} className="cat-card-img" />
+        <>
+          {/* Decorative: the name below carries the same information, and the
+              link's aria-label already names the destination. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="cat-card-img" />
+          <span className="cat-card-title">{cat.name}</span>
+        </>
       ) : (
         <span className="cat-card-fallback">{cat.name}</span>
       )}

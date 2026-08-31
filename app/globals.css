@@ -1138,6 +1138,11 @@ select:focus-visible {
   /* Prevents individual cards from getting too large */
   margin: 0 auto;
   /* Centers cards within their grid cell */
+
+  /* Anchors .cat-card-copy, and makes the card the query container the copy
+     sizes itself against — see the cqw units below. */
+  position: relative;
+  container-type: inline-size;
 }
 
 .cat-card:hover {
@@ -1149,6 +1154,38 @@ select:focus-visible {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* Category name, drawn over the illustration's empty top-left corner — where
+   the previous artwork had it baked in. Real text rather than pixels, so it
+   stays crisp, selectable and translatable.
+
+   Sized in cqw (percent of the card's own width) rather than px: the same card
+   renders at ~225px in the home six-across row, ~260px in the shop's 3-up grid
+   and ~110px in the narrowest mobile grid, and proportional type keeps the name
+   sitting in the artwork the same way at every one of those sizes instead of
+   overflowing the small cards or looking lost on the large ones. */
+.cat-card-title {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 7cqw 7cqw 0;
+  color: var(--navy);
+  font-size: 9cqw;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  /* The art continues underneath; clicks belong to the link, not this layer. */
+  pointer-events: none;
+}
+
+/* Cards get down to ~110px wide in the narrowest mobile grid, where 9cqw lands
+   at 10px. Nudge the ratio up so the name stays readable at that size. */
+@container (max-width: 165px) {
+  .cat-card-title {
+    font-size: 11cqw;
+  }
 }
 
 .cat-card-fallback {

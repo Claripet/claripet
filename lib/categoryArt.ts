@@ -4,8 +4,9 @@
  */
 
 /**
- * Grid card art — the illustrated card set in public/assets/images/categories,
- * which has the category name and blurb drawn into the artwork.
+ * Grid card art — the illustrated card set in public/assets/images/categories.
+ * Illustration only: the category name is rendered over it as real text by
+ * CategoryCard, and the files are cropped flush so the card has no white frame.
  */
 export const CATEGORY_CARD_IMAGES: Record<string, string> = {
   perfumes: "/assets/images/categories/Perfume Card.png",
