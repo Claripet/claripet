@@ -22,14 +22,16 @@ export const CATEGORY_CARD_IMAGES: Record<string, string> = {
  * the right ~40% and the left half empty, drawn to bleed across the banner
  * behind the left-aligned copy. Rendered frameless — no card, no shadow.
  *
- * Behavior & Training and Home & Environment have no banner artwork, so they
- * fall back to their illustrated card, letterboxed on the banner tint.
+ * Every category has banner artwork now. getCategoryBanner still falls back to
+ * the illustrated card for any slug missing from this map.
  */
 const CATEGORY_BANNER_IMAGES: Record<string, string> = {
   perfumes: "/images/categories/perfumes-banner.png",
   "hygiene-grooming": "/images/categories/grooming-banner.png",
   "skin-care": "/images/categories/skin-care-banner.png",
   "fur-care-supplements": "/images/categories/supplements-banner.png",
+  "behavior-training": "/images/categories/behavior-banner.png",
+  "home-environment-care": "/images/categories/home-banner.png",
 };
 
 export type CategoryBanner = {
