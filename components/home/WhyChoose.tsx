@@ -267,9 +267,11 @@ export function WhyChoose() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden"
+      // `.section` carries the 84px rhythm this used to hardcode inline — an
+      // inline padding no media query could reach, so the phone kept desktop
+      // spacing while its neighbours dropped to 40px.
+      className="section relative overflow-hidden"
       style={{
-        padding: "84px 0",
         // Canvas, not white: the feature panel inside this section is already
         // #fff, so a white band would swallow it and leave a flat white gap
         // between the two pastel sections either side.

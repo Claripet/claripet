@@ -125,7 +125,7 @@ export default async function ShopPage() {
         </div>
       </section>
 
-      <section id="all-products" className="wrap section-sm" style={{ paddingTop: 0, scrollMarginTop: '90px' }}>
+      <section id="all-products" className="wrap section-sm" style={{ paddingTop: 0, scrollMarginTop: 'calc(var(--nav-h) + 20px)' }}>
         <AllProductsBrowser products={featured} categories={categories} />
       </section>
 

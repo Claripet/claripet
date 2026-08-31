@@ -3665,25 +3665,32 @@ a.quiz-rec-name:hover {
 
 /* ===========================================================
    SMALL PHONES (<=400px) — final safety net
+
+   NOT the last word on ≤400px screens, despite the name. The
+   PHONE LAYOUT (≤767px) block at the very end of this file also
+   matches here, at equal specificity, and therefore wins on any
+   declaration both blocks set. Anything tuned for ≤400px has to
+   be a property that block does *not* touch — or carry
+   !important, as `.prod-grid>*` below does.
+
+   Values this block used to set and never actually applied
+   (--wrap-pad 14px, .section 44px, .sec-head gap/margin-bottom/
+   align-items, .trust gap/padding) have been removed rather than
+   reordered: the ≤767px numbers that replaced them are the newer,
+   deliberate ones. Reordering would have silently changed the
+   layout on small phones.
    =========================================================== */
 @media (max-width: 400px) {
-  :root {
-    --wrap-pad: 14px;
-  }
 
-  /* Section heads: stack title and "view all" so neither clips */
+  /* Section heads: stack title and "view all" so neither clips.
+     Only flex-direction — the ≤767px block owns gap/margin/alignment. */
   .sec-head {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 26px;
   }
 
-  /* Trust badges: single column, tighter padding */
+  /* Trust badges: single column. Padding and gap come from ≤767px. */
   .trust {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 22px;
   }
 
   /* Feature rows & why grids: single column */
@@ -3692,12 +3699,8 @@ a.quiz-rec-name:hover {
     grid-template-columns: 1fr;
   }
 
-  /* Reduce oversized section padding */
-  .section {
-    padding: 44px 0;
-  }
-
-  /* Cards inside scroll rows a touch narrower */
+  /* Cards inside scroll rows a touch narrower. The !important is load-bearing:
+     it is what beats `min-width: 200px` in the later ≤767px block. */
   .prod-grid>* {
     min-width: 0 !important;
   }

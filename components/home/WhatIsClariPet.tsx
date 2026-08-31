@@ -37,7 +37,11 @@ export function WhatIsClariPet() {
   return (
     <section
       aria-labelledby="what-is-claripet"
-      style={{ padding: "64px 0", background: "var(--page)" }}
+      // Rhythm comes from `.section`, not an inline `padding`. Inline styles are
+      // unreachable by media queries, so the old 64px stayed put on a phone
+      // while every neighbouring section shrank to 40px.
+      className="section"
+      style={{ background: "var(--page)" }}
     >
       <div className="wrap">
         <div style={{ maxWidth: 720, margin: "0 auto", textAlign: "center" }}>
