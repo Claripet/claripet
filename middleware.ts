@@ -34,6 +34,18 @@ function isStrayAuthCode(request: NextRequest): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  // 0. www -> apex. Both hostnames point at this same Worker (two Cloudflare
+  //    Custom Domain routes), so www would otherwise serve every page as a
+  //    live duplicate of the apex — which is what SITE_URL, the sitemap and
+  //    every canonical/JSON-LD url already assume is the one true host.
+  //    Runs before the Supabase gate below so it also applies when Supabase
+  //    isn't configured (e.g. a preview deploy).
+  if (request.nextUrl.hostname === "www.claripetcare.com") {
+    const url = request.nextUrl.clone();
+    url.hostname = "claripetcare.com";
+    return NextResponse.redirect(url, 308);
+  }
+
   // If Supabase is not configured, pass through
   if (!IS_CONFIGURED) return NextResponse.next({ request });
 
