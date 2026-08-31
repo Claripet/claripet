@@ -30,9 +30,12 @@
 	// request time must be a var or a secret, or it is simply undefined.
 	// RAJAONGKIR_ORIGIN_ID is a public RajaOngkir district ID (Jakarta), not a
 	// credential, so it lives here rather than in `wrangler secret`.
+	// Google sign-in deliberately has no client id here. It runs as a plain
+	// OAuth popup through Supabase, so the browser never sees the client id —
+	// Google talks to Supabase's /auth/v1/callback, and the id and secret live
+	// only in the Supabase dashboard's Google provider settings.
 	"vars": {
-		"RAJAONGKIR_ORIGIN_ID": "17547",
-		"NEXT_PUBLIC_GOOGLE_CLIENT_ID": "649983855932-5kmj2mis1avt250tou83360atc309ale.apps.googleusercontent.com"
+		"RAJAONGKIR_ORIGIN_ID": "17547"
 	},
 	"images": {
 		// Enable Next.js Image Optimization via Cloudflare's built-in binding

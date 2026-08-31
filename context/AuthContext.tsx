@@ -36,7 +36,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, fullName: string, turnstileToken?: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string, turnstileToken?: string) => Promise<{ error: string | null }>;
   signInWithGoogle: (redirectPath?: string) => Promise<{ error: string | null }>;
-  signInWithGoogleIdToken: (idToken: string) => Promise<{ error: string | null }>;
+  signInWithGooglePopup: (redirectPath?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   requestPasswordReset: (email: string, turnstileToken?: string) => Promise<{ error: string | null }>;
@@ -276,16 +276,97 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase],
   );
 
-  const signInWithGoogleIdToken = useCallback(
-    async (idToken: string) => {
-      const { error } = await supabase.auth.signInWithIdToken({
+  /**
+   * Google sign-in in a popup, over the standard OAuth redirect flow.
+   *
+   * The popup runs the same journey the full-page redirect would — Supabase ->
+   * Google -> /api/auth/callback -> /auth/popup-done — so the session cookies
+   * are set by our own server route on this origin, exactly as before. Only the
+   * window it happens in differs.
+   *
+   * Deliberately NOT Google Identity Services: GIS hands back an ID token from
+   * the browser, which requires third-party cookies and an exact JavaScript-
+   * origin allowlist entry, and reports every mismatch as an opaque
+   * "invalid_client". This flow depends on neither.
+   */
+  const signInWithGooglePopup = useCallback(
+    async (redirectPath = "/") => {
+      if (typeof window === "undefined") return { error: "No browser window" };
+
+      // Opened synchronously, before any await: a window.open() that follows an
+      // await is no longer attributable to the click and popup blockers kill it.
+      // It starts blank and is pointed at Google once we have the URL.
+      const popup = window.open(
+        "",
+        "claripet-google-signin",
+        "width=520,height=640,menubar=no,toolbar=no,location=yes,status=no",
+      );
+
+      if (!popup) {
+        return { error: "Popup diblokir browser. Izinkan popup untuk situs ini, lalu coba lagi." };
+      }
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        token: idToken,
+        options: {
+          // The popup ends on /auth/popup-done, which messages this window and
+          // closes itself. `next` is a relative path, as the callback requires.
+          redirectTo: `${authOrigin()}/api/auth/callback?next=%2Fauth%2Fpopup-done`,
+          skipBrowserRedirect: true,
+          // Always show the chooser: without it a signed-in Google user is
+          // silently reused, which is surprising on a shared machine.
+          queryParams: { prompt: "select_account" },
+        },
       });
-      if (error) return { error: error.message };
+
+      if (error || !data?.url) {
+        popup.close();
+        return { error: error?.message ?? "Gagal memulai proses masuk dengan Google." };
+      }
+
+      popup.location.href = data.url;
+
+      // Settle on the popup's message, or on it closing — a popup dismissed by
+      // the user must not leave the button spinning forever.
+      await new Promise<void>((resolve) => {
+        let settled = false;
+
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          window.removeEventListener("message", onMessage);
+          clearInterval(closedTimer);
+          resolve();
+        };
+
+        const onMessage = (event: MessageEvent) => {
+          // Same-origin only: any other window may post here.
+          if (event.origin !== window.location.origin) return;
+          if (event.data?.type !== "claripet:google-auth") return;
+          finish();
+        };
+
+        window.addEventListener("message", onMessage);
+        const closedTimer = setInterval(() => {
+          if (popup.closed) finish();
+        }, 400);
+      });
+
+      // The session is the only thing worth trusting here: the message can be
+      // lost if the popup closes a beat early, and a closed popup says nothing
+      // about whether sign-in actually happened. Ask the server.
+      const {
+        data: { user: signedIn },
+      } = await supabase.auth.getUser();
+
+      if (!signedIn) {
+        return { error: "Proses masuk dibatalkan. Silakan coba lagi." };
+      }
+
+      await refreshUser();
       return { error: null };
     },
-    [supabase],
+    [supabase, refreshUser],
   );
 
   const requestPasswordReset = useCallback(
@@ -312,7 +393,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, profileLoading, signUp, signIn, signInWithGoogle, signInWithGoogleIdToken, signOut, refreshUser, requestPasswordReset, updatePassword }}
+      value={{ user, loading, profileLoading, signUp, signIn, signInWithGoogle, signInWithGooglePopup, signOut, refreshUser, requestPasswordReset, updatePassword }}
     >
       {children}
     </AuthContext.Provider>
