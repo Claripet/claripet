@@ -64,6 +64,17 @@ export default function PrivacyPolicyPage() {
           ],
         },
         {
+          heading: "Penggunaan Data Autentikasi Pihak Ketiga (Google OAuth)",
+          body: [
+            "ClariPet menawarkan opsi untuk masuk (login) atau mendaftar menggunakan akun Google Anda. Jika Anda memilih menggunakan metode ini, aplikasi kami akan meminta akses terbatas ke profil Google Anda:",
+            "â€¢ Kami hanya mengumpulkan alamat email dan nama lengkap (profil dasar) Anda dari Google.",
+            "â€¢ Data ini secara eksklusif digunakan untuk membuat akun pengguna di sistem kami, mengidentifikasi Anda saat masuk kembali, dan memfasilitasi komunikasi terkait pesanan Anda.",
+            "â€¢ Kami tidak akan mengakses, menggunakan, atau membagikan kontak Anda, isi email, atau informasi akun Google lainnya.",
+            "â€¢ Penggunaan informasi yang diterima dari Google API akan tunduk pada Persyaratan Layanan dan Kebijakan Privasi Google.",
+            "Anda dapat membatalkan akses kami kapan saja melalui halaman pengaturan keamanan akun Google Anda.",
+           ],
+         },
+        {
           heading: "Cookies dan Teknologi Serupa",
           body: [
             "Website ClariPet dapat menggunakan cookies dan teknologi serupa untuk menyimpan preferensi pengguna, mempermudah proses login, mengingat isi keranjang belanja, menganalisis penggunaan website, dan meningkatkan performa serta pengalaman pengguna.",
