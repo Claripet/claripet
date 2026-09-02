@@ -10,7 +10,7 @@ import { FAQS } from "@/data/faqs";
 const WHATSAPP = "62881080963188";
 
 export function FaqView() {
-  const [open, setOpen] = useState<number | null>(0);
+  const [open, setOpen] = useState<number | null>(null);
 
   return (
     <main>
@@ -38,7 +38,7 @@ export function FaqView() {
         <div className="wrap">
           <div className="center" style={{ marginBottom: 38 }}>
             <div className="eyebrow" style={{ marginBottom: 10 }}>
-              <Icon name="sparkle" size={16} /> Top Questions
+              Top Questions
             </div>
             <h2 className="h2">Here are the most common questions about ClariPet</h2>
           </div>

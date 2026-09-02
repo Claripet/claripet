@@ -18,7 +18,7 @@ export async function CustomerReviews() {
       <div className="wrap">
         <div className="center" style={{ marginBottom: 38 }}>
           <div className="eyebrow" style={{ marginBottom: 14 }}>
-            <Icon name="heart" size={16} /> Reviews
+            Reviews
           </div>
           <h2 className="h2">Loved By Pet Parents</h2>
           <p className="muted">

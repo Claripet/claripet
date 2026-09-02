@@ -25,7 +25,7 @@ export function ReviewsView({ reviews }: { reviews: Review[] }) {
     <main>
       <section className="wrap reviews-hero">
         <div className="eyebrow" style={{ marginBottom: 14 }}>
-          <Icon name="heart" size={16} /> Reviews
+          Reviews
         </div>
         <h1 className="h1" style={{ marginBottom: 16 }}>
           Loved By Pet Parents Across Indonesia

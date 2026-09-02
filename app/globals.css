@@ -4412,6 +4412,7 @@ a.quiz-rec-name:hover {
 .faq-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: start;
   gap: 18px;
 }
 

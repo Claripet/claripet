@@ -217,7 +217,7 @@ export function Quiz() {
           <h1 className="quiz-intro-title">{INTRO.title}</h1>
           <div className="quiz-card quiz-intro">
             <div className="eyebrow center" style={{ justifyContent: "center" }}>
-              <Icon name="sparkle" size={16} /> Temukan yang cocok
+              Temukan yang cocok
             </div>
             <p className="quiz-intro-body">{INTRO.body}</p>
             <div className="quiz-intro-perks">
