@@ -7,6 +7,7 @@ import { FlyToCartProvider } from "@/context/FlyToCartContext";
 import { SITE_URL } from "@/lib/site";
 import { GlobalDecor } from "@/components/GlobalDecor";
 import { ToastLoader } from "@/components/ToastLoader";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -118,6 +119,7 @@ export default function RootLayout({
     // content — Google reads the page, not just this attribute.
     <html lang="id" className={`${poppins.variable} ${caveat.variable}`}>
       <body>
+        <GoogleAnalytics />
         <Providers>
           <FlyToCartProvider>
             <SiteChrome>{children}</SiteChrome>
