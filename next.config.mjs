@@ -16,13 +16,13 @@ const isDev = process.env.NODE_ENV !== "production";
 const scriptSrc = [
   "script-src 'self' 'unsafe-inline'",
   isDev ? "'unsafe-eval' blob:" : "",
-  "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/client https://challenges.cloudflare.com",
+  "https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/client https://challenges.cloudflare.com https://www.googletagmanager.com",
 ]
   .filter(Boolean)
   .join(" ");
 
 const connectSrc = [
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/ https://challenges.cloudflare.com",
+  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/gsi/ https://challenges.cloudflare.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com",
   isDev ? "ws://localhost:* http://localhost:*" : "",
 ]
   .filter(Boolean)
@@ -53,7 +53,8 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      // Scripts: own origin + Midtrans Snap widget + Google Identity Services (+ eval/blob in dev for HMR)
+      // Scripts: own origin + Midtrans Snap widget + Google Identity Services
+      // + Google tag (gtag.js) (+ eval/blob in dev for HMR)
       scriptSrc,
       // Styles: own origin + inline styles (Tailwind generates inline styles in some cases) + Google GSI styles
       "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
@@ -61,7 +62,8 @@ const securityHeaders = [
       "img-src 'self' data: https://*.supabase.co https://api.sandbox.midtrans.com https://api.midtrans.com https://*.googleusercontent.com https://lh3.googleusercontent.com",
       // Fonts: own origin + Google fonts
       "font-src 'self' https://fonts.gstatic.com",
-      // XHR/fetch: own origin + Supabase REST/Auth/Realtime + Midtrans + Google (+ ws in dev for HMR)
+      // XHR/fetch: own origin + Supabase REST/Auth/Realtime + Midtrans + Google
+      // + Google Analytics hit collection (+ ws in dev for HMR)
       connectSrc,
       // Frames: Midtrans Snap renders an iframe for the payment sheet + Google GSI iframe + Turnstile challenge iframe
       "frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com https://accounts.google.com/ https://challenges.cloudflare.com",
