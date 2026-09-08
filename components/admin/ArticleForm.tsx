@@ -18,7 +18,7 @@ interface ArticleFormState {
   tone: string;
   featured: boolean;
   excerpt: string;
-  body: string[];
+  body: string;
   sections: Section[];
 }
 
@@ -38,7 +38,7 @@ export function ArticleForm({ article }: { article?: any }) {
     tone: article?.tone ?? "sky",
     featured: article?.featured ?? false,
     excerpt: article?.excerpt ?? "",
-    body: article?.body ?? [],
+    body: Array.isArray(article?.body) ? article.body.join("\n\n") : article?.body ?? "",
     sections: article?.sections ?? [],
   });
 
@@ -52,6 +52,10 @@ export function ArticleForm({ article }: { article?: any }) {
       category: form.category || undefined,
       read_time: form.read_time || undefined,
       excerpt: form.excerpt || undefined,
+      body: form.body
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter(Boolean),
       sections: form.sections.filter((s) => s.h && s.p),
     };
 
@@ -166,13 +170,17 @@ export function ArticleForm({ article }: { article?: any }) {
       </div>
 
       <div className="form-section card">
-        <h3>Body (one paragraph per line)</h3>
+        <h3>Body</h3>
+        <p className="form-hint">
+          Leave a blank line between paragraphs — each block becomes its own paragraph on the
+          article page.
+        </p>
         <div className="form-group">
           <textarea
-            value={form.body.join("\n")}
-            onChange={(e) => setForm({ ...form, body: e.target.value.split("\n").filter(Boolean) })}
-            rows={6}
-            placeholder="Intro paragraph...&#10;Second paragraph..."
+            value={form.body}
+            onChange={(e) => setForm({ ...form, body: e.target.value })}
+            rows={10}
+            placeholder="Intro paragraph...&#10;&#10;Second paragraph..."
           />
         </div>
       </div>
@@ -228,6 +236,12 @@ export function ArticleForm({ article }: { article?: any }) {
           font-weight: 600;
           margin-bottom: 18px;
           color: var(--navy);
+        }
+        .form-hint {
+          font-size: 13px;
+          color: var(--text-soft);
+          margin: -10px 0 16px;
+          line-height: 1.5;
         }
         .form-grid {
           display: grid;

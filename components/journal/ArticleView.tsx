@@ -44,12 +44,12 @@ export function ArticleView({
           )}
         </div>
         {article.body.map((p, i) => (
-          <p key={i}>{p}</p>
+          <p key={i} style={{ whiteSpace: "pre-line" }}>{p}</p>
         ))}
         {article.sections.map((s, i) => (
           <Fragment key={i}>
             <h3 className="h3">{s.h}</h3>
-            <p>{s.p}</p>
+            <p style={{ whiteSpace: "pre-line" }}>{s.p}</p>
           </Fragment>
         ))}
         <div
