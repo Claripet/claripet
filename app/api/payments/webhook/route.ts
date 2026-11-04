@@ -87,9 +87,13 @@ export async function POST(req: NextRequest) {
     // Map payment gateway status to our order status
     let orderStatus: string;
     
-    // Check for Fraud Detection System challenge first
+    // A Fraud Detection System challenge is not a decision yet: the merchant
+    // accepts or denies it in the Midtrans dashboard, which sends a second
+    // notification (capture/accept -> paid, deny -> cancelled). Keep the order
+    // pending until then. There is no 'challenged' value in the order_status
+    // enum, so mapping to one made the RPC cast fail and every retry 500.
     if (body.fraud_status === "challenge") {
-      orderStatus = "challenged";
+      orderStatus = "pending";
     } else {
       switch (paymentStatus) {
         case "settlement":
