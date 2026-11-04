@@ -57,7 +57,7 @@ ${faqsText}
 
 ## Customer Service & Order Logistics
 - Shipping coverage: Nationwide delivery across Indonesia via RajaOngkir integrated couriers.
-- Payment Methods: Secure credit card, bank transfers, e-wallets via Midtrans payment gateway.
+- Payment Methods: Bank transfer (virtual account) and e-wallets, processed by the Midtrans payment gateway.
 - Return Policy Details: ${SITE_URL}/returns
 - Shipping Protocol: ${SITE_URL}/shipping
 `;
