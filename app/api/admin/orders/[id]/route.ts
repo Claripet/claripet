@@ -12,14 +12,24 @@ export const GET = withErrorHandling(
     await requireAdmin();
     const supabase = await createClient();
 
-    const { data } = await supabase
+    // No profile:profiles(...) embed: orders.user_id references auth.users, not
+    // profiles, so PostgREST rejects the embed (PGRST200) and every order 404'd.
+    const { data, error: dbError } = await supabase
       .from("orders")
-      .select("*, items:order_items(*), profile:profiles(full_name)")
+      .select("*, items:order_items(*)")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
+    if (dbError) return error(dbError.message, 500);
     if (!data) return notFound("Order not found");
-    return ok(data);
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", data.user_id)
+      .maybeSingle();
+
+    return ok({ ...data, profile });
   },
 );
 
