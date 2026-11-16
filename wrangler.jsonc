@@ -42,6 +42,13 @@
 		// see https://opennext.js.org/cloudflare/howtos/image
 		"binding": "IMAGES"
 	},
+	// Cloudflare Email Service binding for order emails (lib/email/orderEmails.ts).
+	// Sends only from a domain onboarded under Email Service > Email Sending.
+	"send_email": [
+		{
+			"name": "EMAIL"
+		}
+	],
 	"kv_namespaces": [
 		{
 			"binding": "RATE_LIMIT_KV",

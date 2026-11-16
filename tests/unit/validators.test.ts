@@ -141,7 +141,7 @@ describe("createProductSchema", () => {
     name: "Test Product",
     category_id: uuid(),
     price: 99000,
-    sizes: [{ label: "100ml", price: 99000, stock: 10 }],
+    sizes: [{ label: "100ml", price: 99000, stock: 10, weight_grams: 160 }],
   };
 
   it("accepts a valid product", () => {
@@ -166,6 +166,25 @@ describe("createProductSchema", () => {
     expect(
       createProductSchema.safeParse({ ...valid, sizes: [{ label: "100ml", stock: 10 }] })
         .success,
+    ).toBe(false);
+  });
+
+  // Weight drives the ongkir quote (023_prelaunch_hardening.sql).
+  it("rejects a size with no weight", () => {
+    expect(
+      createProductSchema.safeParse({
+        ...valid,
+        sizes: [{ label: "100ml", price: 99000, stock: 10 }],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects a size with zero weight", () => {
+    expect(
+      createProductSchema.safeParse({
+        ...valid,
+        sizes: [{ label: "100ml", price: 99000, stock: 10, weight_grams: 0 }],
+      }).success,
     ).toBe(false);
   });
 

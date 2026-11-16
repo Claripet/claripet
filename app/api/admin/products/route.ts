@@ -65,6 +65,7 @@ export const POST = withErrorHandling(async (req: Request) => {
       label: s.label,
       price: s.price,
       stock: s.stock,
+      weight_grams: s.weight_grams,
       sku: s.sku ?? null,
     }));
 

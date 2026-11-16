@@ -11,6 +11,8 @@ interface Size {
   /** IDR. Per size — this is the figure a customer is charged. */
   price: number;
   stock: number;
+  /** Packed shipping weight of one unit, grams. Drives the ongkir quote. */
+  weight_grams: number;
   sku?: string;
 }
 
@@ -62,9 +64,10 @@ export function ProductForm({ product }: { product?: any }) {
           label: s.label,
           price: s.price ?? 0,
           stock: s.stock,
+          weight_grams: s.weight_grams ?? 0,
           sku: s.sku,
         }))
-      : [{ label: "", price: 0, stock: 0 }],
+      : [{ label: "", price: 0, stock: 0, weight_grams: 0 }],
     images: product?.images?.length
       ? [...product.images]
           .sort((a: any, b: any) => a.sort_order - b.sort_order)
@@ -95,7 +98,12 @@ export function ProductForm({ product }: { product?: any }) {
       ...form,
       sizes: form.sizes
         .filter((s) => s.label)
-        .map((s) => ({ ...s, price: Number(s.price), stock: Number(s.stock) })),
+        .map((s) => ({
+          ...s,
+          price: Number(s.price),
+          stock: Number(s.stock),
+          weight_grams: Number(s.weight_grams),
+        })),
     };
 
     const url = product?.id
@@ -133,7 +141,7 @@ export function ProductForm({ product }: { product?: any }) {
   const fromPrice = priced.length ? Math.min(...priced.map((s) => Number(s.price) || 0)) : 0;
 
   const addSize = () =>
-    setForm({ ...form, sizes: [...form.sizes, { label: "", price: 0, stock: 0 }] });
+    setForm({ ...form, sizes: [...form.sizes, { label: "", price: 0, stock: 0, weight_grams: 0 }] });
   const removeSize = (i: number) =>
     setForm({ ...form, sizes: form.sizes.filter((_, idx) => idx !== i) });
 
@@ -286,6 +294,9 @@ export function ProductForm({ product }: { product?: any }) {
 
       <div className="form-section card">
         <h3>Sizes & Inventory</h3>
+        <p className="form-hint" style={{ marginTop: -6, marginBottom: 12 }}>
+          Label · Price (IDR) · Stock · Packed weight per unit in grams (bottle included, used for ongkir) · SKU
+        </p>
         {form.sizes.map((s, i) => (
           <div key={i} className="size-row">
             <input
@@ -308,6 +319,15 @@ export function ProductForm({ product }: { product?: any }) {
               value={s.stock}
               onChange={(e) => updateSize(i, { stock: Number(e.target.value) })}
               min={0}
+            />
+            <input
+              type="number"
+              placeholder="Weight (g)"
+              title="Packed weight of one unit in grams, used for ongkir"
+              value={s.weight_grams || ""}
+              onChange={(e) => updateSize(i, { weight_grams: Number(e.target.value) })}
+              min={1}
+              required
             />
             <input
               type="text"
@@ -386,7 +406,7 @@ export function ProductForm({ product }: { product?: any }) {
         }
         .size-row {
           display: grid;
-          grid-template-columns: 1.5fr 1fr 1fr 1.5fr auto;
+          grid-template-columns: 1.5fr 1fr 1fr 1fr 1.5fr auto;
           gap: 10px;
           margin-bottom: 10px;
         }

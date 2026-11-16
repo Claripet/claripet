@@ -31,6 +31,8 @@ export interface DBProductSize {
   /** IDR, per size. The authoritative price for a line item. */
   price: number;
   stock: number;
+  /** Packed shipping weight of one unit, grams (023). */
+  weight_grams: number;
   sku: string | null;
 }
 
@@ -123,6 +125,18 @@ export interface DBOrder {
   payment_method: string | null;
   payment_ref: string | null;
   notes: string | null;
+  courier_code: string | null;
+  courier_service: string | null;
+  shipping_etd: string | null;
+  shipping_weight_grams: number | null;
+  tracking_number: string | null;
+  shipped_at: string | null;
+  delivered_at: string | null;
+  payment_token: string | null;
+  payment_url: string | null;
+  payment_expires_at: string | null;
+  paid_email_sent_at: string | null;
+  shipped_email_sent_at: string | null;
   created_at: string;
   updated_at: string;
   // joined

@@ -17,6 +17,9 @@ export const productSizeSchema = z.object({
   price: z.number().int().min(0),
   stock: z.number().int().min(0).default(0),
   sku: z.string().max(50).optional(),
+  // Packed shipping weight of one unit in grams (bottle + contents). Drives
+  // the ongkir quote, so it is required: a missing weight must be a 400.
+  weight_grams: z.number().int().min(1, "Weight must be at least 1 gram").max(30000),
 });
 
 export const productImageSchema = z.object({

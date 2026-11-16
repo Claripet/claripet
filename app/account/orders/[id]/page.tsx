@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Script from "next/script";
 import { useParams } from "next/navigation";
 import { Icon } from "@/components/icons";
 import { PageHead } from "@/components/PageHead";
 import { formatPrice } from "@/lib/format";
+import { courierName } from "@/lib/orderStatus";
+import { SNAP_SCRIPT_URL, SNAP_CLIENT_KEY, fetchSnapToken, openSnap } from "@/components/payment/snap";
 
 interface OrderItem {
   id: string;
@@ -31,16 +34,53 @@ interface Order {
   };
   notes: string | null;
   created_at: string;
+  courier_code: string | null;
+  courier_service: string | null;
+  shipping_etd: string | null;
+  tracking_number: string | null;
+  shipped_at: string | null;
+  payment_expires_at: string | null;
   items: OrderItem[];
+}
+
+const statusColors: Record<string, string> = {
+  pending: "var(--cream)",
+  paid: "var(--sky)",
+  processing: "var(--lavender)",
+  shipped: "var(--sage)",
+  delivered: "var(--sage)",
+  cancelled: "var(--pink)",
+};
+
+const statusLabels: Record<string, string> = {
+  pending: "Menunggu Pembayaran",
+  paid: "Dibayar",
+  processing: "Diproses",
+  shipped: "Dikirim",
+  delivered: "Terkirim",
+  cancelled: "Dibatalkan",
+};
+
+function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function OrderDetailPage() {
   const { id } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    fetch(`/api/orders/${id}`)
+  const load = useCallback(() => {
+    return fetch(`/api/orders/${id}`)
       .then((r) => r.json())
       .then((json) => {
         if (json.success) setOrder(json.data);
@@ -48,23 +88,35 @@ export default function OrderDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const statusColors: Record<string, string> = {
-    pending: "var(--cream)",
-    paid: "var(--sky)",
-    processing: "var(--lavender)",
-    shipped: "var(--sage)",
-    delivered: "var(--sage)",
-    cancelled: "var(--pink)",
-  };
+  useEffect(() => {
+    void load();
+  }, [load]);
 
-  const statusLabels: Record<string, string> = {
-    pending: "Menunggu",
-    paid: "Dibayar",
-    processing: "Diproses",
-    shipped: "Dikirim",
-    delivered: "Terkirim",
-    cancelled: "Dibatalkan",
-  };
+  async function handlePay() {
+    if (!order) return;
+    setPaying(true);
+    setPayError(null);
+    try {
+      const token = await fetchSnapToken(order.id);
+      await openSnap(token);
+      await load();
+    } catch (err) {
+      setPayError(err instanceof Error ? err.message : "Gagal membuka pembayaran.");
+    } finally {
+      setPaying(false);
+    }
+  }
+
+  async function copyResi() {
+    if (!order?.tracking_number) return;
+    try {
+      await navigator.clipboard.writeText(order.tracking_number);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard blocked — the number is visible to copy by hand */
+    }
+  }
 
   if (loading) {
     return (
@@ -87,9 +139,13 @@ export default function OrderDetailPage() {
     );
   }
 
+  const sectionStyle = { marginTop: 28, borderTop: "1px solid var(--line)", paddingTop: 20 } as const;
+  const headingStyle = { fontSize: 15, fontWeight: 600, marginBottom: 12 } as const;
+
   return (
     <main>
       <PageHead title={`Pesanan #${order.id.slice(0, 8)}`} />
+      {order.status === "pending" && <Script src={SNAP_SCRIPT_URL} data-client-key={SNAP_CLIENT_KEY} />}
       <div className="wrap" style={{ maxWidth: 800, paddingBottom: 80 }}>
         <Link
           href="/account/orders"
@@ -99,20 +155,12 @@ export default function OrderDetailPage() {
         </Link>
 
         <div className="card" style={{ padding: 28 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
             <div>
               <h2 className="h3" style={{ marginBottom: 4 }}>
-                Pesanan #{order.id.slice(0, 8)}
+                Pesanan #{order.id.slice(0, 8).toUpperCase()}
               </h2>
-              <span style={{ fontSize: 14, color: "var(--text-soft)" }}>
-                {new Date(order.created_at).toLocaleDateString("id-ID", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
+              <span style={{ fontSize: 14, color: "var(--text-soft)" }}>{formatDateTime(order.created_at)}</span>
             </div>
             <span
               style={{
@@ -122,15 +170,34 @@ export default function OrderDetailPage() {
                 fontWeight: 600,
                 fontSize: 13,
                 color: "var(--navy)",
-                textTransform: "capitalize",
               }}
             >
               {statusLabels[order.status] ?? order.status}
             </span>
           </div>
 
+          {order.status === "pending" && (
+            <div style={{ border: "1px solid var(--line)", borderRadius: "var(--r-md)", padding: 16, marginBottom: 20 }}>
+              <p style={{ margin: "0 0 12px", color: "var(--text)" }}>
+                Pesanan ini belum dibayar.
+                {order.payment_expires_at
+                  ? ` Selesaikan pembayaran sebelum ${formatDateTime(order.payment_expires_at)}.`
+                  : " Selesaikan pembayaran agar pesanan bisa kami proses."}{" "}
+                Pesanan yang tidak dibayar akan dibatalkan otomatis.
+              </p>
+              <button className="btn btn-primary" onClick={handlePay} disabled={paying}>
+                {paying ? "Membuka pembayaran..." : "Bayar Sekarang"}
+              </button>
+              {payError && (
+                <p role="alert" style={{ margin: "10px 0 0", color: "var(--navy)", fontWeight: 600 }}>
+                  {payError}
+                </p>
+              )}
+            </div>
+          )}
+
           <div style={{ borderTop: "1px solid var(--line)", paddingTop: 20 }}>
-            <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Barang</h4>
+            <h4 style={headingStyle}>Barang</h4>
             {order.items.map((item) => (
               <div
                 key={item.id}
@@ -147,48 +214,77 @@ export default function OrderDetailPage() {
                     {item.size_label} x {item.qty}
                   </div>
                 </div>
-                <div style={{ fontWeight: 600, color: "var(--navy)" }}>
-                  {formatPrice(item.unit_price * item.qty)}
-                </div>
+                <div style={{ fontWeight: 600, color: "var(--navy)" }}>{formatPrice(item.unit_price * item.qty)}</div>
               </div>
             ))}
           </div>
 
-          <div style={{ marginTop: 20, display: "flex", justifyContent: "flex-end", gap: 32 }}>
+          <div style={{ marginTop: 20, display: "flex", justifyContent: "flex-end", gap: 32, flexWrap: "wrap" }}>
             <div>
               <div style={{ fontSize: 14, color: "var(--text-soft)" }}>Subtotal</div>
               <div style={{ fontWeight: 600 }}>{formatPrice(order.subtotal)}</div>
             </div>
             <div>
               <div style={{ fontSize: 14, color: "var(--text-soft)" }}>Ongkos Kirim</div>
-              <div style={{ fontWeight: 600 }}>
-                {order.shipping_fee === 0 ? "Gratis" : formatPrice(order.shipping_fee)}
-              </div>
+              <div style={{ fontWeight: 600 }}>{order.shipping_fee === 0 ? "Gratis" : formatPrice(order.shipping_fee)}</div>
             </div>
             <div>
               <div style={{ fontSize: 14, color: "var(--text-soft)" }}>Total</div>
-              <div style={{ fontWeight: 700, fontSize: 18, color: "var(--navy)" }}>
-                {formatPrice(order.total)}
-              </div>
+              <div style={{ fontWeight: 700, fontSize: 18, color: "var(--navy)" }}>{formatPrice(order.total)}</div>
             </div>
           </div>
 
-          <div style={{ marginTop: 28, borderTop: "1px solid var(--line)", paddingTop: 20 }}>
-            <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 12 }}>Alamat Pengiriman</h4>
+          <div style={sectionStyle}>
+            <h4 style={headingStyle}>Pengiriman</h4>
+            <div style={{ color: "var(--text-soft)", lineHeight: 1.7 }}>
+              <div>
+                Kurir:{" "}
+                <span style={{ color: "var(--navy)", fontWeight: 500 }}>
+                  {courierName(order.courier_code)}
+                  {order.courier_service ? ` ${order.courier_service}` : ""}
+                </span>
+                {order.shipping_etd ? ` (estimasi ${order.shipping_etd})` : ""}
+              </div>
+              {order.tracking_number ? (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  <span>
+                    No. Resi:{" "}
+                    <span style={{ color: "var(--navy)", fontWeight: 700, letterSpacing: "0.03em" }}>
+                      {order.tracking_number}
+                    </span>
+                  </span>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={copyResi}>
+                    {copied ? "Tersalin" : "Salin"}
+                  </button>
+                </div>
+              ) : (
+                ["paid", "processing"].includes(order.status) && (
+                  <div>Nomor resi akan muncul di sini setelah paket diserahkan ke kurir.</div>
+                )
+              )}
+              {order.tracking_number && (
+                <div style={{ fontSize: 13 }}>
+                  Lacak paket dengan nomor resi ini di aplikasi atau situs resmi {courierName(order.courier_code)}.
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={sectionStyle}>
+            <h4 style={headingStyle}>Alamat Pengiriman</h4>
             <div style={{ color: "var(--text-soft)", lineHeight: 1.6 }}>
               <div style={{ fontWeight: 500, color: "var(--navy)" }}>{order.shipping_address.full_name}</div>
               <div>{order.shipping_address.phone}</div>
               <div>{order.shipping_address.street}</div>
               <div>
-                {order.shipping_address.city}, {order.shipping_address.province}{" "}
-                {order.shipping_address.postal_code}
+                {order.shipping_address.city}, {order.shipping_address.province} {order.shipping_address.postal_code}
               </div>
             </div>
           </div>
 
           {order.notes && (
-            <div style={{ marginTop: 20, borderTop: "1px solid var(--line)", paddingTop: 20 }}>
-              <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Catatan</h4>
+            <div style={sectionStyle}>
+              <h4 style={{ ...headingStyle, marginBottom: 8 }}>Catatan</h4>
               <p style={{ color: "var(--text-soft)" }}>{order.notes}</p>
             </div>
           )}

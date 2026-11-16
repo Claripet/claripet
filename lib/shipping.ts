@@ -252,11 +252,39 @@ export async function getShippingRates(input: ShippingRatesInput): Promise<Shipp
   return result;
 }
 
+/** Thrown when the courier the customer picked is no longer offered. */
+export class CourierUnavailableError extends Error {
+  constructor() {
+    super("Kurir yang dipilih tidak tersedia lagi. Silakan hitung ulang ongkir.");
+    this.name = "CourierUnavailableError";
+  }
+}
+
+/** Pick the customer's courier/service from a rate list, or null if it is gone. */
+export function pickRate(
+  rates: ShippingRate[],
+  courierCode: string,
+  courierServiceCode?: string,
+): ShippingRate | null {
+  return (
+    rates.find(
+      (r) =>
+        r.courierCode === courierCode &&
+        (!courierServiceCode || r.courierServiceCode === courierServiceCode),
+    ) ?? null
+  );
+}
+
 /**
  * Resolve a single shipping quote — used server-side at order creation.
- * Picks the customer's chosen courier/service when provided, else the cheapest.
+ *
+ * The courier is required and must still be on offer. It used to fall back to
+ * the cheapest rate when the pick was missing, which silently billed (and would
+ * have shipped) a different courier from the one the customer chose.
  */
-export async function calculateShippingQuote(input: ShippingQuoteInput): Promise<ShippingRate> {
+export async function calculateShippingQuote(
+  input: ShippingQuoteInput & { courierCode: string },
+): Promise<ShippingRate> {
   const rates = await getShippingRates({
     province: input.province,
     city: input.city,
@@ -265,14 +293,7 @@ export async function calculateShippingQuote(input: ShippingQuoteInput): Promise
     subtotal: input.subtotal,
   });
 
-  if (input.courierCode) {
-    const match = rates.find(
-      (r) =>
-        r.courierCode === input.courierCode &&
-        (!input.courierServiceCode || r.courierServiceCode === input.courierServiceCode),
-    );
-    if (match) return match;
-  }
-
-  return rates[0];
+  const match = pickRate(rates, input.courierCode, input.courierServiceCode);
+  if (!match) throw new CourierUnavailableError();
+  return match;
 }

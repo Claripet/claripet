@@ -12,7 +12,8 @@ const CartConfirmSheet = dynamic(() => import("@/components/CartConfirmSheet").t
 const SearchOverlay = dynamic(() => import("@/components/SearchOverlay").then((mod) => mod.SearchOverlay), { ssr: false });
 
 // Routes that render full-screen without the global navbar/footer.
-const BARE_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password"];
+// /admin/orders/print is the shipping-label sheet: chrome there would print.
+const BARE_ROUTES = ["/login", "/signup", "/forgot-password", "/reset-password", "/admin/orders/print"];
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

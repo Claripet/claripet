@@ -40,4 +40,4 @@ export const POST = withErrorHandling(async (req: Request) => {
   } = supabase.storage.from("product-images").getPublicUrl(path);
 
   return ok({ url: publicUrl, path }, 201);
-});
+}, { maxBodyBytes: MAX_SIZE + 64 * 1024 });

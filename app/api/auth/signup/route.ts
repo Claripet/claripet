@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getClientIp } from "@/lib/helpers/clientIp";
 import { signupSchema } from "@/lib/validators/auth";
 import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
@@ -8,7 +9,7 @@ import { logSecurityEvent } from "@/lib/helpers/securityLog";
 
 export const POST = withErrorHandling(async (req: Request) => {
   // Rate Limit: 3 requests per minute
-  const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+  const ip = getClientIp(req);
   if (ip !== "unknown" && !(await rateLimit(`signup_${ip}`, 3, 60 * 1000))) {
     return error("Too many signup attempts. Please try again later.", 429);
   }

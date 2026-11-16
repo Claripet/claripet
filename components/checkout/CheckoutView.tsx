@@ -14,6 +14,7 @@ import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { SecondaryButton } from "@/components/ui/SecondaryButton";
 import { shippingAddressSchema } from "@/lib/validators/checkout";
 import { ID_PROVINCES, citiesForProvince } from "@/data/idRegions";
+import { SNAP_SCRIPT_URL, SNAP_CLIENT_KEY, fetchSnapToken, openSnap } from "@/components/payment/snap";
 
 type ShippingRate = {
   courierCode: string;
@@ -81,9 +82,11 @@ export function CheckoutView() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   async function handlePayment() {
+    if (!selectedRate) return;
     setIsProcessing(true);
+    let orderId: string | null = null;
     try {
-      // 1. Create order
+      // 1. Create order (the server re-quotes ongkir for this courier)
       const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,47 +99,30 @@ export function CheckoutView() {
             province: form.province,
             postal_code: form.postalCode,
           },
-          courier_code: selectedRate?.courierCode,
-          courier_service_code: selectedRate?.courierServiceCode,
+          courier_code: selectedRate.courierCode,
+          courier_service_code: selectedRate.courierServiceCode,
+          notes: form.note.trim() || undefined,
         }),
       });
       const orderData = await orderRes.json();
-      if (!orderData.success) throw new Error(orderData.error || "Gagal membuat pesanan");
-
-      // 2. Get payment token
-      const payRes = await fetch("/api/payments/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order_id: orderData.data.id }),
-      });
-      const payData = await payRes.json();
-      if (!payData.success) throw new Error(payData.error || "Gagal membuat token pembayaran");
-
-      // 3. Launch midtrans snap
-      if (typeof (window as any).snap !== "undefined") {
-        (window as any).snap.pay(payData.data.token, {
-          onSuccess: function (result: any) {
-            cart.clear();
-            router.push("/account/orders");
-          },
-          onPending: function (result: any) {
-            cart.clear();
-            router.push("/account/orders");
-          },
-          onError: function (result: any) {
-            alert("Pembayaran gagal.");
-          },
-          onClose: function () {
-            // User closed the popup, redirect to orders page to retry later
-            cart.clear(); // Cart must be cleared because order is already created
-            router.push("/account/orders");
-          }
-        });
-      } else {
-        alert("Skrip pembayaran tidak ditemukan. Silakan muat ulang halaman.");
+      if (!orderData.success) {
+        if (orderRes.status === 409) resetShipping();
+        throw new Error(orderData.error || "Gagal membuat pesanan");
       }
+      orderId = orderData.data.id as string;
+
+      // The order exists and the server cart is already empty from here on,
+      // whatever happens with the payment popup.
+      cart.clear();
+
+      // 2. Payment token + Snap popup. Closing the popup is fine: the order
+      // page has a "Bayar Sekarang" button that reopens it.
+      const token = await fetchSnapToken(orderId);
+      await openSnap(token);
+      router.push(`/account/orders/${orderId}`);
     } catch (err: any) {
-      alert(err.message || "Terdapat kesalahan. Silakan coba lagi.");
+      alert(err?.message || "Terdapat kesalahan. Silakan coba lagi.");
+      if (orderId) router.push(`/account/orders/${orderId}`);
     } finally {
       setIsProcessing(false);
     }
@@ -282,7 +268,6 @@ export function CheckoutView() {
         body: JSON.stringify({
           province: form.province,
           city: form.city,
-          subtotal: cart.subtotal,
         }),
       });
       const json = await res.json();
@@ -585,14 +570,7 @@ export function CheckoutView() {
         </button>
       </div>
 
-      <Script
-        src={
-          process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true"
-            ? "https://app.midtrans.com/snap/snap.js"
-            : "https://app.sandbox.midtrans.com/snap/snap.js"
-        }
-        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-      />
+      <Script src={SNAP_SCRIPT_URL} data-client-key={SNAP_CLIENT_KEY} />
 
       <CheckoutStyles />
     </main>

@@ -71,6 +71,7 @@ export const PUT = withErrorHandling(
         label: s.label,
         price: s.price,
         stock: s.stock,
+        weight_grams: s.weight_grams,
         sku: s.sku ?? null,
       }));
 

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getClientIp } from "@/lib/helpers/clientIp";
 import { loginSchema } from "@/lib/validators/auth";
 import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
@@ -15,7 +16,7 @@ const LOCKOUT_WINDOW_MS = 15 * 60 * 1000;
 
 export const POST = withErrorHandling(async (req: Request) => {
   // Rate Limit: 5 requests per minute per IP
-  const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+  const ip = getClientIp(req);
   if (ip !== "unknown" && !(await rateLimit(`login_${ip}`, 5, 60 * 1000))) {
     return error("Too many login attempts. Please try again later.", 429);
   }

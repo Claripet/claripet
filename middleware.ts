@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { buildStrictCsp, createNonce, isStrictCspPath, strictCspHeaderName } from "@/lib/csp";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -13,6 +14,14 @@ const IS_CONFIGURED =
 // to /login?redirect=/checkout and back, before any of that work is wasted.
 const PROTECTED_PATHS = ["/account", "/admin", "/checkout"];
 const CALLBACK_PATH = "/api/auth/callback";
+
+// Hostnames that 308 to the canonical apex. The redirect keeps path + query.
+const CANONICAL_HOST = "claripetcare.com";
+const REDIRECT_HOSTS = new Set([
+  "www.claripetcare.com",
+  "claripetcare.id",
+  "www.claripetcare.id",
+]);
 
 /**
  * True when this request is an OAuth / email-link landing carrying a PKCE code.
@@ -40,14 +49,36 @@ export async function middleware(request: NextRequest) {
   //    every canonical/JSON-LD url already assume is the one true host.
   //    Runs before the Supabase gate below so it also applies when Supabase
   //    isn't configured (e.g. a preview deploy).
-  if (request.nextUrl.hostname === "www.claripetcare.com") {
+  //    claripetcare.id is a third Custom Domain on the same Worker and served
+  //    a full duplicate of the store; it now redirects too. Only page
+  //    requests reach this middleware (api/ is excluded by the matcher), so a
+  //    webhook or callback pointed at .id keeps working.
+  if (REDIRECT_HOSTS.has(request.nextUrl.hostname)) {
     const url = request.nextUrl.clone();
-    url.hostname = "claripetcare.com";
+    url.hostname = CANONICAL_HOST;
+    url.port = "";
     return NextResponse.redirect(url, 308);
   }
 
+  // Strict nonce CSP for /checkout, /account and /admin (lib/csp.ts). The
+  // nonce goes on the request headers too, which is where Next reads it from
+  // to stamp its own inline scripts. Production only: next dev evaluates code
+  // with eval() and would trip it on every page.
+  const strictCsp =
+    process.env.NODE_ENV === "production" && isStrictCspPath(request.nextUrl.pathname)
+      ? await buildStrictCsp(createNonce())
+      : null;
+  const pass = () => {
+    if (!strictCsp) return NextResponse.next({ request });
+    const headers = new Headers(request.headers);
+    headers.set(strictCspHeaderName().toLowerCase(), strictCsp);
+    const res = NextResponse.next({ request: { headers } });
+    res.headers.set(strictCspHeaderName(), strictCsp);
+    return res;
+  };
+
   // If Supabase is not configured, pass through
-  if (!IS_CONFIGURED) return NextResponse.next({ request });
+  if (!IS_CONFIGURED) return pass();
 
   // 1. Rescue a stray auth code: send it to the callback, remembering where
   //    the user was meant to land (the path they arrived on, minus `code`).
@@ -70,9 +101,9 @@ export async function middleware(request: NextRequest) {
 
   // 2. Public pages need no session check — skip the Supabase round-trip.
   //    The browser client refreshes sessions on its own for client-side state.
-  if (!isProtected) return NextResponse.next({ request });
+  if (!isProtected) return pass();
 
-  let supabaseResponse = NextResponse.next({ request });
+  let supabaseResponse = pass();
 
   const supabase = createServerClient(
     SUPABASE_URL,
@@ -86,7 +117,7 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          supabaseResponse = NextResponse.next({ request });
+          supabaseResponse = pass();
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );

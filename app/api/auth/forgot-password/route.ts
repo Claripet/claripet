@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getClientIp } from "@/lib/helpers/clientIp";
 import { forgotPasswordSchema } from "@/lib/validators/auth";
 import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
@@ -15,7 +16,7 @@ import { logSecurityEvent } from "@/lib/helpers/securityLog";
  * bot-check every other public auth route already has.
  */
 export const POST = withErrorHandling(async (req: Request) => {
-  const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+  const ip = getClientIp(req);
   if (ip !== "unknown" && !(await rateLimit(`forgot_pw_${ip}`, 3, 10 * 60 * 1000))) {
     return error("Too many requests. Please try again later.", 429);
   }

@@ -11,6 +11,8 @@
 // HTML looking for that literal tag, so both strategies reported the tag as
 // "not detected" even though it worked fine in a real browser. A bare
 // <script> element is emitted by React as real markup instead.
+import { gaInlineSnippet } from "@/lib/gaSnippet";
+
 export function GoogleAnalytics() {
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   if (!measurementId) return null;
@@ -22,14 +24,7 @@ export function GoogleAnalytics() {
         src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
       />
       <script
-        dangerouslySetInnerHTML={{
-          __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${measurementId}');
-        `,
-        }}
+        dangerouslySetInnerHTML={{ __html: gaInlineSnippet(measurementId) }}
       />
     </>
   );

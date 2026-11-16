@@ -5,7 +5,10 @@ import { requireUser } from "@/lib/helpers/auth";
 import { createOrderSchema, orderQuerySchema } from "@/lib/validators/order";
 import { ok, error } from "@/lib/helpers/response";
 import { withErrorHandling } from "@/lib/helpers/handler";
-import { calculateShippingQuote } from "@/lib/shipping";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { calculateShippingQuote, CourierUnavailableError } from "@/lib/shipping";
+import { loadCartTotals } from "@/lib/cartTotals";
+import { stripDangerousMarkup } from "@/lib/helpers/sanitize";
 import { safeLog } from "@/lib/helpers/safeLog";
 import type { NextRequest } from "next/server";
 
@@ -75,56 +78,59 @@ export const POST = withErrorHandling(async (req: Request) => {
     return error("Shipping address is required", 400);
   }
 
-  // Calculate shipping.
-  //
-  // Priced off the joined size row, not products.price — the latter is only the
-  // "from" figure since 019_per_size_pricing.sql, and totalling a 250ml at it
-  // would under-quote the subtotal and hand out free shipping below the
-  // threshold. This subtotal decides the shipping fee ONLY; the order's own
-  // subtotal is recomputed inside create_order_from_cart from the same
-  // product_sizes rows, so the two cannot disagree about item prices.
-  const { data: cartItems } = await supabase
-    .from("cart_items")
-    .select("qty, size:product_sizes(price)")
-    .eq("user_id", user.id);
-
-  if (!cartItems || cartItems.length === 0) {
-    return error("Cart is empty", 400);
+  // Subtotal and parcel weight come from the server-side cart, priced and
+  // weighed off product_sizes. The subtotal decides free shipping ONLY; the
+  // order's own subtotal is recomputed inside create_order_from_cart from the
+  // same rows, so the two cannot disagree about item prices.
+  const totals = await loadCartTotals(supabase, user.id);
+  if (totals.itemCount === 0) {
+    return error("Keranjang kosong", 400);
   }
 
-  const subtotal = cartItems.reduce(
-    (sum, i) => sum + ((i.size as any)?.price ?? 0) * i.qty,
-    0,
-  );
-  const shippingQuote = await calculateShippingQuote({
-    province: shippingAddress.province,
-    city: shippingAddress.city,
-    subtotal,
-    courierCode: input.courier_code,
-    courierServiceCode: input.courier_service_code,
-  });
-  const shippingFee = shippingQuote.fee;
+  let shippingQuote;
+  try {
+    shippingQuote = await calculateShippingQuote({
+      province: shippingAddress.province,
+      city: shippingAddress.city,
+      subtotal: totals.subtotal,
+      weightGrams: totals.weightGrams,
+      courierCode: input.courier_code,
+      courierServiceCode: input.courier_service_code,
+    });
+  } catch (err) {
+    if (err instanceof CourierUnavailableError) return error(err.message, 409);
+    safeLog.error("Order shipping quote failed", err);
+    return error("Gagal menghitung ongkir. Silakan coba lagi.", 502);
+  }
 
-  // Call atomic order function
-  const { data: orderId, error: rpcError } = await supabase.rpc(
+  // create_order_from_cart is service-role only since 023: when customers
+  // could call it themselves they could also pass p_shipping_fee = 0. The user
+  // id is taken from the verified session above, never from the request body.
+  const admin = createAdminClient();
+  const { data: orderId, error: rpcError } = await admin.rpc(
     "create_order_from_cart",
     {
+      p_user_id: user.id,
       p_shipping_address: shippingAddress,
-      p_shipping_fee: shippingFee,
+      p_shipping_fee: shippingQuote.fee,
+      p_courier_code: shippingQuote.courierCode,
+      p_courier_service: shippingQuote.courierServiceCode || shippingQuote.courierServiceName,
+      p_shipping_etd: shippingQuote.etd || null,
+      p_shipping_weight_grams: totals.weightGrams,
       p_payment_method: input.payment_method ?? null,
-      p_notes: input.notes ?? null,
+      p_notes: input.notes ? stripDangerousMarkup(input.notes) : null,
     },
   );
 
   if (rpcError) {
     if (rpcError.message?.includes("CART_EMPTY")) {
-      return error("Cart is empty", 400);
+      return error("Keranjang kosong", 400);
     }
     if (rpcError.message?.includes("INSUFFICIENT_STOCK")) {
       return error(rpcError.message, 400);
     }
     safeLog.error("Order Creation RPC Error", rpcError);
-    return error("Failed to create order", 500);
+    return error("Gagal membuat pesanan", 500);
   }
 
   // Fetch the new order

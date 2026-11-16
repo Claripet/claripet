@@ -20,6 +20,7 @@ interface Order {
   status: string;
   total: number;
   created_at: string;
+  tracking_number?: string | null;
   items: OrderItem[];
 }
 
@@ -36,7 +37,7 @@ const STATUS_FILTERS = [
 // Keyed by the raw DB status value — used to display order.status, which is
 // not run through STATUS_FILTERS (that only covers the filter pills).
 const STATUS_LABELS: Record<string, string> = {
-  pending: "Menunggu",
+  pending: "Menunggu Pembayaran",
   paid: "Dibayar",
   processing: "Diproses",
   shipped: "Dikirim",
@@ -146,6 +147,12 @@ function OrdersList() {
                 {order.items.length > 3 && (
                   <div className="order-item muted">+{order.items.length - 3} produk lainnya</div>
                 )}
+                {order.tracking_number && (
+                  <div className="order-item">
+                    <span className="order-item-name">No. Resi</span>
+                    <span className="order-item-qty">{order.tracking_number}</span>
+                  </div>
+                )}
               </div>
               <div className="order-footer">
                 <div>
@@ -153,7 +160,7 @@ function OrdersList() {
                   <span className="order-total">{formatPrice(order.total)}</span>
                 </div>
                 <span className="order-view">
-                  Lihat Detail <Icon name="arrowRight" size={15} />
+                  {order.status === "pending" ? "Bayar Sekarang" : "Lihat Detail"} <Icon name="arrowRight" size={15} />
                 </span>
               </div>
             </Link>

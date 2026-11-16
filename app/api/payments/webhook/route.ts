@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { getClientIp } from "@/lib/helpers/clientIp";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/helpers/rateLimit";
 import { logSecurityEvent } from "@/lib/helpers/securityLog";
+import { queueOrderEmail } from "@/lib/email/orderEmails";
 
 /**
  * POST /api/payments/webhook
@@ -15,7 +17,7 @@ import { logSecurityEvent } from "@/lib/helpers/securityLog";
 export async function POST(req: NextRequest) {
   try {
     // Rate Limit: 60 requests per minute
-    const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+    const ip = getClientIp(req);
     if (ip !== "unknown" && !(await rateLimit(`webhook_${ip}`, 60, 60 * 1000))) {
       return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
     }
@@ -120,6 +122,15 @@ export async function POST(req: NextRequest) {
     if (rpcError) {
       console.error("[Supabase RPC Error]", rpcError);
       return NextResponse.json({ error: "Failed to process webhook securely" }, { status: 500 });
+    }
+
+    if (orderStatus === "paid") {
+      const { data: after } = await supabase
+        .from("orders")
+        .select("status")
+        .eq("id", orderId)
+        .maybeSingle();
+      if (after?.status === "paid") await queueOrderEmail(orderId, "paid");
     }
 
     return NextResponse.json({ success: true });

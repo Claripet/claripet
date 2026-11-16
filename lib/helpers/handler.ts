@@ -2,17 +2,23 @@ import { ZodError } from "zod";
 import { error, unauthorized, forbidden, serverError } from "./response";
 import { logSecurityEvent } from "./securityLog";
 
-// Generous for JSON payloads (cart/order/webhook/etc. bodies) — nothing
-// behind this wrapper uploads binary data; file uploads go through
-// app/api/admin/uploads with its own 5 MB file-size check instead.
+// Generous for JSON payloads (cart/order/etc. bodies). Routes that accept
+// files (app/api/admin/uploads) pass a larger maxBodyBytes: with this default
+// applied to them, every product photo over 100 KB was rejected with a 413.
 const MAX_BODY_BYTES = 100 * 1024;
+
+export interface HandlerOptions {
+  maxBodyBytes?: number;
+}
 
 /**
  * Wrap an API route handler with standard error handling and basic CSRF protection.
  */
 export function withErrorHandling<Args extends unknown[]>(
   handler: (...args: Args) => Promise<Response>,
+  options: HandlerOptions = {},
 ) {
+  const maxBodyBytes = options.maxBodyBytes ?? MAX_BODY_BYTES;
   return async (...args: Args): Promise<Response> => {
     try {
       const req = args[0] as Request;
@@ -20,7 +26,7 @@ export function withErrorHandling<Args extends unknown[]>(
       if (req && req.method && ["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
         // Reject oversized bodies before they're read into memory.
         const contentLength = req.headers.get("content-length");
-        if (contentLength && Number(contentLength) > MAX_BODY_BYTES) {
+        if (contentLength && Number(contentLength) > maxBodyBytes) {
           return error("Request body too large", 413);
         }
 
