@@ -44,6 +44,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     { href: "/admin/articles", label: "Journal", icon: "edit" },
     { href: "/admin/reviews", label: "Reviews", icon: "star" },
     { href: "/admin/inventory", label: "Inventory", icon: "shield" },
+    { href: "/admin/messages", label: "Messages", icon: "mail" },
   ];
 
   const isActive = (href: string) =>

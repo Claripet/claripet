@@ -7278,3 +7278,22 @@ a.quiz-rec-name:hover {
     font-size: 14px;
   }
 }
+/* ---------- Stock states (product page) ---------- */
+.size-opt.sold-out {
+  opacity: .55;
+  text-decoration: line-through;
+}
+
+.pdp-stock {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pdp-stock.low {
+  color: #a15c07;
+}
+
+.pdp-stock.out {
+  color: #b42318;
+}

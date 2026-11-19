@@ -37,6 +37,39 @@ const USE_DATABASE = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL !== "your-supabase-url-here",
 );
 
+/**
+ * products.rating / reviews_count are seeded marketing figures that nothing
+ * recomputes, so cards and the product header showed ratings no customer ever
+ * gave. Replace them with the real published reviews (0 and 0 when there are
+ * none, which the UI shows as "Belum ada ulasan").
+ */
+async function withRealReviewStats(products: Product[]): Promise<Product[]> {
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("rating, product:products!inner(slug)")
+      .eq("published", true);
+    if (error || !data) return products;
+
+    const stats = new Map<string, { sum: number; count: number }>();
+    for (const row of data as unknown as { rating: number; product: { slug: string } | { slug: string }[] }[]) {
+      const slug = Array.isArray(row.product) ? row.product[0]?.slug : row.product?.slug;
+      if (!slug) continue;
+      const cur = stats.get(slug) ?? { sum: 0, count: 0 };
+      cur.sum += row.rating;
+      cur.count += 1;
+      stats.set(slug, cur);
+    }
+    return products.map((p) => {
+      const st = stats.get(p.slug);
+      return { ...p, rating: st ? Math.round((st.sum / st.count) * 10) / 10 : 0, reviews: st?.count ?? 0 };
+    });
+  } catch {
+    return products;
+  }
+}
+
 // ----- PRODUCTS -----
 
 export async function getAllProducts(): Promise<Product[]> {
@@ -55,7 +88,7 @@ export async function getAllProducts(): Promise<Product[]> {
     // empty list makes whole collections disappear from the storefront.
     if (error || !data?.length) return PRODUCTS;
 
-    return data.map((db) => hydrateFromStatic(mapDBProductToProduct(db)));
+    return withRealReviewStats(data.map((db) => hydrateFromStatic(mapDBProductToProduct(db))));
   } catch {
     return PRODUCTS;
   }
@@ -75,7 +108,8 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
 
     if (error || !data) return getStaticProduct(slug);
 
-    return hydrateFromStatic(mapDBProductToProduct(data));
+    const [withStats] = await withRealReviewStats([hydrateFromStatic(mapDBProductToProduct(data))]);
+    return withStats;
   } catch {
     return getStaticProduct(slug);
   }
@@ -98,7 +132,7 @@ export async function getProductsByCategory(categorySlug: string): Promise<Produ
 
     if (error || !data?.length) return getStaticProductsByCategory(categorySlug);
 
-    return data.map((db) => hydrateFromStatic(mapDBProductToProduct(db)));
+    return withRealReviewStats(data.map((db) => hydrateFromStatic(mapDBProductToProduct(db))));
   } catch {
     return getStaticProductsByCategory(categorySlug);
   }
@@ -118,7 +152,7 @@ export async function getBestSellers(): Promise<Product[]> {
 
     if (error || !data?.length) return PRODUCTS.filter((p) => p.bestSeller);
 
-    return data.map((db) => hydrateFromStatic(mapDBProductToProduct(db)));
+    return withRealReviewStats(data.map((db) => hydrateFromStatic(mapDBProductToProduct(db))));
   } catch {
     return PRODUCTS.filter((p) => p.bestSeller);
   }

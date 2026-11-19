@@ -54,6 +54,14 @@ function RewardsBody() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      <div className="cm-note" role="status">
+        <Icon name="clock" size={16} />
+        <span>
+          Program poin sedang kami siapkan dan <strong>belum aktif</strong>: belanja dan ulasan belum menambah poin. Kami
+          kabari begitu program ini mulai berjalan.
+        </span>
+      </div>
+
       <div className="rewards-hero">
         <div className="rewards-points">
           <Icon name="award" size={26} />
@@ -69,7 +77,7 @@ function RewardsBody() {
       </div>
 
       <div>
-        <h3 className="h3" style={{ marginBottom: 16 }}>Cara mendapatkan poin</h3>
+        <h3 className="h3" style={{ marginBottom: 16 }}>Rencana cara mendapatkan poin (segera hadir)</h3>
         <div className="why-grid rewards-earn">
           {EARN.map((e, i) => (
             <div className="why-item" key={i}>

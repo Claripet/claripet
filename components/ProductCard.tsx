@@ -2,6 +2,7 @@
 
 import { memo, useRef, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import type { Product } from "@/lib/types";
@@ -27,10 +28,20 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   const isWished = slugs.includes(product.slug);
 
   // Stable reference so memo comparison is not defeated by inline arrow functions
+  const soldOut = product.inStock === false;
+  // With several sizes (or a sold-out first size) silently adding sizes[0]
+  // would put the wrong thing in the cart, so ask for the size on the product page.
+  const needsSize = product.sizes.length > 1 || product.sizes[0]?.stock === 0;
+  const router = useRouter();
+
   const handleAddToCart = useCallback(() => {
+    if (needsSize) {
+      router.push(`/product/${product.slug}`);
+      return;
+    }
     if (btnRef.current) flyToCart(btnRef.current);
     cart.add(product.slug, undefined, 1, product);
-  }, [cart, flyToCart, product]);
+  }, [cart, flyToCart, product, needsSize, router]);
 
   const toggleWish = useCallback(
     (e: React.MouseEvent) => {
@@ -45,7 +56,11 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
   return (
     <div className="prod-card" role="group" aria-label={`Product: ${product.name}`}>
       <div className="prod-media">
-        {product.bestSeller && <span className="prod-tag tag">Terlaris</span>}
+        {soldOut ? (
+          <span className="prod-tag tag">Stok Habis</span>
+        ) : (
+          product.bestSeller && <span className="prod-tag tag">Terlaris</span>
+        )}
         <button
           className={"wishlist" + (isWished ? " active" : "")}
           aria-label={isWished ? "Remove from wishlist" : "Add to wishlist"}
@@ -87,8 +102,15 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
           </div>
         </div>
         <div ref={btnRef} className="prod-add">
-          <PrimaryButton block size="sm" type="button" onClick={handleAddToCart} aria-label={`Add ${product.name} to cart`}>
-            Tambah ke Keranjang
+          <PrimaryButton
+            block
+            size="sm"
+            type="button"
+            disabled={soldOut}
+            onClick={handleAddToCart}
+            aria-label={needsSize ? `Pilih ukuran ${product.name}` : `Add ${product.name} to cart`}
+          >
+            {soldOut ? "Stok Habis" : needsSize ? "Pilih Ukuran" : "Tambah ke Keranjang"}
           </PrimaryButton>
         </div>
       </div>

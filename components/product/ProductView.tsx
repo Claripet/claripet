@@ -48,6 +48,16 @@ export function ProductView({
   // Sizes are priced individually, so every price on this page follows the
   // selected one rather than the product's "from" figure.
   const selectedPrice = priceForSize(product, size);
+  const selectedStock = product.sizes.find((s) => s.label === size)?.stock;
+  const soldOut = selectedStock === 0;
+  const stockNote =
+    typeof selectedStock !== "number"
+      ? null
+      : selectedStock === 0
+        ? { tone: "out", text: "Ukuran ini sedang habis. Coba ukuran lain." }
+        : selectedStock <= 5
+          ? { tone: "low", text: `Stok tinggal ${selectedStock}, segera checkout.` }
+          : null;
   // Only worth putting a price on each size button when they actually differ.
   const hasRange = hasPriceRange(product);
   const [qty, setQty] = useState(1);
@@ -310,14 +320,21 @@ export function ProductView({
               {product.sizes.map((s) => (
                 <button
                   key={s.label}
-                  className={"size-opt" + (size === s.label ? " active" : "")}
+                  className={"size-opt" + (size === s.label ? " active" : "") + (s.stock === 0 ? " sold-out" : "")}
                   onClick={() => setSize(s.label)}
+                  aria-disabled={s.stock === 0 || undefined}
                 >
                   {s.label}
                   {hasRange && <span className="size-opt-price">{formatPrice(s.price)}</span>}
+                  {s.stock === 0 && <span className="size-opt-price">Habis</span>}
                 </button>
               ))}
             </div>
+            {stockNote && (
+              <div className={"pdp-stock " + stockNote.tone} role="status">
+                {stockNote.text}
+              </div>
+            )}
           </div>
 
           <div className="pdp-buy" ref={addRef}>
@@ -326,12 +343,13 @@ export function ProductView({
               <QuantityStepper value={qty} onChange={setQty} />
               <PrimaryButton
                 size="lg"
+                disabled={soldOut}
                 onClick={() => {
                   if (addRef.current) flyToCart(addRef.current);
                   cart.add(product.slug, size, qty, product);
                 }}
               >
-                Tambah ke Keranjang
+                {soldOut ? "Stok Habis" : "Tambah ke Keranjang"}
               </PrimaryButton>
               <button
                 className={"wishlist" + (isWished ? " active" : "") + " desktop-only"}
@@ -386,12 +404,13 @@ export function ProductView({
           </div>
           <PrimaryButton
             size="lg"
+            disabled={soldOut}
             onClick={() => {
               if (addRef.current) flyToCart(addRef.current);
               cart.add(product.slug, size, qty, product);
             }}
           >
-            Tambah ke Keranjang
+            {soldOut ? "Stok Habis" : "Tambah ke Keranjang"}
           </PrimaryButton>
         </div>,
         document.body

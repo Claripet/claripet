@@ -71,7 +71,12 @@ export const POST = withErrorHandling(async (req: Request) => {
 
   const newQty = (existing?.qty ?? 0) + qty;
   if (newQty > size.stock) {
-    return error(`Only ${size.stock} in stock`, 400);
+    return error(
+      size.stock <= 0
+        ? "Maaf, ukuran ini sedang habis"
+        : `Stok tinggal ${size.stock}${existing ? `, ${existing.qty} sudah ada di keranjang` : ""}`,
+      400,
+    );
   }
 
   if (existing) {

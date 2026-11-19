@@ -46,6 +46,11 @@ const seedProducts = (): Record<string, Product> => {
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
+  // Latest items for add(), whose callback must stay stable.
+  const itemsRef = useRef<CartItem[]>([]);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
   const [toast, setToast] = useState<string | null>(null);
   const [toastTone, setToastTone] = useState<ToastTone>("success");
   const [lastAdded, setLastAdded] = useState<{ product: Product; qty: number; size: string } | null>(null);
@@ -215,6 +220,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const sz = size ?? (known ? known.sizes[0]?.label ?? "" : "");
 
       const applyAdd = (resolvedSize: string, resolved?: Product) => {
+        // Stock check first, so the cart never shows more than can be bought.
+        const stock = resolved?.sizes.find((s) => s.label === resolvedSize)?.stock;
+        if (typeof stock === "number") {
+          const inCart = itemsRef.current.find((i) => i.slug === slug && i.size === resolvedSize)?.qty ?? 0;
+          if (stock <= 0) {
+            showToast("Maaf, ukuran ini sedang habis", "error");
+            return;
+          }
+          if (inCart + qty > stock) {
+            showToast(
+              inCart >= stock
+                ? `Keranjang sudah berisi semua stok yang ada (${stock})`
+                : `Stok tinggal ${stock}, ${inCart} sudah ada di keranjang`,
+              "error",
+            );
+            return;
+          }
+        }
         setItems((prev) => {
           const idx = prev.findIndex((i) => i.slug === slug && i.size === resolvedSize);
           if (idx >= 0) {
@@ -242,7 +265,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
               const json = await res.json();
               if (json.success && json.data?.id) {
                 serverIds.current.set(itemKey(slug, resolvedSize), json.data.id);
+                return;
               }
+              // The server refused (usually stock): undo the optimistic add so
+              // the cart matches what checkout will actually order.
+              setItems((prev) =>
+                prev
+                  .map((i) => (i.slug === slug && i.size === resolvedSize ? { ...i, qty: i.qty - qty } : i))
+                  .filter((i) => i.qty > 0),
+              );
+              setLastAdded(null);
+              showToast(json.error || "Gagal menambahkan ke keranjang", "error");
             })
             .catch(() => {});
         }

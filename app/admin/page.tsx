@@ -7,16 +7,24 @@ import { formatPrice } from "@/lib/format";
 
 interface Stats {
   totalOrders: number;
-  totalRevenue: number;
-  pendingOrders: number;
+  unpaidOrders: number;
+  toShipOrders: number;
+  unreadMessages: number;
+  revenueTotal: number;
+  revenue7d: number;
+  revenue30d: number;
   lowStock: number;
 }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({
     totalOrders: 0,
-    totalRevenue: 0,
-    pendingOrders: 0,
+    unpaidOrders: 0,
+    toShipOrders: 0,
+    unreadMessages: 0,
+    revenueTotal: 0,
+    revenue7d: 0,
+    revenue30d: 0,
     lowStock: 0,
   });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
@@ -24,25 +32,29 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/admin/orders?limit=100").then((r) => r.json()),
+      fetch("/api/admin/stats").then((r) => r.json()),
+      fetch("/api/admin/orders?limit=5").then((r) => r.json()),
       fetch("/api/admin/inventory?threshold=10").then((r) => r.json()),
     ])
-      .then(([ordersRes, invRes]) => {
-        if (ordersRes.success) {
-          const orders = ordersRes.data.orders as any[];
-          setRecentOrders(orders.slice(0, 5));
-          setStats({
-            totalOrders: ordersRes.data.total,
-            totalRevenue: orders
-              .filter((o) => ["paid", "processing", "shipped", "delivered"].includes(o.status))
-              .reduce((s, o) => s + (o.total ?? 0), 0),
-            pendingOrders: orders.filter((o) => o.status === "pending").length,
-            lowStock: invRes.success ? invRes.data.length : 0,
-          });
-        }
+      .then(([statsRes, ordersRes, invRes]) => {
+        if (ordersRes.success) setRecentOrders(ordersRes.data.orders as any[]);
+        setStats((prev) => ({
+          ...prev,
+          ...(statsRes.success ? statsRes.data : {}),
+          lowStock: invRes.success ? invRes.data.length : 0,
+        }));
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const cards = [
+    { icon: "truck", bg: "var(--lavender-50)", value: stats.toShipOrders, label: "Perlu Dikemas / Dikirim", href: "/admin/orders" },
+    { icon: "bag", bg: "var(--sage-50)", value: formatPrice(stats.revenue30d), label: "Pendapatan 30 Hari", href: undefined },
+    { icon: "bag", bg: "var(--sky-50)", value: formatPrice(stats.revenue7d), label: "Pendapatan 7 Hari", href: undefined },
+    { icon: "mail", bg: "var(--cream-50)", value: stats.unreadMessages, label: "Pesan Belum Dibaca", href: "/admin/messages" },
+    { icon: "alert-circle", bg: "var(--pink-50)", value: stats.lowStock, label: "Stok Menipis", href: "/admin/inventory" },
+    { icon: "package", bg: "var(--sky-50)", value: stats.totalOrders, label: `Total Pesanan (${stats.unpaidOrders} belum dibayar)`, href: "/admin/orders" },
+  ];
 
   return (
     <div>
@@ -51,42 +63,28 @@ export default function AdminDashboard() {
       </h1>
 
       <div className="stats-grid">
-        <div className="stat-card card">
-          <div className="stat-icon" style={{ background: "var(--sky-50)" }}>
-            <Icon name="package" size={22} />
-          </div>
-          <div>
-            <div className="stat-value">{stats.totalOrders}</div>
-            <div className="stat-label">Total Orders</div>
-          </div>
-        </div>
-        <div className="stat-card card">
-          <div className="stat-icon" style={{ background: "var(--sage-50)" }}>
-            <Icon name="bag" size={22} />
-          </div>
-          <div>
-            <div className="stat-value">{formatPrice(stats.totalRevenue)}</div>
-            <div className="stat-label">Revenue</div>
-          </div>
-        </div>
-        <div className="stat-card card">
-          <div className="stat-icon" style={{ background: "var(--cream-50)" }}>
-            <Icon name="clock" size={22} />
-          </div>
-          <div>
-            <div className="stat-value">{stats.pendingOrders}</div>
-            <div className="stat-label">Pending Orders</div>
-          </div>
-        </div>
-        <div className="stat-card card">
-          <div className="stat-icon" style={{ background: "var(--pink-50)" }}>
-            <Icon name="alert-circle" size={22} />
-          </div>
-          <div>
-            <div className="stat-value">{stats.lowStock}</div>
-            <div className="stat-label">Low Stock Items</div>
-          </div>
-        </div>
+        {cards.map((c) => {
+          const body = (
+            <>
+              <div className="stat-icon" style={{ background: c.bg }}>
+                <Icon name={c.icon} size={22} />
+              </div>
+              <div>
+                <div className="stat-value">{c.value}</div>
+                <div className="stat-label">{c.label}</div>
+              </div>
+            </>
+          );
+          return c.href ? (
+            <Link key={c.label} href={c.href} className="stat-card card">
+              {body}
+            </Link>
+          ) : (
+            <div key={c.label} className="stat-card card">
+              {body}
+            </div>
+          );
+        })}
       </div>
 
       <div className="section-card card" style={{ marginTop: 32 }}>
