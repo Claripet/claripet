@@ -19,7 +19,19 @@ export function CartView() {
   const router = useRouter();
   const { user } = useAuth();
 
+  // Lines whose size is out of stock, or whose quantity exceeds the stock.
+  const stockOf = (item: (typeof cart.detailed)[number]) =>
+    item.product?.sizes.find((s) => s.label === item.size)?.stock;
+  const blocked = cart.detailed.filter((i) => {
+    const stock = stockOf(i);
+    return typeof stock === "number" && i.qty > stock;
+  });
+
   const handleCheckoutClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (blocked.length > 0) {
+      e.preventDefault();
+      return;
+    }
     if (!user) {
       e.preventDefault();
       // Store current cart page to return to after login
@@ -76,6 +88,11 @@ export function CartView() {
               <div>
                 <div className="ci-name">{item.product?.name || "Produk Tidak Dikenal"}</div>
                 <div className="ci-size">Ukuran: {item.size}</div>
+                {blocked.includes(item) && (
+                  <div role="alert" style={{ color: "#b42318", fontSize: 13, fontWeight: 700, margin: "4px 0" }}>
+                    {stockOf(item) === 0 ? "Out of Stock" : `Stok tinggal ${stockOf(item)}`}: hapus atau kurangi untuk lanjut
+                  </div>
+                )}
                 <div className="ci-actions" style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   <QuantityStepper value={item.qty} onChange={(q) => cart.updateQty(item.slug, item.size, q)} />
                     <button
@@ -124,7 +141,7 @@ export function CartView() {
             <span>Total</span>
             <span>{formatPrice(cart.subtotal)}</span>
           </div>
-          <Link href="/checkout" className="btn btn-primary cart-checkout-btn" style={{ width: '100%', display: 'block', textAlign: 'center', padding: '16px', fontSize: '16px' }} onClick={handleCheckoutClick}>
+          <Link href="/checkout" className="btn btn-primary cart-checkout-btn" aria-disabled={blocked.length > 0 || undefined} style={{ opacity: blocked.length > 0 ? 0.5 : 1, width: '100%', display: 'block', textAlign: 'center', padding: '16px', fontSize: '16px' }} onClick={handleCheckoutClick}>
             Lanjut ke Checkout
           </Link>
           <Link href="/shop" className="btn btn-secondary" style={{ display: 'block', textAlign: 'center', marginTop: 12, padding: '16px', fontSize: '16px' }}>
@@ -139,7 +156,7 @@ export function CartView() {
           <span className="mcb-label">Total</span>
           <span className="mcb-value">{formatPrice(cart.subtotal)}</span>
         </div>
-        <Link href="/checkout" className="btn btn-primary mcb-btn" onClick={handleCheckoutClick}>
+        <Link href="/checkout" className="btn btn-primary mcb-btn" aria-disabled={blocked.length > 0 || undefined} style={{ opacity: blocked.length > 0 ? 0.5 : 1 }} onClick={handleCheckoutClick}>
           Checkout
         </Link>
       </div>

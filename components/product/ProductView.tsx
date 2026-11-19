@@ -56,7 +56,7 @@ export function ProductView({
     typeof selectedStock !== "number"
       ? null
       : selectedStock === 0
-        ? { tone: "out", text: "Ukuran ini sedang habis. Coba ukuran lain." }
+        ? { tone: "out", text: "Out of Stock. Ukuran ini sedang habis, coba ukuran lain." }
         : selectedStock <= 5
           ? { tone: "low", text: `Stok tinggal ${selectedStock}, segera checkout.` }
           : null;
@@ -322,7 +322,7 @@ export function ProductView({
                 >
                   {s.label}
                   {hasRange && <span className="size-opt-price">{formatPrice(s.price)}</span>}
-                  {s.stock === 0 && <span className="size-opt-price">Habis</span>}
+                  {s.stock === 0 && <span className="size-opt-price">Out of Stock</span>}
                 </button>
               ))}
             </div>
@@ -345,7 +345,7 @@ export function ProductView({
                   cart.add(product.slug, size, qty, product);
                 }}
               >
-                {soldOut ? "Stok Habis" : "Tambah ke Keranjang"}
+                {soldOut ? "Out of Stock" : "Tambah ke Keranjang"}
               </PrimaryButton>
               <button
                 className={"wishlist" + (isWished ? " active" : "") + " desktop-only"}
@@ -408,7 +408,7 @@ export function ProductView({
               cart.add(product.slug, size, qty, product);
             }}
           >
-            {soldOut ? "Stok Habis" : "Tambah ke Keranjang"}
+            {soldOut ? "Out of Stock" : "Tambah ke Keranjang"}
           </PrimaryButton>
         </div>,
         document.body

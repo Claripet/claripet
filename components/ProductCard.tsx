@@ -57,7 +57,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
     <div className="prod-card" role="group" aria-label={`Product: ${product.name}`}>
       <div className="prod-media">
         {soldOut ? (
-          <span className="prod-tag tag">Stok Habis</span>
+          <span className="prod-tag tag">Out of Stock</span>
         ) : (
           product.bestSeller && <span className="prod-tag tag">Terlaris</span>
         )}
@@ -110,7 +110,7 @@ export const ProductCard = memo(function ProductCard({ product }: { product: Pro
             onClick={handleAddToCart}
             aria-label={needsSize ? `Pilih ukuran ${product.name}` : `Add ${product.name} to cart`}
           >
-            {soldOut ? "Stok Habis" : needsSize ? "Pilih Ukuran" : "Tambah ke Keranjang"}
+            {soldOut ? "Out of Stock" : needsSize ? "Pilih Ukuran" : "Tambah ke Keranjang"}
           </PrimaryButton>
         </div>
       </div>

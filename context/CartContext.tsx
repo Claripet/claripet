@@ -225,7 +225,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (typeof stock === "number") {
           const inCart = itemsRef.current.find((i) => i.slug === slug && i.size === resolvedSize)?.qty ?? 0;
           if (stock <= 0) {
-            showToast("Maaf, ukuran ini sedang habis", "error");
+            showToast("Out of Stock: ukuran ini sedang habis", "error");
             return;
           }
           if (inCart + qty > stock) {

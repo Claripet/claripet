@@ -67,9 +67,9 @@ export default async function ProductPage({
   ]);
   if (!product) notFound();
 
-  // From the live catalogue (archived products are already excluded), not the
+  // From the live catalogue (archived products are already excluded; sold-out ones stay visible, marked Out of Stock), not the
   // bundled seed list: same category first, then fill up with the rest.
-  const others = catalogue.filter((p) => p.slug !== product.slug && p.inStock !== false);
+  const others = catalogue.filter((p) => p.slug !== product.slug);
   const sameCategory = others.filter((p) => p.category === product.category);
   const related = [...sameCategory, ...others.filter((p) => !sameCategory.includes(p))].slice(0, 4);
 
