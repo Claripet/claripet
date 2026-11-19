@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Icon } from "@/components/icons";
 import { AccountShell } from "@/components/account/AccountShell";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { useCart } from "@/context/CartContext";
 import { ID_PROVINCES, citiesForProvince } from "@/data/idRegions";
 
 interface Address {
@@ -32,6 +34,8 @@ function AddressesList() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Address | null>(null);
+  const [deleting, setDeleting] = useState<Address | null>(null);
+  const { showToastMsg } = useCart();
 
   const fetchAddresses = useCallback(async () => {
     const res = await fetch("/api/addresses");
@@ -46,10 +50,18 @@ function AddressesList() {
     }
   }, [authLoading, user, fetchAddresses]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Hapus alamat ini?")) return;
-    await fetch(`/api/addresses/${id}`, { method: "DELETE" });
-    fetchAddresses();
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    try {
+      const res = await fetch(`/api/addresses/${deleting.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      showToastMsg("Alamat dihapus");
+      await fetchAddresses();
+    } catch {
+      showToastMsg("Gagal menghapus alamat. Coba lagi.", "error");
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const handleSetDefault = async (id: string) => {
@@ -127,7 +139,7 @@ function AddressesList() {
                     <Icon name="check" size={14} /> Jadikan Utama
                   </button>
                 )}
-                <button className="danger" onClick={() => handleDelete(addr.id)}>
+                <button className="danger" onClick={() => setDeleting(addr)}>
                   <Icon name="trash" size={14} /> Hapus
                 </button>
               </div>
@@ -135,6 +147,23 @@ function AddressesList() {
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleting !== null}
+        title="Hapus alamat ini?"
+        message="Alamat akan dihapus dari daftar dan tidak bisa dipakai lagi saat checkout."
+        confirmText="Ya, hapus"
+        isDestructive
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleting(null)}
+      >
+        {deleting && (
+          <dl className="cm-summary" style={{ margin: 0 }}>
+            <div><dt>{deleting.label || "Alamat"}</dt><dd>{deleting.full_name}</dd></div>
+            <div><dt>Kota</dt><dd>{deleting.city}</dd></div>
+          </dl>
+        )}
+      </ConfirmModal>
 
       {showForm && (
         <AddressForm

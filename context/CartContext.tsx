@@ -19,14 +19,17 @@ interface CartContextValue {
   count: number;
   subtotal: number;
   toast: string | null;
+  toastTone: ToastTone;
   lastAdded: { product: Product; qty: number; size: string } | null;
   dismissLastAdded: () => void;
   add: (slug: string, size?: string, qty?: number, product?: Product) => void;
   updateQty: (slug: string, size: string, qty: number) => void;
   remove: (slug: string, size: string) => void;
   clear: () => void;
-  showToastMsg: (msg: string) => void;
+  showToastMsg: (msg: string, tone?: ToastTone) => void;
 }
+
+export type ToastTone = "success" | "error";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
@@ -44,6 +47,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [toast, setToast] = useState<string | null>(null);
+  const [toastTone, setToastTone] = useState<ToastTone>("success");
   const [lastAdded, setLastAdded] = useState<{ product: Product; qty: number; size: string } | null>(null);
   const lastAddedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -192,10 +196,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [user, authLoading, hydrated, fetchServerCart]);
 
-  const showToast = useCallback((msg: string) => {
+  const showToast = useCallback((msg: string, tone: ToastTone = "success") => {
     setToast(msg);
+    setToastTone(tone);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2400);
+    // Errors stay up longer: they usually need reading, not just noticing.
+    toastTimer.current = setTimeout(() => setToast(null), tone === "error" ? 5000 : 2400);
   }, []);
 
   const add = useCallback(
@@ -329,8 +335,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [detailed],
   );
 
-  const showToastMsg = useCallback((msg: string) => {
-    showToast(msg);
+  const showToastMsg = useCallback((msg: string, tone: ToastTone = "success") => {
+    showToast(msg, tone);
   }, [showToast]);
 
   const dismissLastAdded = useCallback(() => {
@@ -340,7 +346,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ items, detailed, count, subtotal, toast, lastAdded, dismissLastAdded, add, updateQty, remove, clear, showToastMsg }}
+      value={{ items, detailed, count, subtotal, toast, toastTone, lastAdded, dismissLastAdded, add, updateQty, remove, clear, showToastMsg }}
     >
       {children}
     </CartContext.Provider>

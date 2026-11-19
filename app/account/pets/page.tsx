@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Icon } from "@/components/icons";
 import { AccountShell } from "@/components/account/AccountShell";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { useCart } from "@/context/CartContext";
 
 interface Pet {
   id: string;
@@ -31,6 +33,8 @@ function PetsList() {
   const [form, setForm] = useState<typeof EMPTY>(EMPTY);
   const [editing, setEditing] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [deleting, setDeleting] = useState<Pet | null>(null);
+  const { showToastMsg } = useCart();
 
   const load = useCallback(async () => {
     const res = await fetch("/api/pet-profiles");
@@ -60,10 +64,19 @@ function PetsList() {
     load();
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Hapus profil hewan ini?")) return;
-    await fetch(`/api/pet-profiles/${id}`, { method: "DELETE" });
-    setPets((s) => s.filter((p) => p.id !== id));
+  const confirmRemove = async () => {
+    if (!deleting) return;
+    const id = deleting.id;
+    try {
+      const res = await fetch(`/api/pet-profiles/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setPets((s) => s.filter((p) => p.id !== id));
+      showToastMsg(`Profil ${deleting.name} dihapus`);
+    } catch {
+      showToastMsg("Gagal menghapus profil hewan. Coba lagi.", "error");
+    } finally {
+      setDeleting(null);
+    }
   };
 
   if (loading) return <p className="muted">Memuat hewan peliharaan Anda…</p>;
@@ -94,12 +107,23 @@ function PetsList() {
               </div>
               <div className="pet-actions">
                 <button className="icon-btn" aria-label="Edit" onClick={() => openEdit(p)}><Icon name="edit" size={16} /></button>
-                <button className="icon-btn" aria-label="Remove" onClick={() => remove(p.id)}><Icon name="trash" size={16} /></button>
+                <button className="icon-btn" aria-label="Remove" onClick={() => setDeleting(p)}><Icon name="trash" size={16} /></button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleting !== null}
+        title={deleting ? `Hapus profil ${deleting.name}?` : ""}
+        message="Profil hewan beserta catatannya akan dihapus permanen."
+        confirmText="Ya, hapus"
+        isDestructive
+        icon={deleting?.species === "Cat" ? "cat" : "dog"}
+        onConfirm={confirmRemove}
+        onCancel={() => setDeleting(null)}
+      />
 
       {showForm && (
         <div className="modal-scrim" onClick={() => setShowForm(false)}>

@@ -1,104 +1,163 @@
 "use client";
 
-import { useEffect } from "react";
-import { PrimaryButton } from "./PrimaryButton";
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Icon } from "@/components/icons";
 
+export type ConfirmTone = "default" | "danger" | "success" | "warning";
+
+const TONE_ICON: Record<ConfirmTone, string> = {
+  default: "alert-circle",
+  danger: "trash",
+  success: "check",
+  warning: "alert-triangle",
+};
+
+const FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+/**
+ * In-app replacement for window.confirm(). The browser dialog can't be styled,
+ * shows the bare domain as its title and blocks the whole tab, so every
+ * confirmation in the app goes through this instead.
+ *
+ * onConfirm may return a promise: the dialog then stays open with a spinner on
+ * the confirm button until it settles, and the caller closes it (usually by
+ * flipping isOpen in its own finally block).
+ */
 export function ConfirmModal({
   isOpen,
   title,
   message,
+  children,
   confirmText = "Konfirmasi",
   cancelText = "Batal",
   isDestructive = false,
+  tone,
+  icon,
   onConfirm,
   onCancel,
 }: {
   isOpen: boolean;
   title: string;
-  message: string;
+  message?: ReactNode;
+  children?: ReactNode;
   confirmText?: string;
   cancelText?: string;
   isDestructive?: boolean;
-  onConfirm: () => void;
+  tone?: ConfirmTone;
+  icon?: string;
+  onConfirm: () => void | Promise<unknown>;
   onCancel: () => void;
 }) {
+  const resolvedTone: ConfirmTone = tone ?? (isDestructive ? "danger" : "default");
+  const [busy, setBusy] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
+  const descId = useId();
+
+  const cancel = useCallback(() => {
+    if (!busy) onCancel();
+  }, [busy, onCancel]);
+
+  const confirm = async () => {
+    if (busy) return;
+    const result = onConfirm();
+    if (result && typeof (result as Promise<unknown>).then === "function") {
+      setBusy(true);
+      try {
+        await result;
+      } finally {
+        setBusy(false);
+      }
+    }
+  };
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return;
-      if (e.key === "Escape") onCancel();
+    if (!isOpen) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
+    const prevPadding = document.body.style.paddingRight;
+    // Hiding the scrollbar would otherwise shift the page sideways by its width.
+    const gutter = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = "hidden";
+    if (gutter > 0) document.body.style.paddingRight = `${gutter}px`;
+    // Destructive dialogs start on Cancel so a stray Enter can't delete anything.
+    const target = resolvedTone === "danger" ? cancelRef.current : confirmRef.current;
+    const raf = requestAnimationFrame(() => target?.focus());
+    return () => {
+      cancelAnimationFrame(raf);
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPadding;
+      previous?.focus?.();
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onCancel]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
-  if (!isOpen) return null;
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      cancel();
+      return;
+    }
+    if (e.key !== "Tab" || !dialogRef.current) return;
+    const nodes = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+    if (nodes.length === 0) return;
+    const first = nodes[0];
+    const last = nodes[nodes.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
 
-  return (
+  if (!isOpen || typeof document === "undefined") return null;
+
+  return createPortal(
     <div
-      className="modal-scrim"
-      onClick={onCancel}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.4)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 9999,
-        padding: 20,
+      className="cm-scrim"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) cancel();
       }}
     >
       <div
-        className="modal"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          backgroundColor: "#fff",
-          borderRadius: "var(--r-lg, 12px)",
-          padding: 24,
-          maxWidth: 400,
-          width: "100%",
-          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.1)",
-        }}
+        ref={dialogRef}
+        className={`cm-dialog cm-tone-${resolvedTone}`}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={message ? descId : undefined}
+        aria-busy={busy || undefined}
+        onKeyDown={onKeyDown}
       >
-        <h3 style={{ fontSize: 18, fontWeight: 600, color: "var(--navy)", marginBottom: 12 }}>
-          {title}
-        </h3>
-        <p style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.5, marginBottom: 24 }}>
-          {message}
-        </p>
-        
-        <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
-          <button
-            className="btn btn-ghost"
-            onClick={onCancel}
-            style={{ fontSize: 14, fontWeight: 500 }}
-          >
+        <button type="button" className="cm-close" aria-label="Tutup" onClick={cancel} disabled={busy}>
+          <Icon name="close" size={18} />
+        </button>
+
+        <div className="cm-icon">
+          <Icon name={icon ?? TONE_ICON[resolvedTone]} size={24} />
+        </div>
+
+        <h2 id={titleId} className="cm-title">{title}</h2>
+        {message && <p id={descId} className="cm-message">{message}</p>}
+        {children && <div className="cm-body">{children}</div>}
+
+        <div className="cm-actions">
+          <button ref={cancelRef} type="button" className="cm-btn cm-btn-ghost" onClick={cancel} disabled={busy}>
             {cancelText}
           </button>
-          
-          <PrimaryButton
-            onClick={onConfirm}
-            className={isDestructive ? "btn-destructive" : ""}
-            size="md"
-          >
+          <button ref={confirmRef} type="button" className="cm-btn cm-btn-primary" onClick={confirm} disabled={busy}>
+            {busy && <Icon name="loader" size={16} className="cm-spin" />}
             {confirmText}
-          </PrimaryButton>
+          </button>
         </div>
       </div>
-      
-      <style jsx>{`
-        :global(.btn-destructive) {
-          background-color: #b04050 !important;
-          border-color: #b04050 !important;
-          color: white !important;
-        }
-        :global(.btn-destructive:hover) {
-          background-color: #8c2b38 !important;
-        }
-      `}</style>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -6,6 +6,7 @@ import {
   AlertCircle, LogOut, Package, MapPinned, Settings, LayoutDashboard,
   Boxes, ShoppingBag, Edit, Save, ArrowLeft, Eye, EyeOff,
   Mail, Crown, Lightbulb, Home, LayoutGrid, Image,
+  Truck, PackageCheck, Wallet, XCircle, Loader2, AlertTriangle, Printer,
   type LucideIcon,
 } from "lucide-react";
 
@@ -65,6 +66,13 @@ export const icons: Record<string, LucideIcon> = {
   home: Home,
   grid: LayoutGrid,
   image: Image,
+  truck: Truck,
+  "package-check": PackageCheck,
+  wallet: Wallet,
+  "x-circle": XCircle,
+  loader: Loader2,
+  "alert-triangle": AlertTriangle,
+  printer: Printer,
 };
 
 export function Icon({

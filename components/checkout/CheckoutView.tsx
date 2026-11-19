@@ -80,10 +80,12 @@ export function CheckoutView() {
   const [addressSaved, setAddressSaved] = useState(false);
   const [modal, setModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   async function handlePayment() {
     if (!selectedRate) return;
     setIsProcessing(true);
+    setSubmitError(null);
     let orderId: string | null = null;
     try {
       // 1. Create order (the server re-quotes ongkir for this courier)
@@ -121,8 +123,10 @@ export function CheckoutView() {
       await openSnap(token);
       router.push(`/account/orders/${orderId}`);
     } catch (err: any) {
-      alert(err?.message || "Terdapat kesalahan. Silakan coba lagi.");
+      const msg = err?.message || "Terdapat kesalahan. Silakan coba lagi.";
+      cart.showToastMsg(msg, "error");
       if (orderId) router.push(`/account/orders/${orderId}`);
+      else setSubmitError(msg);
     } finally {
       setIsProcessing(false);
     }
@@ -547,6 +551,12 @@ export function CheckoutView() {
               {selectedRate && <SummaryRow label={`Pengiriman (${selectedRate.courierName.toUpperCase()})`} value={selectedRate.fee === 0 ? "GRATIS" : formatPrice(shippingFee)} />}
               <SummaryRow label="Total Biaya" value={formatPrice(total)} />
               <div className="summary-total"><span>Total Tagihan</span><strong>{formatPrice(total)}</strong></div>
+              {submitError && (
+                <div className="pay-error" role="alert">
+                  <Icon name="alert-circle" size={16} />
+                  <span>{submitError}</span>
+                </div>
+              )}
               <button className="pay-btn" disabled={!canPay || isProcessing} onClick={handlePayment}>
                 {isProcessing ? "Memproses..." : "Lanjutkan ke Pembayaran"}
               </button>
@@ -731,6 +741,8 @@ function CheckoutStyles() {
       .summary-total { display:flex; justify-content:space-between; padding:16px 0; font-weight:800; }
       .summary-total strong { font-size:18px; }
       .reward-strip { background:#f4f6f8; border-radius:8px; padding:13px; font-size:13px; color:#4b5563; margin-bottom:16px; }
+      .pay-error { display:flex; gap:8px; align-items:flex-start; margin:0 0 12px; padding:10px 12px; border-radius:8px; background:#fdf0f2; border:1px solid #f5cdd3; color:#912018; font-size:13px; font-weight:600; line-height:1.45; }
+      .pay-error svg { flex-shrink:0; margin-top:1px; }
       .pay-btn { width:100%; height:46px; border:0; border-radius:8px; background:#111; color:#fff; font-weight:800; cursor:pointer; }
       .pay-btn:disabled:not(.loading) { background:#edf0f3; color:#a0a8b1; cursor:not-allowed; }
       .empty-checkout .center-card { display:grid; place-items:center; text-align:center; gap:10px; }
