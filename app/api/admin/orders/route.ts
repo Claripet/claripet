@@ -29,6 +29,19 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     qb = qb.eq("status", query.status);
   }
 
+  // Search: recipient name, resi, or the 8-character order number shown in the
+  // list (matched as a uuid range, since PostgREST cannot ilike a uuid).
+  // Characters that are PostgREST filter syntax are stripped first.
+  const q = (searchParams.get("q") ?? "").replace(/[,()%*\\"']/g, " ").trim().slice(0, 60);
+  if (q) {
+    const parts = [`tracking_number.ilike.*${q}*`, `shipping_address->>full_name.ilike.*${q}*`];
+    const hex = q.replace(/^#/, "").toLowerCase();
+    if (/^[0-9a-f]{8}$/.test(hex)) {
+      parts.push(`and(id.gte.${hex}-0000-0000-0000-000000000000,id.lte.${hex}-ffff-ffff-ffff-ffffffffffff)`);
+    }
+    qb = qb.or(parts.join(","));
+  }
+
   const from = (query.page - 1) * query.limit;
   const to = from + query.limit - 1;
   qb = qb.range(from, to);

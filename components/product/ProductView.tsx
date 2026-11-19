@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import type { Product, Review, Tone } from "@/lib/types";
-import { PRODUCTS } from "@/data/products";
 import { formatPrice } from "@/lib/format";
 import { priceForSize, hasPriceRange } from "@/lib/pricing";
 import { Icon } from "@/components/icons";
@@ -28,8 +27,11 @@ const FEATURE_ICONS = ["shield", "droplet", "clock", "pin"];
 export function ProductView({
   product,
   reviews = [],
+  related: relatedAll = [],
 }: {
   product: Product;
+  /** Up to four other live products, same category first. */
+  related?: Product[];
   /** Admin-published reviews linked to this product. */
   reviews?: Review[];
 }) {
@@ -133,12 +135,6 @@ export function ProductView({
   const hasPhotos = photos.length > 0;
   const thumbTones: Tone[] = [product.tone, "sky", "cream", "sage"];
 
-  const related = PRODUCTS.filter((p) => p.slug !== product.slug && p.category === product.category).slice(0, 4);
-  const fill =
-    related.length < 4
-      ? PRODUCTS.filter((p) => p.slug !== product.slug && !related.includes(p)).slice(0, 4 - related.length)
-      : [];
-  const relatedAll = [...related, ...fill];
 
   // Averaged over the real reviews, rounded to one decimal like the catalogue
   // rating it sits next to.
@@ -382,18 +378,20 @@ export function ProductView({
         </div>
       </div>
 
+      {relatedAll.length > 0 && (
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="wrap">
           <div className="sec-head">
-            <h2 className="h3">You might also like</h2>
+            <h2 className="h3">Produk lain yang mungkin kamu suka</h2>
           </div>
           <div className="prod-grid">
-            {related.map((p) => (
+            {relatedAll.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
           </div>
         </div>
       </section>
+      )}
 
       {/* Sticky Add to Cart bar — mobile only */}
       {mounted && createPortal(

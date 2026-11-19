@@ -24,19 +24,29 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("paid");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+
+  // Debounce typing so each keystroke is not a request.
+  useEffect(() => {
+    const t = setTimeout(() => setQuery(search.trim()), 350);
+    return () => clearTimeout(t);
+  }, [search]);
 
   useEffect(() => {
     setLoading(true);
     setSelected(new Set());
     const qs = new URLSearchParams({ limit: "100" });
+    // A search looks across every status; the status pills narrow it down.
     if (filter !== "all") qs.set("status", filter);
+    if (query) qs.set("q", query);
     fetch(`/api/admin/orders?${qs.toString()}`)
       .then((r) => r.json())
       .then((json) => {
         if (json.success) setOrders(json.data.orders);
       })
       .finally(() => setLoading(false));
-  }, [filter]);
+  }, [filter, query]);
 
   const toggle = (id: string) =>
     setSelected((prev) => {
@@ -59,6 +69,25 @@ export default function AdminOrdersPage() {
       <h1 className="h2" style={{ marginBottom: 28 }}>
         Orders
       </h1>
+
+      <input
+        type="search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Cari nama penerima, nomor resi, atau nomor pesanan (8 karakter)"
+        aria-label="Cari pesanan"
+        style={{
+          width: "100%",
+          maxWidth: 520,
+          boxSizing: "border-box",
+          padding: "11px 16px",
+          marginBottom: 16,
+          border: "1.5px solid var(--line)",
+          borderRadius: "var(--r-pill)",
+          font: "inherit",
+          fontSize: 14,
+        }}
+      />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {STATUS_FILTERS.map((s) => (
@@ -86,7 +115,9 @@ export default function AdminOrdersPage() {
         {loading ? (
           <p className="muted" style={{ padding: 32 }}>Loading...</p>
         ) : orders.length === 0 ? (
-          <p className="muted" style={{ padding: 32 }}>No orders</p>
+          <p className="muted" style={{ padding: 32 }}>
+            {query ? `Tidak ada pesanan yang cocok dengan "${query}" di status ini. Coba pilih "all".` : "No orders"}
+          </p>
         ) : (
           <div className="table-scroll"><table className="data-table">
             <thead>

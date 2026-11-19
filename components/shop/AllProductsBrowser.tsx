@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import type { Product, Category } from "@/lib/types";
 import { Icon } from "@/components/icons";
 import { ProductCard } from "@/components/ProductCard";
@@ -36,6 +36,34 @@ export function AllProductsBrowser({
     [products],
   );
   const [maxPrice, setMaxPrice] = useState<number>(priceCap);
+
+  // Filters live in the URL (?pet=&concern=&cat=&max=) so Back from a product
+  // keeps them and a filtered view can be shared. Restored once on mount;
+  // replaceState (not push) so every tick of the price slider is not a
+  // history entry.
+  const [urlReady, setUrlReady] = useState(false);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const list = (k: string) => (q.get(k) ?? "").split(",").filter(Boolean);
+    const max = Number(q.get("max"));
+    setPetTypes(list("pet"));
+    setConcerns(list("concern"));
+    setCollections(list("cat"));
+    if (Number.isFinite(max) && max > 0) setMaxPrice(Math.min(max, priceCap));
+    setUrlReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!urlReady) return;
+    const q = new URLSearchParams(window.location.search);
+    const put = (k: string, v: string) => (v ? q.set(k, v) : q.delete(k));
+    put("pet", petTypes.join(","));
+    put("concern", concerns.join(","));
+    put("cat", collections.join(","));
+    put("max", maxPrice < priceCap ? String(maxPrice) : "");
+    const qs = q.toString();
+    window.history.replaceState(null, "", window.location.pathname + (qs ? `?${qs}` : ""));
+  }, [urlReady, petTypes, concerns, collections, maxPrice, priceCap]);
 
   const petFacet = useMemo(() => tally(products, (p) => p.petType ?? []), [products]);
   const concernFacet = useMemo(() => tally(products, (p) => p.concern ?? []), [products]);

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PRODUCTS } from "@/data/products";
-import { getProductBySlug, getReviewsByProductSlug } from "@/lib/data";
+import { getAllProducts, getProductBySlug, getReviewsByProductSlug } from "@/lib/data";
 import { ProductView } from "@/components/product/ProductView";
 import { SITE_URL } from "@/lib/site";
 import { metaDescription, rollingPriceValidUntil, jsonLdScript } from "@/lib/seo";
@@ -60,11 +60,18 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [product, reviews] = await Promise.all([
+  const [product, reviews, catalogue] = await Promise.all([
     getProductBySlug(slug),
     getReviewsByProductSlug(slug),
+    getAllProducts(),
   ]);
   if (!product) notFound();
+
+  // From the live catalogue (archived products are already excluded), not the
+  // bundled seed list: same category first, then fill up with the rest.
+  const others = catalogue.filter((p) => p.slug !== product.slug && p.inStock !== false);
+  const sameCategory = others.filter((p) => p.category === product.category);
+  const related = [...sameCategory, ...others.filter((p) => !sameCategory.includes(p))].slice(0, 4);
 
   const productUrl = `${SITE_URL}/product/${product.slug}`;
   // Derived from real per-size stock where the DB supplies it. `inStock` is
@@ -176,7 +183,7 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbJsonLd) }}
       />
-      <ProductView product={product} reviews={reviews} />
+      <ProductView product={product} reviews={reviews} related={related} />
     </>
   );
 }

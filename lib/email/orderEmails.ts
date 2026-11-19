@@ -170,6 +170,45 @@ export function buildOrderEmail(kind: OrderEmailKind, order: OrderEmailData, cus
   return { subject, html, text };
 }
 
+/**
+ * Heads-up to the shop itself that an order was paid, so it does not depend on
+ * someone refreshing the dashboard. Goes to STORE_NOTIFY_EMAIL, falling back to
+ * the reply-to inbox. Best effort: a failure here never affects the customer.
+ */
+async function notifyStoreOfPaidOrder(
+  binding: SendEmailBinding,
+  order: OrderEmailData & { id: string },
+  customerName: string,
+): Promise<void> {
+  const to = (process.env.STORE_NOTIFY_EMAIL ?? "").trim() || ORDER_EMAIL_REPLY_TO;
+  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+  const link = `${base}/admin/orders/${order.id}`;
+  const no = shortOrderNo(order.id);
+  const lines = (order.items ?? []).map((it) => `- ${it.product_name} (${it.size_label}) x${it.qty}`);
+  const courier = [order.courier_code, order.courier_service].filter(Boolean).join(" ").toUpperCase();
+  const subject = `Pesanan baru dibayar #${no} - ${rupiah(order.total)}`;
+  const text = [
+    `Pesanan #${no} dari ${customerName} sudah dibayar (${rupiah(order.total)}).`,
+    "",
+    ...lines,
+    "",
+    `Kurir pilihan pembeli: ${courier || "-"}`,
+    `Proses di dashboard: ${link}`,
+  ].join("\n");
+  const html = `<!doctype html><html><body style="font-family:Arial,Helvetica,sans-serif;color:#2b2b2b">
+  <h2 style="margin:0 0 12px">Pesanan baru dibayar #${escapeHtml(no)}</h2>
+  <p style="margin:0 0 12px"><b>${escapeHtml(customerName)}</b> membayar <b>${rupiah(order.total)}</b>.</p>
+  <ul style="padding-left:18px;margin:0 0 12px">${lines.map((l) => `<li>${escapeHtml(l.slice(2))}</li>`).join("")}</ul>
+  <p style="margin:0 0 16px">Kurir pilihan pembeli: <b>${escapeHtml(courier || "-")}</b></p>
+  <p><a href="${escapeHtml(link)}" style="background:#2b2b2b;color:#fff;text-decoration:none;padding:10px 18px;border-radius:999px">Buka pesanan</a></p>
+</body></html>`;
+  try {
+    await binding.send({ to, from: ORDER_EMAIL_FROM, replyTo: ORDER_EMAIL_REPLY_TO, subject, html, text });
+  } catch (err) {
+    console.error(`[order-email] store notification failed for ${order.id}`, err);
+  }
+}
+
 function getEmailBinding(): SendEmailBinding | null {
   try {
     const env = getCloudflareContext().env as unknown as { EMAIL?: SendEmailBinding };
@@ -234,6 +273,12 @@ async function sendOrderEmailNow(orderId: string, kind: OrderEmailKind): Promise
   } catch (err) {
     console.error(`[order-email] send failed for ${orderId} (${kind})`, err);
     await supabase.from("orders").update({ [claimColumn]: null }).eq("id", orderId);
+    return;
+  }
+
+  // The claim above makes this run once per order, together with the customer email.
+  if (kind === "paid") {
+    await notifyStoreOfPaidOrder(binding, claimed as unknown as OrderEmailData & { id: string }, customerName);
   }
 }
 
