@@ -178,6 +178,7 @@ function ShippingLabel({ order }: { order: any }) {
         <div className="tag">Pengirim</div>
         <div><strong>{STORE_SENDER.name}</strong> · {STORE_SENDER.phone}</div>
         <div>{STORE_SENDER.address ? `${STORE_SENDER.address}, ` : ""}{STORE_SENDER.city}</div>
+        {STORE_SENDER.landmark && <div>Patokan: {STORE_SENDER.landmark}</div>}
       </div>
 
       <div>
